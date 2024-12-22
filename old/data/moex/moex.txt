@@ -1,0 +1,5 @@
+https://github.com/WISEPLAT/backtrader_moexalgo - moex+finam
+https://github.com/moexalgo/moexalgo - connector to moex data 5min from 2020 year. Extended. But really for Sber 1min from 2011  year (https://smart-lab.ru/mobile/topic/978395/)
+
+https://school.moex.com/courses курсы на мобирже
+

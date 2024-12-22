@@ -6,6 +6,6 @@ venv
 .ipynb_checkpoints
 poetry.lock
 
-data
+/data
 
 
