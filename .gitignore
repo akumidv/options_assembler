@@ -1,0 +1,11 @@
+.git
+.idea
+venv
+
+.pytest_cache
+.ipynb_checkpoints
+poetry.lock
+
+data
+
+
