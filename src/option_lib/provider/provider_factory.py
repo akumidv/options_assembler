@@ -33,7 +33,7 @@ _PROVIDERS: Dict[DataSource, Dict[DataEngine, Type[AbstractProvider]]] = {
 }
 
 
-def get_provider(exchange_code,
-                 storage: DataSource = DataSource.LOCAL, engine: DataEngine = DataEngine.PANDAS, **kwargs) -> AbstractProvider:
+def get_provider(exchange_code, storage: DataSource = DataSource.LOCAL,
+                 engine: DataEngine = DataEngine.PANDAS, **kwargs) -> AbstractProvider:
     """Fabric"""
     return _PROVIDERS[storage][engine](exchange_code=exchange_code, **kwargs)

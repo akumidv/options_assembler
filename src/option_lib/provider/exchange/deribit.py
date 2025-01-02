@@ -15,7 +15,7 @@ class DeribitExchange(AbstractExchange):
         """"""
         super().__init__(ExchangeCode.DERIBIT.value)
 
-    def load_option(self, symbol: str, params: RequestParameters | None = None) -> pd.DataFrame:
+    def load_option_history(self, symbol: str, params: RequestParameters | None = None) -> pd.DataFrame:
         if params is None:
             params = RequestParameters()
         elif params.columns is None:
@@ -23,7 +23,7 @@ class DeribitExchange(AbstractExchange):
         raise NotImplemented
 
 
-    def load_future(self, symbol: str, params: RequestParameters | None = None) -> pd.DataFrame:
+    def load_future_history(self, symbol: str, params: RequestParameters | None = None) -> pd.DataFrame:
         if params is None:
             params = RequestParameters()
         elif params.columns is None:

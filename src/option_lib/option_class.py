@@ -4,9 +4,10 @@ import datetime
 import pandas as pd
 
 from option_lib.entities import TimeframeCode
+from option_lib.entities import OptionData
 from option_lib.provider import AbstractProvider, RequestParameters
 from option_lib.enrichment import OptionEnrichment
-from option_lib.option_data_class import OptionData
+from option_lib.chain import OptionChain
 
 
 class Option:

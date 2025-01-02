@@ -26,4 +26,3 @@ class RequestParameters(BaseModel):
     period_from: int | datetime.date | datetime.datetime | None = None
     period_to: int | datetime.date | datetime.datetime | None = None
     timeframe: TimeframeCode = TimeframeCode.EOD
-    columns: list | None = None

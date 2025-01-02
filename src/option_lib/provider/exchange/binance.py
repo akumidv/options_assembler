@@ -15,16 +15,10 @@ class BinanceExchange(AbstractExchange):
         """"""
         super().__init__(ExchangeCode.BINANCE.value)
 
-    def load_option(self, symbol: str, params: RequestParameters | None = None) -> pd.DataFrame:
-        if params is None:
-            params = RequestParameters()
-        elif params.columns is None:
-            params.columns = self.option_columns
-        raise NotImplemented
+    def load_option_history(self, symbol: str, params: RequestParameters | None = None,
+                            columns: list | None = None) -> pd.DataFrame:
+        """load options history"""
 
-    def load_future(self, symbol: str, params: RequestParameters | None = None) -> pd.DataFrame:
-        if params is None:
-            params = RequestParameters()
-        elif params.columns is None:
-            params.columns = self.future_columns
-        raise NotImplemented
+    def load_future_history(self, symbol: str, params: RequestParameters | None = None,
+                            columns: list | None = None) -> pd.DataFrame:
+        """load futures history"""
