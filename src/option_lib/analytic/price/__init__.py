@@ -7,3 +7,5 @@ from option_lib.analytic.price.time_values import (
     time_value_series_for_strike,
     time_value_chain_for_strike
 )
+
+from option_lib.analytic.price.price_class import OptionAnalyticPrice

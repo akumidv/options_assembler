@@ -8,7 +8,6 @@ from option_lib.analytic.price.time_values import (
 )
 
 
-
 class OptionAnalyticPrice:
     """
     Wrapper about price analytics modules functions
