@@ -29,7 +29,7 @@ env_files = [
 ]
 
 [tool.pylint.MASTER]
-init-hook='import sys; sys.path.append("./src")'
+init-hook='import sys; sys.path.append("./src"); sys.path.append("./tests")'
 no-docstring-rgx='^_|^test_' # _private and test_ fucntions
 
 

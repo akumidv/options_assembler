@@ -1,3 +1,4 @@
+"""Option types"""
 import enum
 from option_lib.entities.enum_code import EnumCode
 
@@ -12,7 +13,8 @@ class OptionType(EnumCode):
 
 
 @enum.unique
-class OptionMoneyStatus(EnumCode):
+class OptionPriceStatus(EnumCode):
+    """Option in at or out money status"""
     ATM = 'ATM', 'atm'
     ITM = 'ITM', 'itm'
     OTM = 'OTM', 'otm'

@@ -1,10 +1,11 @@
-import enum
+"""Fabric to choose exchange by it name"""
+
 from typing import Dict, Type
-from option_lib.provider import DataEngine
-from option_lib.provider.exchange import AbstractExchange
+from option_lib.provider._provider_entities import DataEngine
+from option_lib.provider.exchange._abstract_exchange import AbstractExchange
+from option_lib.provider.exchange.exchange_entities import ExchangeCode
 from option_lib.provider.exchange.binance import BinanceExchange
 from option_lib.provider.exchange.deribit import DeribitExchange
-from option_lib.provider.exchange.exchange_entities import ExchangeCode
 
 
 _EXCHANGES: Dict[ExchangeCode, Type[AbstractExchange]] = {

@@ -1,7 +1,5 @@
+"""Timeframe values"""
 import enum
-import datetime
-from pydantic.dataclasses import dataclass
-from pydantic import BaseModel, PositiveInt
 
 
 @enum.unique

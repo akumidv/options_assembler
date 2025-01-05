@@ -4,10 +4,12 @@ import datetime
 import pandas as pd
 
 from option_lib.entities import TimeframeCode
-from option_lib.entities import OptionData
+
 from option_lib.provider import AbstractProvider, RequestParameters
+from option_lib.option_data_class import OptionData
 from option_lib.enrichment import OptionEnrichment
 from option_lib.chain import OptionChain
+from option_lib.analytic import OptionAnalytic
 
 
 class Option:
@@ -18,6 +20,8 @@ class Option:
                  option_columns: list | None = None, future_columns: list | None = None):
         self._data = OptionData(provider, option_symbol, params, option_columns, future_columns)
         self.enrichment: OptionEnrichment = OptionEnrichment(self._data)
+        self.chain: OptionChain = OptionChain(self._data)
+        self.analytic: OptionAnalytic = OptionAnalytic(self._data)
 
     @property
     def option_symbol(self) -> str:
@@ -40,17 +44,21 @@ class Option:
         return self._data.timeframe
 
     @property
-    def df_opt(self):
-        return self._data.df_opt
+    def df_hist(self):
+        """Option dataframe getter"""
+        return self._data.df_hist
 
-    @df_opt.setter
-    def df_opt(self, df: pd.DataFrame):
-        self._data.df_opt = df
+    @df_hist.setter
+    def df_hist(self, df: pd.DataFrame):
+        """Option dataframe setter"""
+        self._data.df_hist = df
 
     @property
     def df_fut(self) -> pd.DataFrame:
+        """Future dataframe getter"""
         return self._data.df_fut
 
     @df_fut.setter
     def df_fut(self, df: pd.DataFrame):
+        """Future dataframe setter"""
         self._data.df_fut = df

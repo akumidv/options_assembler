@@ -12,9 +12,9 @@ import builtins
 import datetime
 import pandas as pd
 from pydantic import validate_call
-from option_lib.provider import AbstractProvider
-from option_lib.entities import TimeframeCode, InstrumentType
-from option_lib.provider import RequestParameters
+from option_lib.entities import TimeframeCode, AssetType
+from option_lib.provider._abstract_provider_class import AbstractProvider
+from option_lib.provider._provider_entities import RequestParameters
 
 
 class PandasLocalFileProvider(AbstractProvider):
@@ -27,52 +27,46 @@ class PandasLocalFileProvider(AbstractProvider):
         self.exchange_data_path = exchange_data_path
         super().__init__(exchange_code=exchange_code)
 
-    def _fn_path_prepare(self, symbol: str, instrument_type: InstrumentType, timeframe: TimeframeCode, year: int):
-        return f'{self.exchange_data_path}/{symbol}/{instrument_type.value}/{timeframe.value}/{year}.parquet'
+    def _fn_path_prepare(self, symbol: str, asset_type: AssetType, timeframe: TimeframeCode, year: int):
+        return f'{self.exchange_data_path}/{symbol}/{asset_type.value}/{timeframe.value}/{year}.parquet'
 
-    def _load_data_for_period(self, instrument_type: InstrumentType, symbol: str,
+    def _load_data_for_period(self, asset_type: AssetType, symbol: str,
                               params: RequestParameters, columns: list) -> pd.DataFrame:
         if params.period_from is None:
             match type(params.period_to):
                 case None:
-                    """Load all data"""
-                    raise NotImplemented
+                    raise NotImplementedError('Load all data')
                 case builtins.int:
-                    fn_path = self._fn_path_prepare(symbol, instrument_type, params.timeframe, params.period_to)
+                    fn_path = self._fn_path_prepare(symbol, asset_type, params.timeframe, params.period_to)
                     return pd.read_parquet(fn_path, columns=columns)
                 case datetime.date:
-                    fn_path = self._fn_path_prepare(symbol, instrument_type, params.timeframe, params.period_to.year)
-                    df_opt = pd.read_parquet(fn_path, columns=columns)
-                    return df_opt[df_opt['datetime'] == params.period_to].reset_index(True)
+                    fn_path = self._fn_path_prepare(symbol, asset_type, params.timeframe, params.period_to.year)
+                    df_hist = pd.read_parquet(fn_path, columns=columns)
+                    return df_hist[df_hist['datetime'] == params.period_to].reset_index(True)
                 case datetime.datetime:
-                    raise NotImplemented
+                    raise NotImplementedError('to period type datetime.datetime')
                 case _:
                     raise TypeError(f'period_to have incorrect type {type(params.period_to)}')
         else:
             match type(params.period_from):
                 case builtins.int:
                     if params.period_to is None:
-                        """load from period_from to last year"""
-                        raise NotImplemented
-                    elif isinstance(params.period_to, int):
-                        """Load from year to year"""
-                        raise NotImplemented
-                    else:
-                        raise TypeError(f'Mismatch types period_from {type(params.period_from)} '
-                                        f'and period_to {type(params.period_to)}')
+                        raise NotImplementedError('load from period_from to last year')
+                    if isinstance(params.period_to, int):
+                        raise NotImplementedError('Load from year to year')
+                    raise TypeError(f'Mismatch types period_from {type(params.period_from)} '
+                                    f'and period_to {type(params.period_to)}')
                 case datetime.date:
                     if params.period_to is None:
-                        """load from period_from to last year"""
-                        raise NotImplemented
-                    elif isinstance(params.period_to, datetime.date):
-                        """Load from date to date"""
-                        raise NotImplemented
-                    else:
-                        raise TypeError(f'period_to have incorrect type {type(params.period_to)}')
+                        raise NotImplementedError('load from period_from to last year')
+                    if isinstance(params.period_to, datetime.date):
+                        raise NotImplementedError('Load from date to date')
+                    raise TypeError(f'Mismatch types period_from {type(params.period_from)} '
+                                    f'and period_to {type(params.period_to)}')
                 case datetime.datetime:
-                    raise NotImplemented
+                    raise NotImplementedError('period from datatime')
                 case _:
-                    raise TypeError(f'period_to have incorrect type {type(params.period_to)}')
+                    raise TypeError(f'period_from have incorrect type {type(params.period_to)}')
 
     @validate_call
     def load_option_history(self, symbol: str, params: RequestParameters | None = None,
@@ -82,9 +76,9 @@ class PandasLocalFileProvider(AbstractProvider):
             params = RequestParameters()
         if columns is None:
             columns = self.option_columns
-        df_opt = self._load_data_for_period(instrument_type=InstrumentType.OPTION, symbol=symbol,
-                                            params=params, columns=columns)
-        return df_opt
+        df_hist = self._load_data_for_period(asset_type=AssetType.OPTION, symbol=symbol,
+                                             params=params, columns=columns)
+        return df_hist
 
     @validate_call
     def load_future_history(self, symbol: str, params: RequestParameters | None = None,
@@ -93,6 +87,12 @@ class PandasLocalFileProvider(AbstractProvider):
             params = RequestParameters()
         if columns is None:
             columns = self.future_columns
-        df_fut = self._load_data_for_period(instrument_type=InstrumentType.FUTURE, symbol=symbol,
+        df_fut = self._load_data_for_period(asset_type=AssetType.FUTURE, symbol=symbol,
                                             params=params, columns=columns)
         return df_fut
+
+    @validate_call
+    def load_option_chain(self, settlement_date: datetime.datetime | None = None,
+                          expiration_date: datetime.datetime | None = None) -> pd.DataFrame | None:
+        """Providing option chain by local file system is not supported return None"""
+        return None

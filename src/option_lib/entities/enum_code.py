@@ -22,11 +22,11 @@ class EnumCode(str, enum.Enum):
 class EnumColumnType(str, enum.Enum):
     """Add code and type to enum"""
 
-    def __new__(cls, value: str, column: str | None = None, pd_type: Type | None = None):
+    def __new__(cls, value: str, pd_type: Type | None = None):
         obj = str.__new__(cls, [value])
         obj._value_ = value
         obj.type = pd_type
-        obj.col = column
+        obj.nm = value
         return obj
 
     def __str__(self):
