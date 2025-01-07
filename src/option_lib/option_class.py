@@ -10,6 +10,7 @@ from option_lib.option_data_class import OptionData
 from option_lib.enrichment import OptionEnrichment
 from option_lib.chain import OptionChain
 from option_lib.analytic import OptionAnalytic
+from option_lib.chart import ChartClass
 
 
 class Option:
@@ -22,6 +23,7 @@ class Option:
         self.enrichment: OptionEnrichment = OptionEnrichment(self._data)
         self.chain: OptionChain = OptionChain(self._data)
         self.analytic: OptionAnalytic = OptionAnalytic(self._data)
+        self.chart: ChartClass = ChartClass(self._data)
 
     @property
     def option_symbol(self) -> str:

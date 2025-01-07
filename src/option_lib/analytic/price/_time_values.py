@@ -3,8 +3,7 @@ import datetime
 
 import pandas as pd
 
-from option_lib.entities import OptionColumns as OCl, OptionType, LegType, OptionLeg
-from option_lib.analytic.price._price_entities import PriceColumns as PCl
+from option_lib.entities import OptionColumns as OCl, OptionType
 from option_lib.chain import get_chain_atm_strike, select_chain
 from option_lib.enrichment import add_intrinsic_and_time_value
 
@@ -23,7 +22,7 @@ def _get_nearest_to_distance_strike(df_chain: pd.DataFrame, distance: float) -> 
     return df_chain.loc[df_chain['_distance'] == df_chain['_distance'].min()]
 
 
-def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float = 0,
+def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float | None = None,
                                       expiration_date: datetime.date | None = None,
                                       option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
     """
@@ -31,6 +30,8 @@ def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float = 0,
     distance - 0 will be used ATM Strike
     strike value - nearest with distance between strike and atm_strike
     """
+    if distance is None:
+        distance = 0
     if expiration_date is None:
         expiration_date = df_opt_fut_hist[df_opt_fut_hist[OCl.DATETIME.nm]==df_opt_fut_hist[OCl.DATETIME.nm].max()][
             OCl.EXPIRATION_DATE.nm].min()
@@ -83,8 +84,3 @@ def time_value_series_for_strike(df_opt_fut_hist, strike: float | None = None,
     df_time_value_series = time_value_series_by_atm_distance(df_opt_fut_hist, distance, expiration_date, option_type)
     return df_time_value_series
 
-
-def time_value_chain_for_strike(df_opt_fut_hist, strike: float | None = None,
-                                                expiration_date: datetime.date | None = None,
-                                                option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
-    raise NotImplementedError

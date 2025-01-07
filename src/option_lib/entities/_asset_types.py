@@ -11,4 +11,3 @@ class AssetType(EnumCode):
     OPTION = 'option', 'o'
     FUTURE = 'future', "f"
     STOCK = 'stock', "s"
-

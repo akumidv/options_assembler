@@ -42,7 +42,8 @@ def add_atm_itm_otm_exp(df_hist):
 
     Alternative:
      - 1. Idea to improve change call to 1 and put to -1 and multiple on _diff
-     - 2. calc based on intrisict values. If less 0 - OTM, If greater ITM. Question in atm detection - minimal abs intrisict?.
+     - 2. calc based on intrinsic values. If less 0 - OTM, If greater ITM. Question in atm
+       detection - minimal abs intrinsic?.
     """
 
     df_hist.loc[:, '_diff'] = df_hist[OCl.FUTURES_PRICE.nm] - df_hist[OCl.STRIKE.nm]

@@ -9,7 +9,7 @@ from option_lib.provider import PandasLocalFileProvider, RequestParameters
 from option_lib.enrichment._option_with_future import join_option_with_future
 from option_lib.chain.chain_selector import select_chain
 from option_lib.chain.price_status import get_chain_atm_strike
-from option_lib.entities import LegType, OptionLeg
+from option_lib.entities import LegType, OptionLeg, AssetType, TimeframeCode
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
 
@@ -45,8 +45,17 @@ def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvid
 
 
 @pytest.fixture(name='provider_params')
-def fixture_provider_params():
+def fixture_provider_params(exchange_provider, option_symbol):
     cur_dt = datetime.date.today()
+    fn_path = exchange_provider._fn_path_prepare(option_symbol, AssetType.OPTION, TimeframeCode.EOD, cur_dt.year)
+    if not os.path.exists(fn_path):
+        list_of_files = sorted(os.listdir(os.path.dirname(fn_path)))
+        if len(list_of_files) == 0:
+            raise FileNotFoundError(f'There is no data for {option_symbol}')
+        last_year_fn = list_of_files[-1]
+        if not last_year_fn.endswith('parquet'):
+            raise FileNotFoundError(f'There is no data for {option_symbol}')
+        cur_dt = datetime.date.fromisoformat(f'{last_year_fn.replace(".parquet", "")}-01-01')
     params = RequestParameters(period_from=None, period_to=cur_dt.year,
                                timeframe=TimeframeCode.EOD)
     return params

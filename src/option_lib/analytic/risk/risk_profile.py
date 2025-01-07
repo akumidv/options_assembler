@@ -2,7 +2,7 @@
 import pandas as pd
 
 from option_lib.entities import OptionColumns as OCl, OptionType, LegType, OptionLeg
-from option_lib.analytic.risk import RiskColumns as RCl
+from option_lib.analytic.risk._risk_entities import RiskColumns as RCl
 
 
 def _get_premium(df_chain_type_opt: pd.DataFrame, strike: float) -> float:
