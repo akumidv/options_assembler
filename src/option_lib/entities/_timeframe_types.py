@@ -6,3 +6,6 @@ import enum
 class TimeframeCode(enum.Enum):
     """Types fo period"""
     EOD = 'EOD'
+    MINUTE_1 = '1m'
+    MINUTE_5 = '5m'
+    HOUR_1 = '1h'

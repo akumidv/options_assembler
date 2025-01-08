@@ -24,6 +24,6 @@ class BinanceExchange(AbstractExchange):
                             columns: list | None = None) -> pd.DataFrame:
         """load futures history"""
 
-    def load_option_chain(self, settlement_date: datetime.datetime | None = None,
+    def load_option_chain(self, settlement_datetime: datetime.datetime | None = None,
                           expiration_date: datetime.datetime | None = None) -> pd.DataFrame | None:
         """Providing option chain by local file system is not supported return None"""

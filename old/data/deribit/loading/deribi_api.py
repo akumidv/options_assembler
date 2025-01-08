@@ -13,7 +13,6 @@ pd.set_option('display.width', 150)
 pd.set_option('display.max_rows', 200)
 
 
-
 class Deribit:
     ws = None
     API_URL = 'wss://www.deribit.com/ws/api/v2'
@@ -42,7 +41,7 @@ class Deribit:
                 time.sleep(cur_time + 1 - time.time())
                 self.request_count = 0
         self.request_count += 1
-    
+
     def _call_ws_api(self, method: str, params: dict = {}):
         self._wait_for_api_limit()
         request_id = random.randint(0, 10000)
@@ -51,7 +50,7 @@ class Deribit:
         json_par = json.loads(resp)
         return json_par
 
-    
+
     def _call_ws_api_list(self, method: str, list_params: list):
         results = []
         params_ids = {}

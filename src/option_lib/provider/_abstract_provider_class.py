@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 import datetime
 import pandas as pd
 
-from option_lib.entities import ProviderOptionColumns, ProviderFuturesColumns
+from option_lib.entities import ProviderOptionColumns, ProviderFuturesColumns, TimeframeCode, AssetType
 from option_lib.provider._provider_entities import RequestParameters
 
 
@@ -24,14 +24,30 @@ class AbstractProvider(ABC):
         super().__init__(**kwargs)
 
     @abstractmethod
+    def get_symbols_list(self, asset_type: AssetType) -> list[str]:
+        """List of symbols"""
+
+    @abstractmethod
     def load_option_history(self, symbol: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
         """Provide option by period, timeframe"""
+
+    @abstractmethod
+    def load_option_book(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+                         timeframe: TimeframeCode = TimeframeCode.EOD,  columns: list | None = None) -> pd.DataFrame:
+        """Provide option for datetime, timeframe"""
 
     @abstractmethod
     def load_future_history(self, symbol: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
         """Provide future by period, timeframe"""
 
     @abstractmethod
-    def load_option_chain(self, settlement_date: datetime.datetime | None = None,
-                            expiration_date: datetime.datetime | None = None) -> pd.DataFrame | None:
+    def load_future_book(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+                         timeframe: TimeframeCode = TimeframeCode.EOD, columns: list | None = None) -> pd.DataFrame:
+        """Provide future for datetime, timeframe"""
+
+    @abstractmethod
+    def load_option_chain(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+                          expiration_date: datetime.datetime | None = None,
+                          timeframe: TimeframeCode = TimeframeCode.EOD,
+                          columns: list | None = None) -> pd.DataFrame | None:
         """Provide option chain by request to api if supported. Otherwise, return None"""

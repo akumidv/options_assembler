@@ -13,22 +13,23 @@ import datetime
 import pandas as pd
 from pydantic import validate_call
 from option_lib.entities import TimeframeCode, AssetType
-from option_lib.provider._abstract_provider_class import AbstractProvider
+from option_lib.provider._file_provider import FileProvider
 from option_lib.provider._provider_entities import RequestParameters
 
 
-class PandasLocalFileProvider(AbstractProvider):
-    """Load data from files"""
+class PandasLocalFileProvider(FileProvider):
+    """Load data from files by Pandas"""
 
     def __init__(self, exchange_code: str, data_path: str):
         exchange_data_path = os.path.normpath(os.path.abspath(os.path.join(data_path, exchange_code)))
         if not os.path.isdir(exchange_data_path):
             raise FileNotFoundError(f'Folder {exchange_data_path} is not exist')
         self.exchange_data_path = exchange_data_path
-        super().__init__(exchange_code=exchange_code)
+        super().__init__(exchange_code=exchange_code, data_path=data_path)
+
 
     def _fn_path_prepare(self, symbol: str, asset_type: AssetType, timeframe: TimeframeCode, year: int):
-        return f'{self.exchange_data_path}/{symbol}/{asset_type.value}/{timeframe.value}/{year}.parquet'
+        return super().fn_path_prepare(symbol, asset_type, timeframe, year)
 
     def _load_data_for_period(self, asset_type: AssetType, symbol: str,
                               params: RequestParameters, columns: list) -> pd.DataFrame:
@@ -90,9 +91,3 @@ class PandasLocalFileProvider(AbstractProvider):
         df_fut = self._load_data_for_period(asset_type=AssetType.FUTURE, symbol=symbol,
                                             params=params, columns=columns)
         return df_fut
-
-    @validate_call
-    def load_option_chain(self, settlement_date: datetime.datetime | None = None,
-                          expiration_date: datetime.datetime | None = None) -> pd.DataFrame | None:
-        """Providing option chain by local file system is not supported return None"""
-        return None

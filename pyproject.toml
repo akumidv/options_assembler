@@ -12,6 +12,8 @@ pydantic = "^2.10.3"
 chart-studio = "^1.1.0"
 jupyter = "^1.1.1"
 pyarrow = "^18.1.0"
+apscheduler = "^3.11.0"
+httpx = "^0.28.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.3.4"
@@ -32,7 +34,9 @@ env_files = [
 init-hook='import sys; sys.path.append("./src"); sys.path.append("./tests")'
 no-docstring-rgx='^_|^test_' # _private and test_ fucntions
 
+[tool.pylint.DESIGN]
+max-positional-arguments=6
+max-args = 8
 
 [tool.pylint.FORMAT]
 max-line-length=120
-

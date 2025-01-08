@@ -78,7 +78,7 @@ class OptionData:
     def update_option_chain(self, settlement_date: datetime.datetime | None = None,
                             expiration_date: datetime.datetime | None = None) -> bool:
         """Update option chain by api request if it supported by provider"""
-        df_chain = self._provider.load_option_chain(settlement_date, expiration_date)
+        df_chain = self._provider.load_option_chain(self.option_symbol, settlement_date, expiration_date)
         if df_chain is None:
             return False
         self._df_chain = df_chain
