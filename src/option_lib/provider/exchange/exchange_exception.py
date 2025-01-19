@@ -1,7 +1,9 @@
+"""Exchange class exceptions"""
 import json
 
 
 class APIException(Exception):
+    """Exchange API exception"""
 
     def __init__(self, response, status_code, text):
         self.code = 0
@@ -21,6 +23,7 @@ class APIException(Exception):
 
 
 class RequestException(Exception):
+    """RequestException"""
     def __init__(self, message):
         self.message = message
 
@@ -30,6 +33,7 @@ class RequestException(Exception):
 
 
 class NotImplementedException(NotImplementedError):
+    """Method not implemented Error"""
     def __init__(self, value):
         message = f'Not implemented: {value}'
         super().__init__(message)

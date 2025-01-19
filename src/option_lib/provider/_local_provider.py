@@ -12,7 +12,7 @@ import builtins
 import datetime
 import pandas as pd
 from pydantic import validate_call
-from option_lib.entities import TimeframeCode, AssetType
+from option_lib.entities import Timeframe, AssetKind
 from option_lib.provider._file_provider import FileProvider
 from option_lib.provider._provider_entities import RequestParameters
 
@@ -28,20 +28,20 @@ class PandasLocalFileProvider(FileProvider):
         super().__init__(exchange_code=exchange_code, data_path=data_path)
 
 
-    def _fn_path_prepare(self, symbol: str, asset_type: AssetType, timeframe: TimeframeCode, year: int):
-        return super().fn_path_prepare(symbol, asset_type, timeframe, year)
+    def _fn_path_prepare(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe, year: int):
+        return super().fn_path_prepare(symbol, asset_kind, timeframe, year)
 
-    def _load_data_for_period(self, asset_type: AssetType, symbol: str,
+    def _load_data_for_period(self, asset_kind: AssetKind, symbol: str,
                               params: RequestParameters, columns: list) -> pd.DataFrame:
         if params.period_from is None:
             match type(params.period_to):
                 case None:
                     raise NotImplementedError('Load all data')
                 case builtins.int:
-                    fn_path = self._fn_path_prepare(symbol, asset_type, params.timeframe, params.period_to)
+                    fn_path = self._fn_path_prepare(symbol, asset_kind, params.timeframe, params.period_to)
                     return pd.read_parquet(fn_path, columns=columns)
                 case datetime.date:
-                    fn_path = self._fn_path_prepare(symbol, asset_type, params.timeframe, params.period_to.year)
+                    fn_path = self._fn_path_prepare(symbol, asset_kind, params.timeframe, params.period_to.year)
                     df_hist = pd.read_parquet(fn_path, columns=columns)
                     return df_hist[df_hist['datetime'] == params.period_to].reset_index(True)
                 case datetime.datetime:
@@ -77,7 +77,7 @@ class PandasLocalFileProvider(FileProvider):
             params = RequestParameters()
         if columns is None:
             columns = self.option_columns
-        df_hist = self._load_data_for_period(asset_type=AssetType.OPTION, symbol=symbol,
+        df_hist = self._load_data_for_period(asset_kind=AssetKind.OPTION, symbol=symbol,
                                              params=params, columns=columns)
         return df_hist
 
@@ -88,6 +88,6 @@ class PandasLocalFileProvider(FileProvider):
             params = RequestParameters()
         if columns is None:
             columns = self.future_columns
-        df_fut = self._load_data_for_period(asset_type=AssetType.FUTURE, symbol=symbol,
+        df_fut = self._load_data_for_period(asset_kind=AssetKind.FUTURE, symbol=symbol,
                                             params=params, columns=columns)
         return df_fut

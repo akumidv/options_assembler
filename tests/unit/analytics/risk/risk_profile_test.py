@@ -7,8 +7,8 @@ from option_lib.analytic.risk import RiskColumns as RCl
 mock_df_brn_chain = pd.DataFrame({
     f'{OCl.TYPE.nm}': [OptionType.CALL.code] * 7 + [OptionType.PUT.code] * 7,
     f'{OCl.STRIKE.nm}': [100, 200, 300, 400, 500, 600, 700] + [100, 200, 300, 400, 500, 600, 700],
-    f'{OCl.PREMIUM.nm}': [7, 8, 9, 35, 119, 218, 317] + [303, 204, 105, 10, 6, 5, 4],
-    f'{OCl.FUTURES_PRICE.nm}': [385] * 14
+    f'{OCl.PRICE.nm}': [7, 8, 9, 35, 119, 218, 317] + [303, 204, 105, 10, 6, 5, 4],
+    f'{OCl.UNDERLYING_PRICE.nm}': [385] * 14
 })
 
 mock_call_leg = OptionLeg(strike=300, lots=1, type=LegType.OPTION_CALL)
@@ -18,7 +18,7 @@ mock_fut_leg = OptionLeg(strike=0, lots=10, type=LegType.FUTURE)
 
 def test_mock__get_premium():
     premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.TYPE.nm] == OptionType.CALL.code], strike=400)
-    assert premium == mock_df_brn_chain.iloc[3][OCl.PREMIUM.nm]
+    assert premium == mock_df_brn_chain.iloc[3][OCl.PRICE.nm]
 
 
 def test_mock__chain_leg_pnl_risk_profile_call_itm():
@@ -26,7 +26,7 @@ def test_mock__chain_leg_pnl_risk_profile_call_itm():
     df_risk_prof = _chain_leg_risk_profile(mock_df_brn_chain, leg)
     premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code],
                            strike=leg.strike) * leg.lots * -1
-    fut_price = mock_df_brn_chain.iloc[0][OCl.FUTURES_PRICE.nm]
+    fut_price = mock_df_brn_chain.iloc[0][OCl.UNDERLYING_PRICE.nm]
     df_risk_prof_less_fut_price = df_risk_prof[df_risk_prof[OCl.STRIKE.nm] <= fut_price]
     assert df_risk_prof_less_fut_price[df_risk_prof_less_fut_price[RCl.RISK_PNL.nm] != premium].empty
     df_risk_prof_greater_fut_price = df_risk_prof[df_risk_prof[OCl.STRIKE.nm] > fut_price]
@@ -36,7 +36,7 @@ def test_mock__chain_leg_pnl_risk_profile_call_itm():
     row_buy = mock_df_brn_chain[(mock_df_brn_chain[OCl.STRIKE.nm] == leg.strike) &
                             (mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code)].iloc[0]
     expected_profit_call = max(premium,
-                               (strike_sell - row_buy[OCl.FUTURES_PRICE.nm] - row_buy[OCl.PREMIUM.nm]) * leg.lots)
+                               (strike_sell - row_buy[OCl.UNDERLYING_PRICE.nm] - row_buy[OCl.PRICE.nm]) * leg.lots)
     assert df_risk_prof[df_risk_prof[OCl.STRIKE.nm] == strike_sell].iloc[0][RCl.RISK_PNL.nm] == expected_profit_call
 
 
@@ -46,7 +46,7 @@ def test_mock__chain_leg_pnl_risk_profile_put_itm():
 
     premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code],
                            strike=leg.strike) * leg.lots * -1
-    fut_price = mock_df_brn_chain.iloc[0][OCl.FUTURES_PRICE.nm]
+    fut_price = mock_df_brn_chain.iloc[0][OCl.UNDERLYING_PRICE.nm]
     df_risk_prof_greater_fut_price = df_risk_prof[df_risk_prof[OCl.STRIKE.nm] >= fut_price]
     assert df_risk_prof_greater_fut_price[df_risk_prof_greater_fut_price[RCl.RISK_PNL.nm] != premium].empty
     df_risk_prof_less_fut_price = df_risk_prof[df_risk_prof[OCl.STRIKE.nm] < fut_price]
@@ -56,7 +56,7 @@ def test_mock__chain_leg_pnl_risk_profile_put_itm():
     row_buy = mock_df_brn_chain[(mock_df_brn_chain[OCl.STRIKE.nm] == leg.strike) &
                             (mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code)].iloc[0]
     expected_profit_put = max(premium,
-                              (row_buy[OCl.FUTURES_PRICE.nm] - strike_sell - row_buy[OCl.PREMIUM.nm]) * leg.lots)
+                              (row_buy[OCl.UNDERLYING_PRICE.nm] - strike_sell - row_buy[OCl.PRICE.nm]) * leg.lots)
     assert df_risk_prof[df_risk_prof[OCl.STRIKE.nm] == strike_sell].iloc[0][RCl.RISK_PNL.nm] == expected_profit_put
 
 
@@ -65,21 +65,21 @@ def test_mock__chain_leg_pnl_risk_profile_fut():
     strike_sell = 700
     row_buy = mock_df_brn_chain[(mock_df_brn_chain[OCl.STRIKE.nm] == strike_sell) &
                             (mock_df_brn_chain[OCl.TYPE.nm] == OptionType.CALL.code)].iloc[0]
-    expected_profit_fut = (strike_sell - row_buy[OCl.FUTURES_PRICE.nm]) * mock_fut_leg.lots
+    expected_profit_fut = (strike_sell - row_buy[OCl.UNDERLYING_PRICE.nm]) * mock_fut_leg.lots
     assert df_risk_prof[df_risk_prof[OCl.STRIKE.nm] == strike_sell].iloc[0][RCl.RISK_PNL.nm] == expected_profit_fut
 
 
 def test_chain_leg_pnl_risk_profile(df_brn_chain, structure_long_call):
     leg = structure_long_call[0]
     df_risk_prof = _chain_leg_risk_profile(df_brn_chain, leg)
-    premium = df_brn_chain[df_brn_chain[OCl.STRIKE.nm] == leg.strike].iloc[0][OCl.PREMIUM.nm]
+    premium = df_brn_chain[df_brn_chain[OCl.STRIKE.nm] == leg.strike].iloc[0][OCl.PRICE.nm]
     assert df_risk_prof[RCl.RISK_PNL.nm].min() >= -premium * leg.lots
 
 
 def test_chain_pnl_risk_profile_long_call(df_brn_chain, structure_long_call):
     df_risk_profile, df_legs_risk_profile = chain_pnl_risk_profile(df_brn_chain, structure_long_call)
     leg = structure_long_call[0]
-    premium = df_brn_chain[df_brn_chain[OCl.STRIKE.nm] == leg.strike].iloc[0][OCl.PREMIUM.nm]
+    premium = df_brn_chain[df_brn_chain[OCl.STRIKE.nm] == leg.strike].iloc[0][OCl.PRICE.nm]
     assert df_risk_profile[RCl.RISK_PNL.nm].min() >= -premium * leg.lots
     assert df_legs_risk_profile[RCl.RISK_PNL.nm].min() >= -premium * leg.lots
 
@@ -100,7 +100,7 @@ def test_chain_pnl_risk_profile_structure_long_straddle(df_brn_chain, structure_
     df_legs = df_leg1.join(df_leg2, lsuffix=legs_ids[0], rsuffix=legs_ids[0], how='left')
     df = df_legs.join(df_risk_profile, how='left')
 
-    premium_payed = -1 * df_brn_chain[df_brn_chain[OCl.STRIKE.nm] == straddle_strike][OCl.PREMIUM.nm].sum() * (
+    premium_payed = -1 * df_brn_chain[df_brn_chain[OCl.STRIKE.nm] == straddle_strike][OCl.PRICE.nm].sum() * (
         structure_long_straddle[0].lots + structure_long_straddle[1].lots) / 2
     max_pnl_lose_sum = df_legs_risk_profile.groupby(RCl.LEG_ID.nm)[RCl.RISK_PNL.nm].agg('min').sum()
     assert premium_payed == max_pnl_lose_sum

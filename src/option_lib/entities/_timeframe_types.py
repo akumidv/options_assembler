@@ -3,7 +3,7 @@ import enum
 
 
 @enum.unique
-class TimeframeCode(enum.Enum):
+class Timeframe(enum.Enum):
     """Types fo period"""
     EOD = 'EOD'
     MINUTE_1 = '1m'

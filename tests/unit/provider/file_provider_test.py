@@ -2,6 +2,7 @@
 import pytest
 import pandas as pd
 
+from option_lib.entities import AssetKind, Timeframe
 from option_lib.provider import RequestParameters
 from option_lib.provider._file_provider import FileProvider
 
@@ -27,15 +28,15 @@ def test_file_provider_instance(exchange_code, data_path):
         _ = FileProvider(exchange_code, data_path)
 
 
-def test_get_symbols_list(file_provider):
-    symbols = file_provider.get_symbols_list()
+def test_get_symbols_list_for_options(file_provider):
+    symbols = file_provider.get_symbols_list(AssetKind.OPTION)
     assert isinstance(symbols, list)
     assert len(symbols) > 0
     assert isinstance(symbols[0], str) > 0
 
 
 def test_fn_path_prepare(file_provider):
-    symbols = file_provider.get_symbols_list()
-    assert isinstance(symbols, list)
-    assert len(symbols) > 0
-    assert isinstance(symbols[0], str) > 0
+    fn_path = file_provider.fn_path_prepare('BTC', AssetKind.OPTION, Timeframe.EOD, 2024)
+    assert isinstance(fn_path, str)
+    assert len(fn_path) > 0
+    assert AssetKind.OPTION.value in fn_path

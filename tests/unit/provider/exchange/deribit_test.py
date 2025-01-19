@@ -1,17 +1,10 @@
 """Deribit exchange provider"""
 import pytest
 import pandas as pd
-from option_lib.entities import AssetType
+from option_lib.entities import AssetKind
 from option_lib.provider import AbstractProvider
-from option_lib.provider.exchange import AbstractExchange
+from option_lib.provider.exchange import AbstractExchange, BookData
 from option_lib.provider.exchange.deribit import DeribitExchange
-
-
-@pytest.fixture(name='deribit_client')
-def deribit_client_fixture():
-    """Deribit client"""
-    deribit = DeribitExchange(api_url=DeribitExchange.TEST_API_URL)
-    return deribit
 
 
 def test_deribit_exchange_init():
@@ -21,8 +14,8 @@ def test_deribit_exchange_init():
 
 
 def test_get_symbols_list_future(deribit_client):
-    asset_type = AssetType.FUTURE
-    symbols = deribit_client.get_symbols_list(asset_type)
+    asset_kind = AssetKind.FUTURE
+    symbols = deribit_client.get_symbols_list(asset_kind)
     assert isinstance(symbols, list)
     assert len(symbols) > 0
     assert 'BTC_USD' in symbols

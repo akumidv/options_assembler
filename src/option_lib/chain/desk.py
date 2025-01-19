@@ -9,14 +9,14 @@ from option_lib.entities import OptionColumns as OCl
 def convert_chain_to_desk(df_chain, option_columns: list | None = None, future_columns: list | None = None):
     """Prepare option desk from options or option_chain"""
     if option_columns is None:
-        option_columns = [OCl.DATETIME.nm, OCl.EXPIRATION_DATE.nm, OCl.STRIKE.nm, OCl.PREMIUM.nm]
+        option_columns = [OCl.DATETIME.nm, OCl.EXPIRATION_DATE.nm, OCl.STRIKE.nm, OCl.PRICE.nm]
     append_col = [col for col in [OCl.DATETIME.nm, OCl.EXPIRATION_DATE.nm, OCl.STRIKE.nm
                                   ] if col not in option_columns]
     if len(append_col):
         option_columns += append_col
     option_columns = [col for col in option_columns if col in df_chain.columns]
     if future_columns is None:
-        future_columns = [col for col in [OCl.FUTURES_PRICE.nm, OCl.FUTURES_EXPIRATION_DATE.nm
+        future_columns = [col for col in [OCl.UNDERLYING_PRICE.nm, OCl.UNDERLYING_EXPIRATION_DATE.nm
                                           ] if col in df_chain.columns]
     future_columns = [col for col in future_columns if col in df_chain.columns]
 

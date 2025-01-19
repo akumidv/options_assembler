@@ -36,7 +36,7 @@ class OptionEnrichment:
 
     def get_joint_option_with_future(self) -> pd.DataFrame:
         """Return new option data with correspondent future columns"""
-        if Ocl.FUTURES_PRICE.nm in self._data.df_hist.columns:
+        if Ocl.UNDERLYING_PRICE.nm in self._data.df_hist.columns:
             return self._data.df_hist
         return join_option_with_future(self._data.df_hist, self._data.df_fut)
 
@@ -51,14 +51,14 @@ class OptionEnrichment:
         """Add columns with intrinsic and time value, also join future if data is not enough"""
         if Ocl.INTRINSIC_VALUE.nm in self._data.df_hist.columns:
             return self
-        if Ocl.FUTURES_PRICE.nm not in self._data.df_hist.columns:
+        if Ocl.UNDERLYING_PRICE.nm not in self._data.df_hist.columns:
             self.add_future()
         self._data.df_hist = add_intrinsic_and_time_value(self._data.df_hist)
         return self
 
     def add_atm_itm_otm(self) -> Self:
         """Add column with ATM, OTM, ITM values"""
-        if Ocl.FUTURES_PRICE.nm not in self._data.df_hist.columns:
+        if Ocl.UNDERLYING_PRICE.nm not in self._data.df_hist.columns:
             self.add_future()
         if Ocl.PRICE_STATUS.nm in self._data.df_hist.columns:
             return self

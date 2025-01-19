@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from option_lib.chain import OptionChain
+from option_lib.entities import OptionColumns as OCl
 
 
 @pytest.fixture(name='opt_chain')
@@ -43,5 +44,5 @@ def test_get_desk(opt_chain):
     opt_chain.select_chain()
     df_desk = opt_chain.get_desk()
     assert isinstance(df_desk, pd.DataFrame)
-    assert 'premium_call' in df_desk.columns
-    assert 'premium_put' in df_desk.columns
+    assert OCl.PRICE.nm + '_call' in df_desk.columns
+    assert OCl.PRICE.nm + '_put' in df_desk.columns

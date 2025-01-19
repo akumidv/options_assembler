@@ -12,7 +12,7 @@ def _get_premium(df_chain_type_opt: pd.DataFrame, strike: float) -> float:
         type_code = OptionType.CALL.value if df_chain_type_opt.iloc[0][OCl.TYPE.nm] == OptionType.CALL.code else \
             OptionType.PUT.value
         raise ValueError(f'Data for strike {strike} for and option type {type_code} absent')
-    premium = premium_df.iloc[0][OCl.PREMIUM.nm]
+    premium = premium_df.iloc[0][OCl.PRICE.nm]
     del premium_df
     return premium
 
@@ -22,18 +22,18 @@ def _chain_leg_risk_profile(df_chain, leg: OptionLeg):
     type_code = OptionType.PUT.code if leg.type == LegType.OPTION_PUT else OptionType.CALL.code
     df = df_chain[df_chain[OCl.TYPE.nm] == type_code].copy()
     if leg.type == LegType.FUTURE:
-        df.loc[:, RCl.RISK_PNL.nm] = (df[OCl.STRIKE.nm] - df[OCl.FUTURES_PRICE.nm]) * leg.lots
+        df.loc[:, RCl.RISK_PNL.nm] = (df[OCl.STRIKE.nm] - df[OCl.UNDERLYING_PRICE.nm]) * leg.lots
     else:
         premium_df = df[df[OCl.STRIKE.nm] == leg.strike]
         if premium_df.empty:
             raise ValueError(f'Data for strike {leg.strike} for and option type {leg.type.value} absent')
-        premium = premium_df.iloc[0][OCl.PREMIUM.nm]
-        future_price = premium_df.iloc[0][OCl.FUTURES_PRICE.nm]
+        premium = premium_df.iloc[0][OCl.PRICE.nm]
+        future_price = premium_df.iloc[0][OCl.UNDERLYING_PRICE.nm]
         if leg.type == LegType.OPTION_CALL:
-            df.loc[:, RCl.RISK_PNL.nm] = (df[OCl.STRIKE.nm] - df[OCl.FUTURES_PRICE.nm] - premium) * leg.lots
+            df.loc[:, RCl.RISK_PNL.nm] = (df[OCl.STRIKE.nm] - df[OCl.UNDERLYING_PRICE.nm] - premium) * leg.lots
             df.loc[df[OCl.STRIKE.nm] <= future_price, RCl.RISK_PNL.nm] = -premium * leg.lots
         else:
-            df.loc[:, RCl.RISK_PNL.nm] = (df[OCl.FUTURES_PRICE.nm] - df[OCl.STRIKE.nm] - premium) * leg.lots
+            df.loc[:, RCl.RISK_PNL.nm] = (df[OCl.UNDERLYING_PRICE.nm] - df[OCl.STRIKE.nm] - premium) * leg.lots
             df.loc[df[OCl.STRIKE.nm] >= future_price, RCl.RISK_PNL.nm] = -premium * leg.lots
 
     df.drop(columns=[col for col in df.columns if col not in [OCl.STRIKE.nm, RCl.RISK_PNL.nm]], inplace=True)

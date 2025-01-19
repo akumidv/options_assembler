@@ -14,7 +14,7 @@ def get_chain_atm_strike(df_chain):
 
 def get_chain_atm_nearest_strikes(df_chain):
     """Get strikes sorted as nearest to atm (for showing desk for example)"""
-    atm_nearest_strikes = df_chain.assign(_diff=lambda x: abs(x[OCl.FUTURES_PRICE.nm] - x[OCl.STRIKE.nm]))\
+    atm_nearest_strikes = df_chain.assign(_diff=lambda x: abs(x[OCl.UNDERLYING_PRICE.nm] - x[OCl.STRIKE.nm]))\
                                   .sort_values(by='_diff')[OCl.STRIKE.nm].unique()
     return atm_nearest_strikes
 

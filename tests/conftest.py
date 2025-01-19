@@ -3,13 +3,14 @@ import os
 import datetime
 import pytest
 import pandas as pd
-from option_lib.entities import TimeframeCode
+from option_lib.entities import Timeframe
 from option_lib.option_data_class import OptionData
 from option_lib.provider import PandasLocalFileProvider, RequestParameters
 from option_lib.enrichment._option_with_future import join_option_with_future
 from option_lib.chain.chain_selector import select_chain
 from option_lib.chain.price_status import get_chain_atm_strike
-from option_lib.entities import LegType, OptionLeg, AssetType, TimeframeCode
+from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe
+from option_lib.provider.exchange.deribit import DeribitExchange
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
 
@@ -47,7 +48,7 @@ def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvid
 @pytest.fixture(name='provider_params')
 def fixture_provider_params(exchange_provider, option_symbol):
     cur_dt = datetime.date.today()
-    fn_path = exchange_provider._fn_path_prepare(option_symbol, AssetType.OPTION, TimeframeCode.EOD, cur_dt.year)
+    fn_path = exchange_provider._fn_path_prepare(option_symbol, AssetKind.OPTION, Timeframe.EOD, cur_dt.year)
     if not os.path.exists(fn_path):
         list_of_files = sorted(os.listdir(os.path.dirname(fn_path)))
         if len(list_of_files) == 0:
@@ -57,7 +58,7 @@ def fixture_provider_params(exchange_provider, option_symbol):
             raise FileNotFoundError(f'There is no data for {option_symbol}')
         cur_dt = datetime.date.fromisoformat(f'{last_year_fn.replace(".parquet", "")}-01-01')
     params = RequestParameters(period_from=None, period_to=cur_dt.year,
-                               timeframe=TimeframeCode.EOD)
+                               timeframe=Timeframe.EOD)
     return params
 
 
@@ -132,3 +133,10 @@ def structure_long_straddle_fixture(atm_strike):
     ]
     return structure_legs
 
+
+
+@pytest.fixture(name='deribit_client')
+def deribit_client_fixture():
+    """Deribit client"""
+    deribit = DeribitExchange(api_url=DeribitExchange.TEST_API_URL)
+    return deribit

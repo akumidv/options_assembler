@@ -3,7 +3,7 @@ import datetime
 
 import pandas as pd
 
-from option_lib.entities import TimeframeCode
+from option_lib.entities import Timeframe
 
 from option_lib.provider import AbstractProvider, RequestParameters
 from option_lib.option_data_class import OptionData
@@ -41,7 +41,7 @@ class Option:
         return self._data.period_to
 
     @property
-    def timeframe(self) -> TimeframeCode:
+    def timeframe(self) -> Timeframe:
         """Option data timeframe"""
         return self._data.timeframe
 

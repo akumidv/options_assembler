@@ -76,11 +76,10 @@ def time_value_series_for_strike(df_opt_fut_hist, strike: float | None = None,
     """
     # TODO strike
     raise NotImplementedError
-    df_cur_chain = select_chain(df_opt_fut_hist, expiation_date=expiration_date)
-    if expiration_date is None:
-        expiration_date = df_cur_chain.iloc[0][OCl.EXPIRATION_DATE.nm]
-    distance = _calc_atm_distance(df_cur_chain, strike)
-    del df_cur_chain
-    df_time_value_series = time_value_series_by_atm_distance(df_opt_fut_hist, distance, expiration_date, option_type)
-    return df_time_value_series
-
+    # df_cur_chain = select_chain(df_opt_fut_hist, expiation_date=expiration_date)
+    # if expiration_date is None:
+    #     expiration_date = df_cur_chain.iloc[0][OCl.EXPIRATION_DATE.nm]
+    # distance = _calc_atm_distance(df_cur_chain, strike)
+    # del df_cur_chain
+    # df_time_value_series = time_value_series_by_atm_distance(df_opt_fut_hist, distance, expiration_date, option_type)
+    # return df_time_value_series

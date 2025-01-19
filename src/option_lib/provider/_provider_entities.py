@@ -3,7 +3,7 @@ import enum
 import datetime
 
 from pydantic import BaseModel
-from option_lib.entities import TimeframeCode
+from option_lib.entities import Timeframe
 
 
 class DataEngine(enum.Enum):
@@ -25,4 +25,4 @@ class RequestParameters(BaseModel):
     """Parameters to request provider data"""
     period_from: int | datetime.date | datetime.datetime | None = None
     period_to: int | datetime.date | datetime.datetime | None = None
-    timeframe: TimeframeCode = TimeframeCode.EOD
+    timeframe: Timeframe = Timeframe.EOD

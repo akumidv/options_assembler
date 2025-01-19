@@ -26,7 +26,8 @@ class OptionAnalyticPrice:
         self._enrichment.add_intrinsic_and_time_value()
         return time_value_series_by_strike_to_atm_distance(self._data.df_hist, strike, expiration_date, option_type)
 
-    def time_value_series_by_atm_distance(self, distance: float | None = None, expiration_date: datetime.date | None = None,
+    def time_value_series_by_atm_distance(self, distance: float | None = None,
+                                          expiration_date: datetime.date | None = None,
                                           option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
         """Get time value series by distance from atm"""
         self._enrichment.add_intrinsic_and_time_value()

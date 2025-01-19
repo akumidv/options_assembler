@@ -16,11 +16,11 @@ def add_intrinsic_and_time_value(df_hist):
 
     df_hist.loc[:, OCl.INTRINSIC_VALUE.nm] = 0.
     df_hist.loc[df_hist[OCl.TYPE.nm] == OptionType.CALL.code, OCl.INTRINSIC_VALUE.nm] = \
-        df_hist[OCl.FUTURES_PRICE.nm] - df_hist[OCl.STRIKE.nm]
+        df_hist[OCl.UNDERLYING_PRICE.nm] - df_hist[OCl.STRIKE.nm]
     df_hist.loc[df_hist[OCl.TYPE.nm] == OptionType.PUT.code, OCl.INTRINSIC_VALUE.nm] = \
-        df_hist[OCl.STRIKE.nm] - df_hist[OCl.FUTURES_PRICE.nm]
+        df_hist[OCl.STRIKE.nm] - df_hist[OCl.UNDERLYING_PRICE.nm]
     df_hist.loc[df_hist[OCl.INTRINSIC_VALUE.nm] < 0, OCl.INTRINSIC_VALUE.nm] = 0
-    df_hist.loc[:, OCl.TIME_VALUE.nm] = df_hist[OCl.PREMIUM.nm] - df_hist[OCl.INTRINSIC_VALUE.nm]
+    df_hist.loc[:, OCl.TIME_VALUE.nm] = df_hist[OCl.PRICE.nm] - df_hist[OCl.INTRINSIC_VALUE.nm]
     return df_hist
 
 
@@ -46,7 +46,7 @@ def add_atm_itm_otm_exp(df_hist):
        detection - minimal abs intrinsic?.
     """
 
-    df_hist.loc[:, '_diff'] = df_hist[OCl.FUTURES_PRICE.nm] - df_hist[OCl.STRIKE.nm]
+    df_hist.loc[:, '_diff'] = df_hist[OCl.UNDERLYING_PRICE.nm] - df_hist[OCl.STRIKE.nm]
     df_hist.loc[:, '_diff_abs'] = df_hist['_diff'].abs()
 
     def atm_otm_itm(x):

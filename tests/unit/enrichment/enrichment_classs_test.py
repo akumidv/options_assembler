@@ -19,18 +19,18 @@ def test_option_enrichment_class_init(option_data):
 
 
 def test_option_enrichment_get_joint_option_with_future(opt_enrich):
-    assert Ocl.FUTURES_PRICE.nm not in opt_enrich.df_hist.columns
+    assert Ocl.UNDERLYING_PRICE.nm not in opt_enrich.df_hist.columns
     df_opt = opt_enrich.get_joint_option_with_future()
     assert isinstance(df_opt, pd.DataFrame)
-    assert Ocl.FUTURES_PRICE.nm in df_opt.columns
+    assert Ocl.UNDERLYING_PRICE.nm in df_opt.columns
 
 
 def test_option_enrichment_add_future(opt_enrich):
-    assert Ocl.FUTURES_PRICE.nm not in opt_enrich.df_hist.columns
+    assert Ocl.UNDERLYING_PRICE.nm not in opt_enrich.df_hist.columns
     res = opt_enrich.add_future()
     assert isinstance(res, OptionEnrichment)
     assert isinstance(opt_enrich.df_hist, pd.DataFrame)
-    assert Ocl.FUTURES_PRICE.nm in opt_enrich.df_hist.columns
+    assert Ocl.UNDERLYING_PRICE.nm in opt_enrich.df_hist.columns
 
 
 def  test_option_enrichment_add_intrinsic_and_time_value(opt_enrich):

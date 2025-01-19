@@ -34,11 +34,11 @@ def test_option_class_with_extra_columns(exchange_provider, option_symbol, provi
 
 def test_enrichment_add_future(option_instance):
     df_opt = option_instance.df_hist
-    assert OCl.FUTURES_PRICE.nm not in df_opt.columns
+    assert OCl.UNDERLYING_PRICE.nm not in df_opt.columns
     option_instance.enrichment.add_future()
     df_opt = option_instance.df_hist
     assert isinstance(df_opt, pd.DataFrame)
-    assert OCl.FUTURES_PRICE.nm in df_opt.columns
+    assert OCl.UNDERLYING_PRICE.nm in df_opt.columns
 
 
 def test_chain_select_chain(option_instance):
