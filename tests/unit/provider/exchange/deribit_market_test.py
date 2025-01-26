@@ -1,4 +1,6 @@
 """Deribit exchange provider"""
+import datetime
+
 import pandas as pd
 import pytest
 
@@ -23,10 +25,10 @@ def deribit_market_fixture():
 
 def test_option_non_fut_spot_columns():
     assert isinstance(OPTION_NON_FUTURES_COLUMN_NAMES, list)
-    assert OCl.DATETIME.nm not in OPTION_NON_FUTURES_COLUMN_NAMES
+    assert OCl.TIMESTAMP.nm not in OPTION_NON_FUTURES_COLUMN_NAMES
     assert OCl.STRIKE.nm in OPTION_NON_FUTURES_COLUMN_NAMES
     assert isinstance(OPTION_NON_SPOT_COLUMN_NAMES, list)
-    assert OCl.DATETIME.nm not in OPTION_NON_SPOT_COLUMN_NAMES
+    assert OCl.TIMESTAMP.nm not in OPTION_NON_SPOT_COLUMN_NAMES
     assert OCl.STRIKE.nm in OPTION_NON_SPOT_COLUMN_NAMES
 
 
@@ -70,7 +72,7 @@ def test__normalize_book_spot(deribit_market):
                             'volume_usd': [1044.26, 1011551.12, 29.02, 11.3, 0.0],
                             'volume_notional': [0.01061433, 1011146.6566, 28.18175, 10.514188, 0.0],
                             'mid_price': [0.04085, 72562.5, 28252.685, None, None]})
-    df = deribit_market._normalize_book(spot_df)
+    df = deribit_market._normalize_book(spot_df, pd.Timestamp.now(tz=datetime.UTC))
     assert SCl.SYMBOL.nm in df.columns
     assert SCl.KIND.nm in df.columns
     assert list(df[SCl.KIND.nm].unique()) == [DeribitAssetKind.SPOT.code]
@@ -126,7 +128,7 @@ def test__normalize_book_future(deribit_market):
                            'mid_price': [101002.5, None, 96141.25, 104752.5, 100745.0],
                            'current_funding': [None, None, None, None, None],
                            'funding_8h': [None, None, None, None, None]})
-    df = deribit_market._normalize_book(fut_df)
+    df = deribit_market._normalize_book(fut_df, pd.Timestamp.now(tz=datetime.UTC))
     assert FCl.SYMBOL.nm in df.columns
     assert FCl.KIND.nm in df.columns
     assert list(df[FCl.KIND.nm].unique()) == [DeribitAssetKind.FUTURE.code]
@@ -178,7 +180,7 @@ def test__normalize_book_future_combo(deribit_market):
                                  'quote_currency': ['USD', 'USD', 'USD', 'USD', 'USD'],
                                  'volume_usd': [0.0, 0.0, 0.0, 0.0, 0.0], 'volume_notional': [0.0, 0.0, 0.0, 0.0, 0.0],
                                  'mid_price': [None, None, None, None, None]})
-    df = deribit_market._normalize_book(fut_combo_df)
+    df = deribit_market._normalize_book(fut_combo_df, pd.Timestamp.now(tz=datetime.UTC))
     assert FCl.SYMBOL.nm in df.columns
     assert FCl.KIND.nm in df.columns
     assert list(df[FCl.KIND.nm].unique()) == [DeribitAssetKind.FUTURE_COMBO.code]
@@ -240,13 +242,13 @@ def test__normalize_book_option(deribit_market):
                            'quote_currency': ['BTC', 'BTC', 'BTC', 'BTC', 'BTC', 'ETH', 'USDC'],
                            'volume_usd': [0.0, 0.0, 0.0, 0.0, 4624.81, 0.0, 0.0],
                            'mid_price': [0.16975, None, None, None, 0.0185, 0.12650, None]})
-    df = deribit_market._normalize_book(opt_df)
+    df = deribit_market._normalize_book(opt_df, pd.Timestamp.now(tz=datetime.UTC))
     assert OCl.SYMBOL.nm in df.columns
     assert OCl.KIND.nm in df.columns
     assert list(df[OCl.KIND.nm].unique()) == [DeribitAssetKind.OPTION.code]
     assert None not in list(df[OCl.EXPIRATION_DATE.nm].unique())
     assert None not in list(df[OCl.STRIKE.nm].unique())
-    assert None not in list(df[OCl.TYPE.nm].unique())
+    assert None not in list(df[OCl.OPTION_TYPE.nm].unique())
 
 
 def test_get_book_summary_by_currency_option(deribit_market):
@@ -274,7 +276,7 @@ def test_get_book_summary_by_currency_option(deribit_market):
     assert not book_summary_df[book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
     assert None not in list(book_summary_df[OCl.EXPIRATION_DATE.nm].unique())
     assert None not in list(book_summary_df[OCl.STRIKE.nm].unique())
-    assert None not in list(book_summary_df[OCl.TYPE.nm].unique())
+    assert None not in list(book_summary_df[OCl.OPTION_TYPE.nm].unique())
 
 
 def test__normalize_book_option_combo(deribit_market):
@@ -294,7 +296,7 @@ def test__normalize_book_option_combo(deribit_market):
                                  'quote_currency': ['BTC', 'BTC', 'BTC', 'BTC', 'BTC'],
                                  'volume_usd': [0.0, 0.0, 0.0, 0.0, 0.0],
                                  'mid_price': [None, 0.00255, None, None, None]})
-    df = deribit_market._normalize_book(opt_combo_df)
+    df = deribit_market._normalize_book(opt_combo_df, pd.Timestamp.now(tz=datetime.UTC))
     assert OCl.SYMBOL.nm in df.columns
     assert OCl.KIND.nm in df.columns
     assert list(df[OCl.KIND.nm].unique()) == [DeribitAssetKind.OPTION_COMBO.code]

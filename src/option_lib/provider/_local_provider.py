@@ -27,7 +27,6 @@ class PandasLocalFileProvider(FileProvider):
         self.exchange_data_path = exchange_data_path
         super().__init__(exchange_code=exchange_code, data_path=data_path)
 
-
     def _fn_path_prepare(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe, year: int):
         return super().fn_path_prepare(symbol, asset_kind, timeframe, year)
 
@@ -43,7 +42,7 @@ class PandasLocalFileProvider(FileProvider):
                 case datetime.date:
                     fn_path = self._fn_path_prepare(symbol, asset_kind, params.timeframe, params.period_to.year)
                     df_hist = pd.read_parquet(fn_path, columns=columns)
-                    return df_hist[df_hist['datetime'] == params.period_to].reset_index(True)
+                    return df_hist[df_hist['datetime'] == params.period_to].reset_index(drop=True)
                 case datetime.datetime:
                     raise NotImplementedError('to period type datetime.datetime')
                 case _:

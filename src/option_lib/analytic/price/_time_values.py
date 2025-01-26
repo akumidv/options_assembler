@@ -33,19 +33,19 @@ def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float | None = 
     if distance is None:
         distance = 0
     if expiration_date is None:
-        expiration_date = df_opt_fut_hist[df_opt_fut_hist[OCl.DATETIME.nm]==df_opt_fut_hist[OCl.DATETIME.nm].max()][
+        expiration_date = df_opt_fut_hist[df_opt_fut_hist[OCl.TIMESTAMP.nm] == df_opt_fut_hist[OCl.TIMESTAMP.nm].max()][
             OCl.EXPIRATION_DATE.nm].min()
     df_hist = df_opt_fut_hist[(df_opt_fut_hist[OCl.EXPIRATION_DATE.nm] == expiration_date) & (
-        df_opt_fut_hist[OCl.TYPE.nm] == option_type.code)] \
-        .sort_values(by=OCl.DATETIME.nm).reset_index(drop=True).copy()
+            df_opt_fut_hist[OCl.OPTION_TYPE.nm] == option_type.code)] \
+        .sort_values(by=OCl.TIMESTAMP.nm).reset_index(drop=True).copy()
     if df_hist.empty:
         raise ValueError(f'No data found for expiration data {expiration_date} and option type {option_type.value}')
     if OCl.TIME_VALUE.nm not in df_hist.columns:
         df_hist = add_intrinsic_and_time_value(df_hist)
-    df_time_value_series = df_hist.groupby(OCl.DATETIME.nm, group_keys=False).apply(_get_nearest_to_distance_strike,
-                                                                                    distance)
+    df_time_value_series = df_hist.groupby(OCl.TIMESTAMP.nm, group_keys=False).apply(_get_nearest_to_distance_strike,
+                                                                                     distance)
     df_time_value_series.drop(columns=[col for col in df_time_value_series.columns if col not in [
-        OCl.DATETIME.nm, OCl.STRIKE.nm, OCl.TIME_VALUE.nm]], inplace=True)
+        OCl.TIMESTAMP.nm, OCl.STRIKE.nm, OCl.TIME_VALUE.nm]], inplace=True)
     return df_time_value_series
 
 

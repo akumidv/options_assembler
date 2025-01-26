@@ -1,23 +1,24 @@
 """Pandas columns test"""
 import datetime
+import pandas as pd
 from option_lib.entities._pandas_columns import OptionColumns, FuturesColumns
 
 
 def test_opt_columns():
-    assert OptionColumns('datetime')
+    assert OptionColumns('timestamp')
     assert OptionColumns('expiration_date')
-    column = OptionColumns('datetime')
+    column = OptionColumns('timestamp')
     assert hasattr(column, 'value')
     assert hasattr(column, 'nm')
     assert hasattr(column, 'type')
-    assert column.type, datetime.date
+    assert column.type, pd.Timestamp
 
 
 def test_prov_fut_columns():
-    assert FuturesColumns('datetime')
+    assert FuturesColumns('timestamp')
     assert FuturesColumns('expiration_date')
-    column = FuturesColumns('datetime')
+    column = FuturesColumns('timestamp')
     assert hasattr(column, 'value')
     assert hasattr(column, 'nm')
     assert hasattr(column, 'type')
-    assert column.type, datetime.date
+    assert column.type, pd.Timestamp

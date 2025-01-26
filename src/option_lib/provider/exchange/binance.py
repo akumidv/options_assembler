@@ -30,7 +30,7 @@ class BinanceExchange(AbstractExchange):
 
     def __init__(self, engine: DataEngine = DataEngine.PANDAS):
         """"""
-        super().__init__(engine, ExchangeCode.BINANCE.value, self.API_URL)
+        super().__init__(engine, ExchangeCode.BINANCE.name, self.API_URL)
 
     def load_option_history(self, symbol: str, params: RequestParameters | None = None,
                             columns: list | None = None) -> pd.DataFrame:

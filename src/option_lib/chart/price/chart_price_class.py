@@ -40,8 +40,8 @@ class ChartPriceClass:
         else:
             dfs = df
         for df_ts in dfs:
-            if OCl.DATETIME.nm not in df_ts.columns:
-                raise KeyError(f'{OCl.DATETIME.nm} not in dataframe columns')
+            if OCl.TIMESTAMP.nm not in df_ts.columns:
+                raise KeyError(f'{OCl.TIMESTAMP.nm} not in dataframe columns')
             if OCl.TIME_VALUE.nm not in df_ts.columns:
                 raise KeyError(f'{OCl.TIME_VALUE.nm} not in dataframe columns')
         return dfs

@@ -2,7 +2,7 @@
 Deribit api provider
 """
 import datetime
-
+import re
 import pandas as pd
 import numpy as np
 from option_lib.entities.enum_code import EnumCode
@@ -15,7 +15,7 @@ from option_lib.entities import (
 )
 from option_lib.provider._provider_entities import DataEngine, RequestParameters
 from option_lib.provider.exchange.exchange_entities import ExchangeCode
-from option_lib.provider.exchange._abstract_exchange import AbstractExchange, RequestClass, BookData
+from option_lib.provider.exchange._abstract_exchange import AbstractExchange, RequestClass
 from option_lib.normalization.datetime_conversion import parse_expiration_date
 
 
@@ -26,6 +26,9 @@ class DeribitAssetKind(EnumCode):
     SPOT = AssetKind.SPOT.value, AssetKind.SPOT.code
     FUTURE_COMBO = 'future_combo', 'fc'
     OPTION_COMBO = 'option_combo', 'oc'
+
+
+DOT_STRIKE_REGEXP = re.compile(r'(\d)d(\d)', flags=re.IGNORECASE)
 
 
 class DeribitMarket:
@@ -47,17 +50,19 @@ class DeribitMarket:
         params = {'currency': currency}
         if kind is not None:
             params['kind'] = kind.value
+        request_timestamp = pd.Timestamp.now(tz=datetime.timezone.utc)
         response = self.client.request_api('/public/get_book_summary_by_currency', params=params)
         book_summary_df = pd.DataFrame(response['result'])
-        book_summary_df = self._normalize_book(book_summary_df)
+        book_summary_df = self._normalize_book(book_summary_df, request_timestamp)
         return book_summary_df
 
     @staticmethod
-    def _kind_enrichment(row) -> pd.Series:
+    def _kind_enrichment(row: pd.Series) -> pd.Series:
         try:
-            exchange_asset_symbol_arr = row[OCl.EXCHANGE_SYMBOL.nm].replace('0d', '0.').split(
-                '-')  # for strike DOGE_USDC-7FEB25-0d4064-C
+            exchange_asset_symbol_arr = DOT_STRIKE_REGEXP.sub(r'\1.\2', row[OCl.EXCHANGE_SYMBOL.nm]).split(
+                '-')  # for strike DOGE_USDC-7FEB25-0d4064-C  or 3d12
             symbol = exchange_asset_symbol_arr[0]
+            row = row.copy(deep=True)
             match len(exchange_asset_symbol_arr):
                 case 1:  # SPOT
                     row[SCl.SYMBOL.nm] = symbol
@@ -68,7 +73,7 @@ class DeribitMarket:
                     expiration_date = parse_expiration_date(exchange_asset_symbol_arr[1])
                     if expiration_date is None and exchange_asset_symbol_arr[1] != 'PERPETUAL':
                         raise SyntaxError(f'Can not parse {exchange_asset_symbol_arr[1]}, '
-                                          f'None expiration can be only for PERPETUAL')
+                                          f'None expiration can be only for PERPETUAL: {row}')
                     row[FCl.EXPIRATION_DATE.nm] = expiration_date
                     row[FCl.KIND.nm] = DeribitAssetKind.FUTURE.code
                     return row
@@ -107,10 +112,10 @@ class DeribitMarket:
                                                                           'index_price']:  # index price
                                 futures_expiration_date = None
                             else:
-                                print(row)
+                                print('Syntex error in row:\n', row)
                                 raise SyntaxError(f'Can not get expiration from underlying_index '
                                                   f'{row[OCl.EXCHANGE_UNDERLYING_SYMBOL.nm]}')
-                    row[OCl.TYPE.nm] = option_type
+                    row[OCl.OPTION_TYPE.nm] = option_type
                     row[OCl.STRIKE.nm] = strike
                     row[OCl.EXPIRATION_DATE.nm] = expiration_date
                     row[OCl.KIND.nm] = kind
@@ -120,17 +125,22 @@ class DeribitMarket:
                     raise SyntaxError(f'Can parse instrument_name {row[OCl.EXCHANGE_SYMBOL.nm]}')
         except SyntaxError as err:
             raise err
-        # except Exception as err: # Debug
-        #     print('[ERROR] parsing', err)
-        #     print(row)
 
-    def _normalize_book(self, book_summary_df: pd.DataFrame) -> pd.DataFrame:  # BookData:
-        book_summary_df.rename(columns={'instrument_name': OCl.EXCHANGE_SYMBOL.nm,
+    def _normalize_book(self, book_summary_df: pd.DataFrame, request_timestamp: pd.Timestamp) -> pd.DataFrame:  # BookData:
+        book_summary_df[OCl.REQUEST_TIMESTAMP.nm] = request_timestamp
+        book_summary_df.rename(columns={'creation_timestamp': OCl.TIMESTAMP.nm,
+                                        'instrument_name': OCl.EXCHANGE_SYMBOL.nm,
                                         'last': FCl.PRICE.nm,
                                         'underlying_index': OCl.EXCHANGE_UNDERLYING_SYMBOL.nm,
                                         'underlying_price': OCl.UNDERLYING_PRICE.nm}, inplace=True)
+        if OCl.TIMESTAMP.nm in book_summary_df.columns:
+            book_summary_df[OCl.TIMESTAMP.nm] *= 1000
         book_summary_df.replace({np.nan: None}, inplace=True)
-        book_summary_df = book_summary_df.apply(self._kind_enrichment, axis='columns')
+        # book_summary_df[COL_PREPARED_INSTRUMENT_NAME] = book_summary_df[OCl.EXCHANGE_SYMBOL.nm].str.replace(DOT_STRIKE_REGEXP, r'\1.\2', regex=True)\ # May be faster split there
+
+        book_summary_df = book_summary_df.apply(self._kind_enrichment,
+                                                axis='columns', result_type='expand')
+
         return book_summary_df
 
 
@@ -143,7 +153,7 @@ class DeribitExchange(AbstractExchange):
     def __init__(self, engine: DataEngine = DataEngine.PANDAS, api_url: str | None = None):
         """Init"""
         api_url = api_url if api_url else self.PRODUCT_API_URL
-        super().__init__(engine, ExchangeCode.DERIBIT.value, api_url=api_url)
+        super().__init__(engine, ExchangeCode.DERIBIT.name, api_url=api_url)
         self.market = DeribitMarket(self.client)
 
     def get_symbols_list(self, asset_kind: AssetKind) -> list[str]:

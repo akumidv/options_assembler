@@ -2,7 +2,7 @@
 Public Entities
 """
 
-from option_lib.entities.enum_code import EnumCode, EnumColumnType
+from option_lib.entities.enum_code import EnumCode, EnumColumnType, EnumMultiplier
 
 from option_lib.entities._timeframe_types import Timeframe
 

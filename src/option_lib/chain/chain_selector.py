@@ -11,16 +11,16 @@ def select_chain(df_hist: pd.DataFrame, settlement_date: datetime.date | None = 
     if df_hist is None:
         raise ValueError('Option dataframe should be provided')
     if settlement_date is None:
-        settlement_date = df_hist[OCl.DATETIME.nm].max()
-    df_chain = df_hist[df_hist[OCl.DATETIME.nm] == settlement_date]
+        settlement_date = df_hist[OCl.TIMESTAMP.nm].max()
+    df_chain = df_hist[df_hist[OCl.TIMESTAMP.nm] == settlement_date]
     if df_chain.empty:
-        raise ValueError(f'{OCl.DATETIME.value} {settlement_date.isoformat()} is not present in option dataframe')
+        raise ValueError(f'{OCl.TIMESTAMP.value} {settlement_date.isoformat()} is not present in option dataframe')
     if expiation_date is None:
         expiation_date = df_chain[OCl.EXPIRATION_DATE.nm].min()
     df_chain = df_chain[df_chain[OCl.EXPIRATION_DATE.nm] == expiation_date]
 
     if df_chain.empty:
-        raise ValueError(f'{OCl.DATETIME.value} {settlement_date.isoformat()} is not present in option dataframe')
+        raise ValueError(f'{OCl.TIMESTAMP.value} {settlement_date.isoformat()} is not present in option dataframe')
     return df_chain.copy()
 
 
@@ -30,8 +30,8 @@ def validate_chain(df_chain: pd.DataFrame):
         raise TypeError('Chain is not dataframe')
     if df_chain.empty:
         raise ValueError('Chain dataframe is empty')
-    if len(df_chain[OCl.DATETIME.nm].unique()) != 1:
-        raise ValueError(f'Chain contain data more than one {OCl.DATETIME.value}')
+    if len(df_chain[OCl.TIMESTAMP.nm].unique()) != 1:
+        raise ValueError(f'Chain contain data more than one {OCl.TIMESTAMP.value}')
     if len(df_chain[OCl.EXPIRATION_DATE.nm].unique()) != 1:
         raise ValueError(f'Chain contain options for more than one {OCl.EXPIRATION_DATE.value}')
 
@@ -39,4 +39,4 @@ def validate_chain(df_chain: pd.DataFrame):
 def get_chain_settlement_and_expiration_date(df_chain: pd.DataFrame) -> tuple[datetime.date, datetime.date]:
     """Get settlement and expiration dates"""
     row = df_chain.iloc[0]
-    return row[OCl.DATETIME.nm], row[OCl.EXPIRATION_DATE.nm]
+    return row[OCl.TIMESTAMP.nm], row[OCl.EXPIRATION_DATE.nm]

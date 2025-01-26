@@ -2,7 +2,7 @@
 Abstract class with mandatory interfaces for every provider
 
 Provider limits:
-- provide data if it have it. For example if exchange provider do not support history it will not return option_history
+- provide data if it has it. For example if exchange provider do not support history it will not return option_history
 - if local files do not contain chain it will not return data
 - if request is wrong - for example there is not option for expiration_date it throw an error
 It is not planned that provider level will be contained any data logic. It should be in option data class
@@ -18,9 +18,9 @@ from option_lib.provider._provider_entities import RequestParameters
 class AbstractProvider(ABC):
     """ Provider interfaces """
     exchange_code: str
-    option_columns = [OptionColumns.DATETIME.nm, OptionColumns.STRIKE.nm, OptionColumns.EXPIRATION_DATE.nm,
-                      OptionColumns.TYPE.nm, OptionColumns.PRICE.nm, OptionColumns.UNDERLYING_EXPIRATION_DATE.nm]
-    future_columns = [FuturesColumns.DATETIME.nm, FuturesColumns.EXPIRATION_DATE.nm, FuturesColumns.PRICE.nm]
+    option_columns = [OptionColumns.TIMESTAMP.nm, OptionColumns.STRIKE.nm, OptionColumns.EXPIRATION_DATE.nm,
+                      OptionColumns.OPTION_TYPE.nm, OptionColumns.PRICE.nm, OptionColumns.UNDERLYING_EXPIRATION_DATE.nm]
+    future_columns = [FuturesColumns.TIMESTAMP.nm, FuturesColumns.EXPIRATION_DATE.nm, FuturesColumns.PRICE.nm]
 
     def __init__(self, exchange_code: str, **kwargs):
         self.exchange_code = exchange_code

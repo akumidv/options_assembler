@@ -1,21 +1,27 @@
-[tool.poetry]
+#[tool.poetry]
+[project]
 name = "option_lib"
 version = "0.1.1"
-authors = ["akumidv"]
+authors = [
+    {name ="Andrei Kuminov", email ="akumidv@yandex.ru"}
+]
 description = "Option library for study purpouse"
 
+[tool.poetry]
+package-mode = false
+
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.11"
 pandas = "^2.2.3"
 python-dotenv = "^1.0.1"
-pydantic = "^2.10.3"
+pydantic = "^2.10.5"
 chart-studio = "^1.1.0"
-jupyter = "^1.1.1"
-pyarrow = "^18.1.0"
+pyarrow = "^19.0.0"
 apscheduler = "^3.11.0"
 httpx = "^0.28.1"
 
 [tool.poetry.dev-dependencies]
+jupyter = "^1.1.1"
 pytest = "^8.3.4"
 pylint = "^3.3.2"
 pytest-dotenv = "^0.5.2"
@@ -31,12 +37,13 @@ env_files = [
 ]
 
 [tool.pylint.MASTER]
-init-hook='import sys; sys.path.append("./src"); sys.path.append("./tests")'
-no-docstring-rgx='^_|^test_' # _private and test_ fucntions
+init-hook = 'import sys; sys.path.append("./src"); sys.path.append("./tests")'
+no-docstring-rgx = '^_|^test_' # _private and test_ fucntions
+protected-access = '^test_' # _private and test_ fucntions
 
 [tool.pylint.DESIGN]
-max-positional-arguments=6
+max-positional-arguments = 6
 max-args = 8
 
 [tool.pylint.FORMAT]
-max-line-length=120
+max-line-length = 120

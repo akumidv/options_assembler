@@ -9,5 +9,5 @@ def join_option_with_future(df_hist: pd.DataFrame, df_fut: pd.DataFrame) -> pd.D
     """Join futures column to correspond options"""
     df_fut = df_fut.rename(columns={FCl.PRICE.nm: OCl.UNDERLYING_PRICE.nm,
                                     FCl.EXPIRATION_DATE.nm: OCl.UNDERLYING_EXPIRATION_DATE.nm})
-    df_ext_opt = df_hist.merge(df_fut, on=[OCl.DATETIME.nm, OCl.UNDERLYING_EXPIRATION_DATE.nm], how='left')
+    df_ext_opt = df_hist.merge(df_fut, on=[OCl.TIMESTAMP.nm, OCl.UNDERLYING_EXPIRATION_DATE.nm], how='left')
     return df_ext_opt

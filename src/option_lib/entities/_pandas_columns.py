@@ -3,7 +3,7 @@ import enum
 import datetime
 from option_lib.entities.enum_code import EnumColumnType
 from option_lib.entities._option_types import OptionPriceStatus
-
+import pandas as pd
 
 @enum.unique
 class OptionColumns(EnumColumnType):
@@ -12,12 +12,12 @@ class OptionColumns(EnumColumnType):
     """
     # NAME, value, code, type
     # Base mandatory columns from provider
-    DATETIME = 'datetime', datetime.date
+    TIMESTAMP = 'timestamp', pd.Timestamp
     STRIKE = 'strike', float
-    EXPIRATION_DATE = 'expiration_date', datetime.date
-    TYPE = 'option_type', str  # OptionType
+    EXPIRATION_DATE = 'expiration_date', pd.Timestamp
+    OPTION_TYPE = 'option_type', str  # OptionType
     PRICE = 'price', float
-    UNDERLYING_EXPIRATION_DATE = 'underlying_expiration_date', datetime.date
+    UNDERLYING_EXPIRATION_DATE = 'underlying_expiration_date', pd.Timestamp
 
     # Extra columns for options (joined for example)
     SYMBOL = 'symbol', str
@@ -39,6 +39,9 @@ class OptionColumns(EnumColumnType):
 
     # Greeks
 
+    # ETL
+    REQUEST_TIMESTAMP = 'request_timestamp', pd.Timestamp
+
 
 @enum.unique
 class FuturesColumns(EnumColumnType):
@@ -47,7 +50,7 @@ class FuturesColumns(EnumColumnType):
     """
     # NAME, value, code, type
     # Base mandatory columns
-    DATETIME = OptionColumns.DATETIME.nm, OptionColumns.DATETIME.type
+    TIMESTAMP = OptionColumns.TIMESTAMP.nm, OptionColumns.TIMESTAMP.type
     EXPIRATION_DATE = OptionColumns.EXPIRATION_DATE.nm,  OptionColumns.EXPIRATION_DATE.type
     PRICE = OptionColumns.PRICE.nm, OptionColumns.PRICE.type
 
@@ -56,6 +59,8 @@ class FuturesColumns(EnumColumnType):
     KIND = OptionColumns.KIND.nm, OptionColumns.KIND.type
     EXCHANGE_ASSET_SYMBOL = OptionColumns.EXCHANGE_SYMBOL.nm, OptionColumns.EXCHANGE_SYMBOL.type
 
+    # ETL
+    REQUEST_TIMESTAMP = 'request_datetime', pd.Timestamp
 
 @enum.unique
 class SpotColumns(EnumColumnType):
@@ -64,7 +69,7 @@ class SpotColumns(EnumColumnType):
     """
     # NAME, value, code, type
     # Base mandatory columns
-    DATETIME = OptionColumns.DATETIME.nm, OptionColumns.DATETIME.type
+    TEMESTAMP = OptionColumns.TIMESTAMP.nm, OptionColumns.TIMESTAMP.type
     PRICE = OptionColumns.PRICE.nm, OptionColumns.PRICE.type
 
     # Extra columns for futures
@@ -72,6 +77,8 @@ class SpotColumns(EnumColumnType):
     KIND = OptionColumns.KIND.nm, OptionColumns.KIND.type
     EXCHANGE_ASSET_SYMBOL = OptionColumns.EXCHANGE_SYMBOL.nm, OptionColumns.EXCHANGE_SYMBOL.type
 
+    # ETL
+    REQUEST_TIMESTAMP = 'request_datetime', pd.Timestamp
 
 OPTION_NON_FUTURES_COLUMN_NAMES = [col.nm for col in OptionColumns if col.nm not in [f_col.nm for f_col in FuturesColumns]]
 OPTION_NON_SPOT_COLUMN_NAMES = [col.nm for col in OptionColumns if col.nm not in [s_col.nm for s_col in SpotColumns]]

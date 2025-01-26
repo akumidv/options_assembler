@@ -5,7 +5,7 @@ from option_lib.analytic.risk.risk_profile import chain_pnl_risk_profile, _chain
 from option_lib.analytic.risk import RiskColumns as RCl
 
 mock_df_brn_chain = pd.DataFrame({
-    f'{OCl.TYPE.nm}': [OptionType.CALL.code] * 7 + [OptionType.PUT.code] * 7,
+    f'{OCl.OPTION_TYPE.nm}': [OptionType.CALL.code] * 7 + [OptionType.PUT.code] * 7,
     f'{OCl.STRIKE.nm}': [100, 200, 300, 400, 500, 600, 700] + [100, 200, 300, 400, 500, 600, 700],
     f'{OCl.PRICE.nm}': [7, 8, 9, 35, 119, 218, 317] + [303, 204, 105, 10, 6, 5, 4],
     f'{OCl.UNDERLYING_PRICE.nm}': [385] * 14
@@ -17,14 +17,14 @@ mock_fut_leg = OptionLeg(strike=0, lots=10, type=LegType.FUTURE)
 
 
 def test_mock__get_premium():
-    premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.TYPE.nm] == OptionType.CALL.code], strike=400)
+    premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.OPTION_TYPE.nm] == OptionType.CALL.code], strike=400)
     assert premium == mock_df_brn_chain.iloc[3][OCl.PRICE.nm]
 
 
 def test_mock__chain_leg_pnl_risk_profile_call_itm():
     leg = mock_call_leg
     df_risk_prof = _chain_leg_risk_profile(mock_df_brn_chain, leg)
-    premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code],
+    premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.OPTION_TYPE.nm] == leg.type.code],
                            strike=leg.strike) * leg.lots * -1
     fut_price = mock_df_brn_chain.iloc[0][OCl.UNDERLYING_PRICE.nm]
     df_risk_prof_less_fut_price = df_risk_prof[df_risk_prof[OCl.STRIKE.nm] <= fut_price]
@@ -34,7 +34,7 @@ def test_mock__chain_leg_pnl_risk_profile_call_itm():
 
     strike_sell = 600
     row_buy = mock_df_brn_chain[(mock_df_brn_chain[OCl.STRIKE.nm] == leg.strike) &
-                            (mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code)].iloc[0]
+                                (mock_df_brn_chain[OCl.OPTION_TYPE.nm] == leg.type.code)].iloc[0]
     expected_profit_call = max(premium,
                                (strike_sell - row_buy[OCl.UNDERLYING_PRICE.nm] - row_buy[OCl.PRICE.nm]) * leg.lots)
     assert df_risk_prof[df_risk_prof[OCl.STRIKE.nm] == strike_sell].iloc[0][RCl.RISK_PNL.nm] == expected_profit_call
@@ -44,7 +44,7 @@ def test_mock__chain_leg_pnl_risk_profile_put_itm():
     leg = mock_put_leg
     df_risk_prof = _chain_leg_risk_profile(mock_df_brn_chain, leg)
 
-    premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code],
+    premium = _get_premium(mock_df_brn_chain[mock_df_brn_chain[OCl.OPTION_TYPE.nm] == leg.type.code],
                            strike=leg.strike) * leg.lots * -1
     fut_price = mock_df_brn_chain.iloc[0][OCl.UNDERLYING_PRICE.nm]
     df_risk_prof_greater_fut_price = df_risk_prof[df_risk_prof[OCl.STRIKE.nm] >= fut_price]
@@ -54,7 +54,7 @@ def test_mock__chain_leg_pnl_risk_profile_put_itm():
 
     strike_sell = 400
     row_buy = mock_df_brn_chain[(mock_df_brn_chain[OCl.STRIKE.nm] == leg.strike) &
-                            (mock_df_brn_chain[OCl.TYPE.nm] == leg.type.code)].iloc[0]
+                                (mock_df_brn_chain[OCl.OPTION_TYPE.nm] == leg.type.code)].iloc[0]
     expected_profit_put = max(premium,
                               (row_buy[OCl.UNDERLYING_PRICE.nm] - strike_sell - row_buy[OCl.PRICE.nm]) * leg.lots)
     assert df_risk_prof[df_risk_prof[OCl.STRIKE.nm] == strike_sell].iloc[0][RCl.RISK_PNL.nm] == expected_profit_put
@@ -64,7 +64,7 @@ def test_mock__chain_leg_pnl_risk_profile_fut():
     df_risk_prof = _chain_leg_risk_profile(mock_df_brn_chain, mock_fut_leg)
     strike_sell = 700
     row_buy = mock_df_brn_chain[(mock_df_brn_chain[OCl.STRIKE.nm] == strike_sell) &
-                            (mock_df_brn_chain[OCl.TYPE.nm] == OptionType.CALL.code)].iloc[0]
+                                (mock_df_brn_chain[OCl.OPTION_TYPE.nm] == OptionType.CALL.code)].iloc[0]
     expected_profit_fut = (strike_sell - row_buy[OCl.UNDERLYING_PRICE.nm]) * mock_fut_leg.lots
     assert df_risk_prof[df_risk_prof[OCl.STRIKE.nm] == strike_sell].iloc[0][RCl.RISK_PNL.nm] == expected_profit_fut
 

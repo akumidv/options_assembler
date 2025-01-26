@@ -25,6 +25,7 @@ class RequestClass:
         'Accept': 'application/json',
         'User-Agent': 'Option Library Client',
     }
+
     def __init__(self, api_url):
         self.api_url = api_url[:-1] if api_url[-1] == '/' else api_url
         self.session = httpx.Client(headers=self.HEADERS)
@@ -56,7 +57,6 @@ class RequestClass:
     def _create_api_uri(self, endpoint_path: str) -> str:
         endpoint_path = endpoint_path if endpoint_path[0] != '/' else endpoint_path[1:]
         return f'{self.api_url}/{endpoint_path}'
-
 
 
 class AbstractExchange(AbstractProvider, ABC):

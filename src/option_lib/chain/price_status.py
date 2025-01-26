@@ -29,7 +29,7 @@ def get_chain_atm_itm_otm(df_chain):
     df_chain.loc[:, OCl.PRICE_STATUS.nm] = OptionPriceStatus.OTM.code
     df_chain.loc[df_chain[OCl.STRIKE.nm] == atm_strike, OCl.PRICE_STATUS.nm] = OptionPriceStatus.ATM.code
     df_chain.loc[(df_chain[OCl.STRIKE.nm] < atm_strike) & (
-        df_chain[OCl.TYPE.nm] == OptionType.CALL.code), OCl.PRICE_STATUS.nm] = OptionPriceStatus.ITM.code
+            df_chain[OCl.OPTION_TYPE.nm] == OptionType.CALL.code), OCl.PRICE_STATUS.nm] = OptionPriceStatus.ITM.code
     df_chain.loc[(df_chain[OCl.STRIKE.nm] > atm_strike) & (
-        df_chain[OCl.TYPE.nm] == OptionType.PUT.code), OCl.PRICE_STATUS.nm] = OptionPriceStatus.ITM.code
+            df_chain[OCl.OPTION_TYPE.nm] == OptionType.PUT.code), OCl.PRICE_STATUS.nm] = OptionPriceStatus.ITM.code
     return df_chain[OCl.PRICE_STATUS.nm]

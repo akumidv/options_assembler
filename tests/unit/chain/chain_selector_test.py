@@ -9,7 +9,7 @@ from option_lib.chain.chain_selector import select_chain, validate_chain, get_ch
 def test_select_chain(df_brn_hist):
     df_brn_chain = select_chain(df_brn_hist)
     assert isinstance(df_brn_chain, pd.DataFrame)
-    assert len(df_brn_chain[OCl.DATETIME.nm].unique()) == 1
+    assert len(df_brn_chain[OCl.TIMESTAMP.nm].unique()) == 1
     assert len(df_brn_chain[OCl.EXPIRATION_DATE.nm].unique()) == 1
     validate_chain(df_brn_chain)
 

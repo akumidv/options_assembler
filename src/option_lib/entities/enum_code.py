@@ -34,3 +34,20 @@ class EnumColumnType(str, enum.Enum):
 
     def __repr__(self):
         return self.value
+
+
+class EnumMultiplier(str, enum.Enum):
+    """Add multiplier value to to enum"""
+
+    def __new__(cls, value: str, mult: int | float | None = None):
+        obj = str.__new__(cls, [value])
+        obj._value_ = value
+        obj.mult = mult
+        obj.nm = value
+        return obj
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return self.value

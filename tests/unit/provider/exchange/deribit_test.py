@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from option_lib.entities import AssetKind
 from option_lib.provider import AbstractProvider
-from option_lib.provider.exchange import AbstractExchange, BookData
+from option_lib.provider.exchange import AbstractExchange
 from option_lib.provider.exchange.deribit import DeribitExchange
 
 

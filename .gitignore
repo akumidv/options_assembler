@@ -5,9 +5,7 @@ venv
 __pycache__
 .pytest_cache
 .ipynb_checkpoints
-poetry.lock
-
+scripts/_*
 test.env
 /data
-
-
+*.tar
