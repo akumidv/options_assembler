@@ -9,7 +9,7 @@ from option_lib.etl.deribit_etl import EtlDeribit
 from option_lib.etl.messanger import TelegramMessanger
 
 if __name__ == '__main__':
-    update_data_path = os.environ.get('DATA_PATH', '../../data')
+    update_data_path = os.environ.get('DATA_PATH', '../../data/update')
     deribit_exchange = DeribitExchange()
     telegram_token = os.environ.get('TG_BOT_TOKEN')
     telegram_chat_id = os.environ.get('TG_CHAT')

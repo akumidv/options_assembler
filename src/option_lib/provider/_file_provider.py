@@ -9,6 +9,7 @@ dataframe columns:
 
 import os
 import datetime
+import re
 from abc import ABC
 import pandas as pd
 from pydantic import validate_call
@@ -35,9 +36,22 @@ class FileProvider(AbstractProvider, ABC):
                 symbols.append(symbol)
         return symbols
 
+    def _get_history_folder(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe):
+        return f'{self.exchange_data_path}/{symbol}/{asset_kind.value}/{timeframe.value}'
+
+    def get_symbol_history_years(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe) -> list[int]:
+        """Get years of history data for symbol"""
+        fn_pattern = re.compile(r'\d{4}.parquet')
+        history_folder = self._get_history_folder(symbol, asset_kind, timeframe)
+        if not os.path.isdir(history_folder):
+            return []
+        history_files = [int(fn[:4]) for fn in os.listdir(history_folder) if fn_pattern.match(fn)]
+        return history_files
+
     def fn_path_prepare(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe, year: int):
         """Prepare path for files"""
-        return f'{self.exchange_data_path}/{symbol}/{asset_kind.value}/{timeframe.value}/{year}.parquet'
+        history_folder = self._get_history_folder(symbol, asset_kind, timeframe)
+        return f'{history_folder}/{year}.parquet'
 
     @validate_call
     def load_option_chain(self, symbol: str, settlement_datetime: datetime.datetime | None = None,

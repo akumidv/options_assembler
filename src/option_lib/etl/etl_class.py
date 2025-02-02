@@ -53,7 +53,7 @@ class EtlOptions(ABC):
     _messages_lock = threading.Lock()
 
     def __init__(self, exchange: AbstractExchange, asset_names: list[str] | str | None, timeframe: Timeframe,
-                 data_path: str, timeframe_cron: dict | None = None, messanger: AbstractMessanger | None = None):
+                 update_data_path: str, timeframe_cron: dict | None = None, messanger: AbstractMessanger | None = None):
         """
         Initialize ETL
 
@@ -62,7 +62,7 @@ class EtlOptions(ABC):
 
         """
         self.exchange = exchange
-        self._data_path = data_path
+        self._update_data_path = update_data_path
         self._asset_names = asset_names
         self._timeframe: Timeframe = timeframe
         self._messanger: AbstractMessanger = messanger if messanger is not None else StandardMessanger()
@@ -108,13 +108,13 @@ class EtlOptions(ABC):
         """Print jobs"""
         print('Assets:', ','.join(self._asset_names) if isinstance(self._asset_names, list) else self._asset_names)
         print('Timeframe:', self._timeframe.value)
-        print('Stored path:', os.path.abspath(os.path.normpath(self._data_path)))
-        print('Stored path:', os.path.abspath(os.path.normpath(self._data_path)))
+        print('Stored path:', os.path.abspath(os.path.normpath(self._update_data_path)))
+        print('Stored path:', os.path.abspath(os.path.normpath(self._update_data_path)))
         self._scheduler_etl.print_jobs()
 
     def get_updates_folder(self, asset_name: str, asset_kind: AssetKind, timeframe: Timeframe) -> str:
         """Return path to folder where all update should be stored"""
-        return f'{self._data_path}/{self.exchange.exchange_code}/{asset_name}/{asset_kind.value}/{timeframe.value}'
+        return f'{self._update_data_path}/{self.exchange.exchange_code}/{asset_name}/{asset_kind.value}/{timeframe.value}'
 
     def start(self):
         """Start scheduled loading"""

@@ -2,6 +2,7 @@
 import enum
 from option_lib.entities import EnumMultiplier
 
+
 @enum.unique
 class Timeframe(EnumMultiplier):
     """Types fo period"""

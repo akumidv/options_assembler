@@ -30,6 +30,7 @@ class PandasLocalFileProvider(FileProvider):
     def _fn_path_prepare(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe, year: int):
         return super().fn_path_prepare(symbol, asset_kind, timeframe, year)
 
+
     def _load_data_for_period(self, asset_kind: AssetKind, symbol: str,
                               params: RequestParameters, columns: list) -> pd.DataFrame:
         if params.period_from is None:
@@ -66,7 +67,7 @@ class PandasLocalFileProvider(FileProvider):
                 case datetime.datetime:
                     raise NotImplementedError('period from datatime')
                 case _:
-                    raise TypeError(f'period_from have incorrect type {type(params.period_to)}')
+                    raise TypeError(f'period_from have incorrect type {type(params.period_from)}')
 
     @validate_call
     def load_option_history(self, symbol: str, params: RequestParameters | None = None,

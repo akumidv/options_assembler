@@ -30,6 +30,9 @@ class AbstractProvider(ABC):
     def get_symbols_list(self, asset_kind: AssetKind) -> list[str]:
         """List of symbols"""
 
+    def get_symbol_history_years(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe):
+        """List of history years"""
+
     @abstractmethod
     def load_option_history(self, symbol: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
         """Provide option by period, timeframe"""

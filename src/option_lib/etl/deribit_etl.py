@@ -28,8 +28,8 @@ class EtlDeribit(EtlOptions):
     """
 
     def __init__(self, exchange: DeribitExchange, asset_names: list[str] | str | None, timeframe: Timeframe,
-                 data_path: str, timeframe_cron: dict | None = None, messanger: AbstractMessanger | None = None ):
-        super().__init__(exchange, asset_names, timeframe, data_path, timeframe_cron, messanger)
+                 update_data_path: str, timeframe_cron: dict | None = None, messanger: AbstractMessanger | None = None ):
+        super().__init__(exchange, asset_names, timeframe, update_data_path, timeframe_cron, messanger)
 
     def get_symbols_books_snapshot(self, asset_name: list[str] | str | None,
                                    request_timestamp: pd.Timestamp) -> DeribitAssetBookData:
@@ -59,7 +59,7 @@ class EtlDeribit(EtlOptions):
                                     )
 
     def _add_save_task_to_background_to_asset_name(self, df: pd.DataFrame, asset_kind: DeribitAssetKind,
-                                                   request_datetime: datetime.datetime):
+                                                   request_datetime: pd.Timestamp):
         asset_name = df.iloc[0][OCl.SYMBOL.nm]
         save_path = self.get_timeframe_update_path(asset_name, asset_kind, request_datetime)
         self.add_save_task_to_background(SaveTask(save_path, df.copy()))
