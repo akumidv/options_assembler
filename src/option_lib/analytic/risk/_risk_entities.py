@@ -1,8 +1,8 @@
 """Entities for risk analytics"""
-from option_lib.entities import EnumColumnType
+from option_lib.entities import EnumDataFrameColumn
 
 
-class RiskColumns(EnumColumnType):
-    """Risk dataframes columns"""
+class RiskColumns(EnumDataFrameColumn):
+    """Risk dataframes columns TODO move to analytic columns? or dataframe columns"""
     LEG_ID = 'leg_id', str
     RISK_PNL = 'risk_pnl',  float

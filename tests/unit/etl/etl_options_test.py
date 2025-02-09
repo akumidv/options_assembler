@@ -1,32 +1,11 @@
 import datetime
 import pytest
 import pandas as pd
-from option_lib.etl.etl_class import EtlOptions, AssetBookData, SaveTask
-from option_lib.provider.exchange import DeribitExchange
+from option_etl.etl_class import AssetBookData, SaveTask
+
 from option_lib.entities import Timeframe
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
-
-
-class TestEtl(EtlOptions):
-    """Test ETL class"""
-
-    def __init__(self, exchange: DeribitExchange, asset_names: list[str] | None, timeframe: Timeframe, data_path: str):
-        super().__init__(exchange, asset_names, timeframe, data_path)
-
-    def _save_tasks_dataframes_job(self):
-        """Stop saving test tasks during tests"""
-
-    def get_symbols_books_snapshot(self, asset_name: str, request_timestamp: datetime.datetime) -> AssetBookData:
-        return AssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None, futures=None,
-                             spot=None)
-
-
-@pytest.fixture(name='etl_options')
-def etl_options_fixture(deribit_client, data_path):
-    """Fixture for Test ETL"""
-    etl = TestEtl(deribit_client, None, Timeframe.EOD, data_path)
-    return etl
 
 
 def test_add_save_task_to_background_thread_safe(etl_options):

@@ -6,7 +6,7 @@ from functools import partial
 from option_lib.provider._provider_entities import DataEngine, DataSource
 from option_lib.provider._abstract_provider_class import AbstractProvider
 from option_lib.provider._local_provider import PandasLocalFileProvider
-from option_lib.provider.exchange.exchange_fabric import get_exchange
+from exchange.exchange_fabric import get_exchange
 
 
 _PROVIDERS: Dict[DataSource, Dict[DataEngine, Type[AbstractProvider]]] = {

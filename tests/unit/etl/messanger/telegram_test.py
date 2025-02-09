@@ -1,5 +1,5 @@
 import os
-from option_lib.etl.messanger import TelegramMessanger
+from messanger import TelegramMessanger
 
 
 def test_send_message():

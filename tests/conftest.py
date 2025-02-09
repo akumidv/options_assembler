@@ -3,19 +3,20 @@ import os
 import datetime
 import pytest
 import pandas as pd
-from option_lib.entities import Timeframe
+
 from option_lib.option_data_class import OptionData
-from option_lib.provider import PandasLocalFileProvider, RequestParameters
-from option_lib.enrichment._option_with_future import join_option_with_future
+from exchange.deribit import DeribitExchange
+
+from option_lib.enrichment import join_option_with_future
 from option_lib.chain.chain_selector import select_chain
 from option_lib.chain.price_status import get_chain_atm_strike
 from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe
-from option_lib.provider.exchange.deribit import DeribitExchange
+from option_lib.provider import PandasLocalFileProvider, RequestParameters
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
 
 pd.set_option('display.max_columns', 50)
-pd.set_option('display.width', 150)
+pd.set_option('display.width', 200)
 pd.set_option('display.max_rows', 300)
 
 _CACHE = {}
@@ -36,13 +37,20 @@ def fixture_update_data_path() -> str:
 @pytest.fixture(name='exchange_code')
 def fixture_exchange_code() -> str:
     """ In future from combination exchange / symbol? """
-    return 'CME'
+    return 'DERIBIT'  # 'CME' # 'DERIBIT'
 
 
 @pytest.fixture(name='option_symbol')
 def fixture_option_symbol() -> str:
     """ Option symbol for tests"""
-    return 'BTC'
+    return 'BTC'  # 'BRN'
+
+
+@pytest.fixture(name='option_data')
+def fixture_option_data(exchange_provider, option_symbol, provider_params):
+    """Option data instance"""
+    opt_data = OptionData(exchange_provider, option_symbol, provider_params)
+    return opt_data
 
 
 @pytest.fixture(name='exchange_provider')
@@ -66,13 +74,6 @@ def fixture_provider_params(exchange_provider, option_symbol):
     params = RequestParameters(period_from=None, period_to=cur_dt.year,
                                timeframe=Timeframe.EOD)
     return params
-
-
-@pytest.fixture(name='option_data')
-def fixture_option_data(exchange_provider, option_symbol, provider_params):
-    """Option data instance"""
-    opt_data = OptionData(exchange_provider, option_symbol, provider_params)
-    return opt_data
 
 
 @pytest.fixture(name='df_opt_hist')

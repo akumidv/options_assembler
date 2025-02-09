@@ -1,6 +1,6 @@
 """Entities for price analytics"""
-from option_lib.entities import EnumColumnType
+from option_lib.entities import EnumDataFrameColumn
 
 
-class PriceColumns(EnumColumnType):
-    """Price dataframes columns"""
+class PriceColumns(EnumDataFrameColumn):
+    """Price dataframes columns TODO move to analytic columns or to DataFrame columns"""

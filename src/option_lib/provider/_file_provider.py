@@ -36,8 +36,9 @@ class FileProvider(AbstractProvider, ABC):
                 symbols.append(symbol)
         return symbols
 
-    def _get_history_folder(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe):
-        return f'{self.exchange_data_path}/{symbol}/{asset_kind.value}/{timeframe.value}'
+    def _get_history_folder(self, symbol: str, asset_kind: AssetKind | str, timeframe: Timeframe | str):
+        return f'{self.exchange_data_path}/{symbol}/{asset_kind if isinstance(asset_kind, str ) else asset_kind.value}/' \
+               f'{timeframe if isinstance(timeframe, str) else timeframe.value}'
 
     def get_symbol_history_years(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe) -> list[int]:
         """Get years of history data for symbol"""
@@ -48,7 +49,7 @@ class FileProvider(AbstractProvider, ABC):
         history_files = [int(fn[:4]) for fn in os.listdir(history_folder) if fn_pattern.match(fn)]
         return history_files
 
-    def fn_path_prepare(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe, year: int):
+    def fn_path_prepare(self, symbol: str, asset_kind: AssetKind | str, timeframe: Timeframe | str, year: int):
         """Prepare path for files"""
         history_folder = self._get_history_folder(symbol, asset_kind, timeframe)
         return f'{history_folder}/{year}.parquet'

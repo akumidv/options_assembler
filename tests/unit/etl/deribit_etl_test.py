@@ -4,8 +4,8 @@ import pandas as pd
 import pytest
 from option_lib.entities import Timeframe, OptionColumns as OCl
 
-from option_lib.etl.deribit_etl import EtlDeribit, DeribitAssetBookData
-from option_lib.provider.exchange import DeribitExchange
+from option_etl.deribit_etl import EtlDeribit, DeribitAssetBookData
+from exchange import DeribitExchange
 
 
 class TestEtlDeribit(EtlDeribit):
