@@ -37,4 +37,4 @@ Open link that will be shown in console
 
 In future plans if there will be some useful code and docs to deploy with Vercel or Netlify.
 
-Now docs almost empty.
+Now docs are almost empty.

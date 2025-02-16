@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from option_lib.entities import OptionColumns as OCl, Timeframe, OptionType
-from option_lib.normalization.timeframe_resample import _get_group_columns_by_type
+from option_lib.normalization.timeframe_resample import _get_group_columns_by_type, convert_to_timeframe
 
 
 def test__get_group_columns_by_type_spot():
@@ -39,11 +39,11 @@ def test__get_group_columns_by_type_option():
                 OCl.STRIKE.nm: [1000, 1200]}
     df = pd.DataFrame(opt_dict)
     group_columns = _get_group_columns_by_type(df)
-    assert group_columns == [OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE, OCl.STRIKE.nm]
+    assert group_columns == [OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE.nm, OCl.STRIKE.nm]
     opt_dict.update({OCl.SYMBOL.nm: ['BTC', 'ETH']})
     df = pd.DataFrame(opt_dict)
     group_columns = _get_group_columns_by_type(df)
-    assert group_columns == [OCl.SYMBOL.nm, OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE, OCl.STRIKE.nm]
+    assert group_columns == [OCl.SYMBOL.nm, OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE.nm, OCl.STRIKE.nm]
 
 
 def test__get_group_columns_by_type_wrong_option():
@@ -59,3 +59,36 @@ def test__get_group_columns_by_type_wrong_option():
     df = pd.DataFrame(opt_dict)
     with pytest.raises(ValueError):
         _ = _get_group_columns_by_type(df)
+
+
+def test_convert_to_timeframe_future(future_update_files):
+    dfs = []
+    for fn in future_update_files[:10]:
+        dfs.append(pd.read_parquet(fn))
+    df = pd.concat(dfs)
+    df_new_tf = convert_to_timeframe(df, Timeframe.EOD)
+    assert len(df_new_tf) != len(df)
+    assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
+    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
+
+
+def test_convert_to_timeframe_option(option_update_files):
+    dfs = []
+    for fn in option_update_files[:10]:
+        dfs.append(pd.read_parquet(fn))
+    df = pd.concat(dfs, ignore_index=True)
+    df_new_tf = convert_to_timeframe(df, Timeframe.EOD)
+    assert len(df_new_tf) != len(df)
+    assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
+    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
+
+
+def test_convert_to_timeframe_option_by_type(option_update_files):
+    dfs = []
+    for fn in option_update_files[:10]:
+        dfs.append(pd.read_parquet(fn))
+    df = pd.concat(dfs)
+    df_new_tf = convert_to_timeframe(df, Timeframe.EOD, by_exchange_symbol=False)
+    assert len(df_new_tf) != len(df)
+    assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
+    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())

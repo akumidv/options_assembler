@@ -8,14 +8,14 @@ from option_lib.entities import (
     OptionColumns as OCl,
     OPTION_NON_SPOT_COLUMN_NAMES, OPTION_NON_FUTURES_COLUMN_NAMES
 )
-from exchange import DeribitExchange, DeribitAssetKind
+from exchange import DeribitExchange, DeribitAssetKind, DERIBIT_COLUMNS_TO_CURRENCY
 from messanger import AbstractMessanger
 
 
 @dataclass
 class DeribitAssetBookData(AssetBookData):
     """Asset book data for timeframe"""
-    futures_combo: pd.DataFrame | None
+    future_combo: pd.DataFrame | None
     option_combo: pd.DataFrame | None
 
 
@@ -32,6 +32,16 @@ class EtlDeribit(EtlOptions):
                  is_detailed: bool = False):
         super().__init__(exchange, asset_names, timeframe, update_data_path, timeframe_cron, messanger, is_detailed)
 
+    @staticmethod
+    def _drop_service_or_doublet_columns(df: pd.DataFrame) -> pd.DataFrame:
+        drop_columns = []
+        for col in df.columns:
+            if col.startswith(f'{DeribitExchange.SOURCE_PREFIX}_') and df[col].isnull().all():
+                drop_columns.append(col)
+        if len(drop_columns) > 0:
+            df.drop(columns=drop_columns, inplace=True)
+        return df
+
     def get_symbols_books_snapshot(self, asset_name: list[str] | str | None,
                                    request_timestamp: pd.Timestamp | None = None) -> DeribitAssetBookData:
         """Load deribit option and future"""
@@ -40,7 +50,7 @@ class EtlDeribit(EtlOptions):
         book_summary_df = self.exchange.get_symbols_books_snapshot(asset_name)
         if book_summary_df is None or book_summary_df.empty:
             return DeribitAssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None,
-                                        futures=None, spot=None, futures_combo=None, option_combo=None)
+                                        future=None, spot=None, future_combo=None, option_combo=None)
         book_summary_df[OCl.REQUEST_TIMESTAMP.nm] = request_timestamp
         options_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.OPTION.code].reset_index(
             drop=True)
@@ -48,16 +58,18 @@ class EtlDeribit(EtlOptions):
             book_summary_df[OCl.KIND.nm] == DeribitAssetKind.OPTION_COMBO.code].reset_index(drop=True)
         future_columns = [col for col in book_summary_df.columns if col not in OPTION_NON_FUTURES_COLUMN_NAMES]
         future_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.FUTURE.code][future_columns]
-        futures_combo_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.FUTURE_COMBO.code
-                                           ][future_columns]
+        future_df = self._drop_service_or_doublet_columns(future_df)
+        future_combo_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.FUTURE_COMBO.code
+                                          ][future_columns]
+        future_combo_df = self._drop_service_or_doublet_columns(future_combo_df)
         spot_columns = [col for col in book_summary_df.columns if col not in OPTION_NON_SPOT_COLUMN_NAMES]
         spot_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.SPOT.code][spot_columns]
-
+        spot_df = self._drop_service_or_doublet_columns(spot_df)
         return DeribitAssetBookData(asset_name=asset_name, request_timestamp=request_timestamp,
                                     option=options_df if not options_df.empty else None,
-                                    futures=future_df if not future_df.empty else None,
+                                    future=future_df if not future_df.empty else None,
                                     spot=spot_df if not spot_df.empty else None,
-                                    futures_combo=futures_combo_df if not futures_combo_df.empty else None,
+                                    future_combo=future_combo_df if not future_combo_df.empty else None,
                                     option_combo=options_combo_df if not options_combo_df.empty else None
                                     )
 
@@ -70,9 +82,9 @@ class EtlDeribit(EtlOptions):
     def _save_timeframe_book_update(self, book_data: DeribitAssetBookData):
         """ Save book data"""
         fabric = {'option': DeribitAssetKind.OPTION,
-                  'futures': DeribitAssetKind.FUTURE,
+                  'future': DeribitAssetKind.FUTURE,
                   'spot': DeribitAssetKind.SPOT,
-                  'futures_combo': DeribitAssetKind.FUTURE_COMBO,
+                  'future_combo': DeribitAssetKind.FUTURE_COMBO,
                   'option_combo': DeribitAssetKind.OPTION_COMBO
                   }
         request_datetime = book_data.request_timestamp

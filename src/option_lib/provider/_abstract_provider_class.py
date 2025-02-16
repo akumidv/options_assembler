@@ -19,7 +19,8 @@ class AbstractProvider(ABC):
     """ Provider interfaces """
     exchange_code: str
     option_columns = [OptionColumns.TIMESTAMP.nm, OptionColumns.STRIKE.nm, OptionColumns.EXPIRATION_DATE.nm,
-                      OptionColumns.OPTION_TYPE.nm, OptionColumns.PRICE.nm, OptionColumns.UNDERLYING_EXPIRATION_DATE.nm]
+                      OptionColumns.OPTION_TYPE.nm, OptionColumns.PRICE.nm, OptionColumns.UNDERLYING_EXPIRATION_DATE.nm,
+                      OptionColumns.UNDERLYING_PRICE.nm]
     future_columns = [FuturesColumns.TIMESTAMP.nm, FuturesColumns.EXPIRATION_DATE.nm, FuturesColumns.PRICE.nm]
 
     def __init__(self, exchange_code: str, **kwargs):

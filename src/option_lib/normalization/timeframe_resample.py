@@ -2,7 +2,7 @@
 import pandas as pd
 from option_lib.entities import OptionColumns as OCl, Timeframe
 
-DEFAULT_RESAMPLE_MODEL = {col: col.resample_func for col in OCl if col.resample_func is not None}
+DEFAULT_RESAMPLE_MODEL = {col.nm: col.resample_func for col in OCl if col.resample_func is not None}
 RESAMPLE_SORT_COLUMNS = [OCl.TIMESTAMP.nm, OCl.ORIGINAL_TIMESTAMP, OCl.REQUEST_TIMESTAMP]
 
 
@@ -20,6 +20,9 @@ def convert_to_timeframe(df: pd.DataFrame, timeframe: Timeframe, by_exchange_sym
                                                    by_exchange_symbol=by_exchange_symbol,
                                                    resample_model=resample_model,
                                                    group_columns=None)
+    if OCl.TIMESTAMP.nm in df.columns:
+        df.drop(columns=[OCl.TIMESTAMP.nm], inplace=True)
+    df.reset_index(drop=False, inplace=True)
     return df
 
 
@@ -35,7 +38,7 @@ def _get_group_columns_by_type(df: pd.DataFrame):
     elif is_future:  # Futures
         group_columns = [OCl.EXPIRATION_DATE.nm]
     elif is_option:  # Options
-        group_columns = [OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE, OCl.STRIKE.nm]
+        group_columns = [OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE.nm, OCl.STRIKE.nm]
     else:
         raise ValueError(f'Cannot detect type of dataframe by columns and values, '
                          f'try to use {OCl.EXCHANGE_SYMBOL.nm}')
@@ -71,12 +74,12 @@ def _resample_by_kind_type_or_exchange_symbol(df: pd.DataFrame, timeframe: Timef
         raise ValueError(f'Resampled dataframe contain more then one '
                          f'exchange symbol {df[OCl.EXCHANGE_SYMBOL.nm].unique()}')
 
-    ffill_columns = [col for col in resample_model if resample_model[col] == 'last' and col in df.columns]
-    if len(ffill_columns):
-        df[ffill_columns].ffill(inplace=True)
-    bfill_columns = [col for col in resample_model if resample_model[col] == 'first' and col in df.columns]
-    if len(bfill_columns):
-        df[bfill_columns].bfill(inplace=True)
-    df_resample = df.resample(rule=timeframe.offset, on=OCl.TIMESTAMP.nm, closed='left', label='left').apply(
-        resample_model)
+    forward_fill_columns = [col for col in resample_model if resample_model[col] == 'last' and col in df.columns]
+    if len(forward_fill_columns):
+        df[forward_fill_columns].ffill(inplace=True)
+    back_fill_columns = [col for col in resample_model if resample_model[col] == 'first' and col in df.columns]
+    if len(back_fill_columns):
+        df[back_fill_columns].bfill(inplace=True)
+    df_resample = df.resample(rule=timeframe.offset, on=OCl.TIMESTAMP.nm, closed='left', label='left',
+                              group_keys=False).apply(resample_model)
     return df_resample

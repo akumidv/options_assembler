@@ -9,19 +9,16 @@ from messanger import TelegramMessanger
 from exchange import DeribitExchange
 from option_etl import EtlDeribit
 
-pd.set_option('display.max_columns', 50)
-pd.set_option('display.width', 150)
-pd.set_option('display.max_rows', 300)
 
 if __name__ == '__main__':
-    update_data_path = os.environ.get('UPDATE_DATA_PATH', '../../data/update')
+    update_data_path = os.environ.get('UPDATE_DATA_PATH', '../../../data/update')
     deribit_exchange = DeribitExchange()
     telegram_token = os.environ.get('TG_BOT_TOKEN')
     telegram_chat_id = os.environ.get('TG_CHAT')
     timeframe = Timeframe(os.environ.get('ETL_TIMEFRAME', '1h'))
     messanger = TelegramMessanger(telegram_token, telegram_chat_id) if telegram_token and telegram_chat_id else None
     etl_deribit = EtlDeribit(deribit_exchange, DeribitExchange.CURRENCIES, timeframe, update_data_path,
-                             messanger=messanger, is_detailed=False)
+                             messanger=messanger, is_detailed=True)
     etl_deribit.print_etl()
     etl_deribit.start()
     # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.

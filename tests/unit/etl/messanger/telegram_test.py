@@ -5,7 +5,6 @@ from messanger import TelegramMessanger
 def test_send_message():
     telegram_token = os.environ.get('TG_BOT_TOKEN')
     telegram_chat_id = os.environ.get('TG_CHAT')
-    print(telegram_token, telegram_chat_id)
     if telegram_token and telegram_chat_id:
         telegram = TelegramMessanger(telegram_token, telegram_chat_id)
         telegram.send_message('Test message')

@@ -3,10 +3,10 @@ import os
 import datetime
 import pytest
 import pandas as pd
+from functools import lru_cache
 
 from option_lib.option_data_class import OptionData
 from exchange.deribit import DeribitExchange
-
 from option_lib.enrichment import join_option_with_future
 from option_lib.chain.chain_selector import select_chain
 from option_lib.chain.price_status import get_chain_atm_strike
@@ -37,13 +37,13 @@ def fixture_update_data_path() -> str:
 @pytest.fixture(name='exchange_code')
 def fixture_exchange_code() -> str:
     """ In future from combination exchange / symbol? """
-    return 'DERIBIT'  # 'CME' # 'DERIBIT'
+    return 'DERIBIT'
 
 
 @pytest.fixture(name='option_symbol')
 def fixture_option_symbol() -> str:
     """ Option symbol for tests"""
-    return 'BTC'  # 'BRN'
+    return 'BTC'
 
 
 @pytest.fixture(name='option_data')
@@ -57,6 +57,37 @@ def fixture_option_data(exchange_provider, option_symbol, provider_params):
 def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvider:
     """Local provider"""
     return PandasLocalFileProvider(exchange_code=exchange_code, data_path=data_path)
+
+
+def _get_update_file_list(base_path: str, asset_kind: AssetKind):
+    asset_kind_path = os.path.abspath(
+        os.path.normpath(os.path.join(base_path, asset_kind.value)))
+    max_depth = 3
+    timeframes = os.listdir(asset_kind_path)
+    updates_files = []
+    for tm in timeframes:
+        timeframe_path = os.path.join(asset_kind_path, tm)
+        for root_path, dirs, files in os.walk(timeframe_path):
+            if root_path[len(timeframe_path):].count(os.sep) > max_depth:
+                break
+            if not files:
+                continue
+            updates_files.extend([os.path.join(root_path, fn) for fn in sorted(files)])
+    return updates_files
+
+
+@pytest.fixture(name='option_update_files')
+@lru_cache
+def option_update_files_fixture(update_path, exchange_code, option_symbol):
+    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.OPTION)
+    return updates_files
+
+
+@pytest.fixture(name='future_update_files')
+@lru_cache
+def future_update_files_fixture(update_path, exchange_code, option_symbol):
+    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURE)
+    return updates_files
 
 
 @pytest.fixture(name='provider_params')
@@ -77,7 +108,7 @@ def fixture_provider_params(exchange_provider, option_symbol):
 
 
 @pytest.fixture(name='df_opt_hist')
-def fixture_df_brn_hist(option_symbol, exchange_provider, provider_params):
+def fixture_df_hist(option_symbol, exchange_provider, provider_params):
     """Option dataframe"""
     if _CACHE.get('DF_OPT') is None:
         _CACHE['DF_OPT'] = exchange_provider.load_option_history(symbol=option_symbol, params=provider_params,
@@ -86,7 +117,7 @@ def fixture_df_brn_hist(option_symbol, exchange_provider, provider_params):
 
 
 @pytest.fixture(name='df_fut_hist')
-def fixture_df_brn_fut(option_symbol, exchange_provider, provider_params):
+def fixture_df_fut(option_symbol, exchange_provider, provider_params):
     """Future dataframe"""
     if _CACHE.get('DF_FUT') is None:
         _CACHE['DF_FUT'] = exchange_provider.load_future_history(symbol=option_symbol, params=provider_params,
@@ -95,26 +126,26 @@ def fixture_df_brn_fut(option_symbol, exchange_provider, provider_params):
 
 
 @pytest.fixture(name='df_ext_hist')
-def fixture_df_ext_brn_hist(df_brn_hist, df_brn_fut):
+def fixture_df_ext_hist(df_opt_hist, df_fut_hist):
     """Option dataframe with future"""
     if _CACHE.get('DF_EXT_OPT') is None:
-        _CACHE['DF_EXT_OPT'] = join_option_with_future(df_brn_hist, df_brn_fut)
+        _CACHE['DF_EXT_OPT'] = join_option_with_future(df_opt_hist, df_fut_hist)
     return _CACHE['DF_EXT_OPT'].copy()
 
 
 @pytest.fixture(name='df_chain')
-def fixture_df_brn_chain(df_ext_brn_hist):
+def fixture_df_chain(df_opt_hist):
     """Option dataframe with future"""
     if _CACHE.get('DF_CHAIN') is None:
-        _CACHE['DF_CHAIN'] = select_chain(df_ext_brn_hist)
+        _CACHE['DF_CHAIN'] = select_chain(df_opt_hist)
     return _CACHE['DF_CHAIN'].copy()
 
 
 @pytest.fixture(name='atm_strike')
-def atm_strike_fixture(df_brn_chain):
+def atm_strike_fixture(df_chain):
     """Current  ATM strike value"""
     if _CACHE.get('ATM_STRIKE') is None:
-        _CACHE['ATM_STRIKE'] = get_chain_atm_strike(df_brn_chain)
+        _CACHE['ATM_STRIKE'] = get_chain_atm_strike(df_chain)
     return _CACHE['ATM_STRIKE']
 
 

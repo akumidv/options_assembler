@@ -13,7 +13,6 @@ from collections import OrderedDict
 # from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 from option_lib.entities import Timeframe, AssetKind, OptionColumns as OCl, FuturesColumns as FCl, SpotColumns as SCl
-from option_lib.normalization.datetime_conversion import df_columns_to_timestamp
 from option_lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
 from option_lib.provider import PandasLocalFileProvider, RequestParameters
 from exchange.exchange_entities import ExchangeCode
@@ -43,7 +42,7 @@ class EtlHistory:
         self.update_path: str = os.path.normpath(os.path.abspath(update_path))
         self._timeframe: Timeframe = timeframe
         self._symbols: list[str] | None = symbols
-        self._asset_kinds = asset_kinds if asset_kinds is not None else [ak for ak in AssetKind]
+        self._asset_kinds = asset_kinds if asset_kinds is not None else [AssetKind.FUTURE, AssetKind.OPTION]
         self._source_timeframes: list[Timeframe] = list(sorted([tm for tm in Timeframe
                                                                 if tm.mult <= self._timeframe.mult],
                                                                key=lambda tm: tm.mult))
@@ -78,21 +77,10 @@ class EtlHistory:
         start_tm = time.time()
         for sym_idx, symbol in enumerate(update_files):
             print(f'{sym_idx}/{len(update_files.keys())} {symbol} '
-                  f'{"" if sym_idx == 0 else str(round((time.time() - start_tm) / 60, 2))} + " sec"')
+                  f'{"" if sym_idx == 0 else str(round((time.time() - start_tm) / 60, 2)) + " sec"}')
             for asset_kind in update_files[symbol]:
                 timeframes_updates_files = update_files[symbol][asset_kind]
                 self.join_symbols_kind_diff_timeframes_update_files(timeframes_updates_files, symbol, asset_kind)
-
-    @staticmethod
-    def _convert_columns_to_timestamp(df):
-        timestamp_columns = list({OCl.TIMESTAMP.nm, OCl.ORIGINAL_TIMESTAMP.nm, OCl.REQUEST_TIMESTAMP.nm,
-                                  OCl.EXPIRATION_DATE.nm, OCl.UNDERLYING_EXPIRATION_DATE,
-                                  FCl.TIMESTAMP.nm, FCl.ORIGINAL_TIMESTAMP.nm, FCl.REQUEST_TIMESTAMP.nm,
-                                  FCl.EXPIRATION_DATE.nm,
-                                  SCl.TEMESTAMP.nm, SCl.ORIGINAL_TIMESTAMP.nm,
-                                  SCl.REQUEST_TIMESTAMP.nm})
-        df = df_columns_to_timestamp(df, timestamp_columns)
-        return df
 
     def _add_ochl_columns(self, df):
         if self._ochl_model:
@@ -101,8 +89,14 @@ class EtlHistory:
                     df[col] = df[OCl.PRICE.nm]
         return df
 
-    def _gen_filepath(self, symbol: str, asset_kind: str | AssetKind, year: int) -> str:
+    def _get_filepath(self, symbol: str, asset_kind: str | AssetKind, year: int) -> str:
         return self.provider.fn_path_prepare(symbol, asset_kind, self._timeframe, year)
+
+    def _convert_timeframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        # TODO self._parallelize split to chanks by month and calc - only for options
+        df = convert_to_timeframe(df, timeframe=self._timeframe,
+                                  by_exchange_symbol=True, resample_model=self._resample_model)
+        return df
 
     def join_symbols_kind_diff_timeframes_update_files(self, timeframes_updates_files: dict[str, list],
                                                        symbol: str, asset_kind: str | AssetKind):
@@ -139,22 +133,19 @@ class EtlHistory:
                         period_dfs.append(df)
                 period_df = pd.concat(period_dfs, ignore_index=True, copy=False)
                 period_df = self._add_ochl_columns(period_df)
-                if self._low_memory_usage and len(period_df) > max_period_records_num_for_optimize:
-                    period_df = convert_to_timeframe(period_df, timeframe=self._timeframe,
-                                                     by_exchange_symbol=True, resample_model=self._resample_model)  # reduce memory usage
+                if self._low_memory_usage and len(period_df) > max_period_records_num_for_optimize:  # reduce mem usage
+                    period_df = self._convert_timeframe(period_df)
                 year_dfs.append(period_df)
-            fn = self._gen_filepath(symbol, asset_kind, year)
+            fn = self._get_filepath(symbol, asset_kind, year)
             if self._update_history and os.path.isfile(fn):
                 df_prev = pd.read_parquet(fn)
                 year_dfs.append(df_prev)
             year_df = pd.concat(year_dfs, ignore_index=True, copy=False)
-            year_df = self.convert_to_timeframe(
-                year_df)  # TODO self._parallelize split to chanks by month and calc - only for options
+            year_df = self._convert_timeframe(year_df)
             os.makedirs(os.path.dirname(fn), exist_ok=True)
             year_df.to_parquet(fn)
             print(f'  - updated {symbol}/{asset_kind} for {year} with record: {len(year_df)}: '
                   f'{fn.replace(self.update_path, "")}')
-
 
     def detect_last_update(self) -> pd.Timestamp | None:
         """Detect last history update date from fututrers and options"""

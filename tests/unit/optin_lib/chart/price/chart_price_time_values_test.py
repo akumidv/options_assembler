@@ -38,8 +38,8 @@ def test_time_values_for_dataframe_wo_time_values_columns(chart_price, option_da
         _ = chart_price.time_values(option_data.df_hist)
 
 
-def test_time_values_for_dataframe(chart_price, df_brn_hist, df_brn_fut):
-    df = join_option_with_future(df_brn_hist, df_brn_fut)
+def test_time_values_for_dataframe(chart_price, df_opt_hist, df_fut_hist):
+    df = join_option_with_future(df_opt_hist, df_fut_hist)
     df = add_intrinsic_and_time_value(df)
     chart_fg = chart_price.time_values(df)
     check_is_datetime_scatter(chart_fg)

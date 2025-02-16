@@ -61,9 +61,10 @@ ENV PYTHONPATH="/app"\
 #   TG_CHAT=""
 
 COPY ./src /app/
+COPY ./demo/etl_example/ /app/
 
 FROM etl_code AS etl_deribit
 
-ENTRYPOINT ["python", "/app/etl_example/deribit_etl_run.py"]
+ENTRYPOINT ["python", "/app/deribit/deribit_etl_run.py"]
 #ENTRYPOINT ["poetry", "run", "python", "./etl_example/deribit_etl_run.py"]
 # Do not forget attach /app/data in workspace folder to external folder or set DATA_PATH

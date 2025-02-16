@@ -19,6 +19,8 @@ def test_option_enrichment_class_init(option_data):
 
 
 def test_option_enrichment_get_joint_option_with_future(opt_enrich):
+    if Ocl.UNDERLYING_PRICE.nm in opt_enrich.df_hist.columns:
+        opt_enrich.df_hist.drop(columns=[Ocl.UNDERLYING_PRICE.nm], inplace=True)
     assert Ocl.UNDERLYING_PRICE.nm not in opt_enrich.df_hist.columns
     df_opt = opt_enrich.get_joint_option_with_future()
     assert isinstance(df_opt, pd.DataFrame)
@@ -26,6 +28,8 @@ def test_option_enrichment_get_joint_option_with_future(opt_enrich):
 
 
 def test_option_enrichment_add_future(opt_enrich):
+    if Ocl.UNDERLYING_PRICE.nm in opt_enrich.df_hist.columns:
+        opt_enrich.df_hist.drop(columns=[Ocl.UNDERLYING_PRICE.nm], inplace=True)
     assert Ocl.UNDERLYING_PRICE.nm not in opt_enrich.df_hist.columns
     res = opt_enrich.add_future()
     assert isinstance(res, OptionEnrichment)

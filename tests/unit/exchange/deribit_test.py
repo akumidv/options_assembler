@@ -25,5 +25,5 @@ def test_get_symbols_books_snapshot(deribit_client):
     book_summary_df = deribit_client.get_symbols_books_snapshot()
     assert isinstance(book_summary_df, pd.DataFrame)
     assert len(book_summary_df) > 0
-    assert f'{AbstractExchange.SOURCE_PREFIX}_base_currency' in book_summary_df.columns
-    assert not book_summary_df[book_summary_df[f'{AbstractExchange.SOURCE_PREFIX}_base_currency'] == DeribitExchange.CURRENCIES[0]].empty
+    assert 'base_currency' in book_summary_df.columns
+    assert not book_summary_df[book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty

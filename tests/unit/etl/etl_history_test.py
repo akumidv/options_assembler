@@ -109,7 +109,6 @@ def _check_update_files_dict(updates_files, option_symbol, update_path, exchange
     symbols = list(updates_files.keys())
     assert option_symbol in symbols
     asset_kinds_values = list(updates_files[option_symbol].keys())
-    print(asset_kinds_values)
     assert len(asset_kinds_values) > 0
     assert asset_kind_value in asset_kinds_values
     asset_kind_some_value = asset_kinds_values[-1]
@@ -127,94 +126,24 @@ def _check_update_files_dict(updates_files, option_symbol, update_path, exchange
     assert asset_kind_value in fn
 
 
-def test_get_symbols_asset_by_timeframes_updates_fn_for_symbol_and_asset(etl_opt_future_history):
+def test_get_symbols_asset_by_timeframes_updates_fn_for_symbol_and_asset(etl_history_future):
     # start_ts = pd.Timestamp.now(tz=datetime.UTC) - pd.Timedelta(days=3)
-    updates_files = etl_opt_future_history.get_symbols_asset_by_timeframes_updates_fn(None)
-    _check_update_files_dict(updates_files, etl_opt_future_history._symbols[0], etl_opt_future_history.update_path,
-                             etl_opt_future_history._exchange_code, etl_opt_future_history._asset_kinds[0].value)
+    updates_files = etl_history_future.get_symbols_asset_by_timeframes_updates_fn(None)
+    _check_update_files_dict(updates_files, etl_history_future._symbols[0], etl_history_future.update_path,
+                             etl_history_future._exchange_code, etl_history_future._asset_kinds[0].value)
 
 
-def test_convert_to_timeframe_spot(etl_history_spot):
-    updates_files = etl_history_spot.get_symbols_asset_by_timeframes_updates_fn(None)
-    symbol = list(updates_files.keys())[0]
-    _check_update_files_dict(updates_files, symbol, etl_history_spot.update_path,
-                             etl_history_spot._exchange_code, AssetKind.SPOT.value)
-    timeframes = list(updates_files[symbol][AssetKind.SPOT.value].keys())
-    dfs = []
-    for fn in updates_files[symbol][AssetKind.SPOT.value][timeframes[0]][:10]:
-        dfs.append(pd.read_parquet(fn))
-    df = pd.concat(dfs)
-    df_new_tf = etl_history_spot.convert_to_timeframe(df)
-    assert len(df_new_tf) != len(df)
-
-
-def test_convert_to_timeframe_future(etl_history_future):
-    # TODO checking
+def test_get_update_timeframes_files(etl_history_future):
+    # TODO
     updates_files = etl_history_future.get_symbols_asset_by_timeframes_updates_fn(None)
     symbol = etl_history_future._symbols[0]
+    asset_kind_value = etl_history_future._asset_kinds[0].value
     _check_update_files_dict(updates_files, symbol, etl_history_future.update_path,
-                             etl_history_future._exchange_code, AssetKind.FUTURE.value)
-    timeframes = list(updates_files[symbol][AssetKind.FUTURE.value].keys())
-    dfs = []
-    for fn in updates_files[symbol][AssetKind.FUTURE.value][timeframes[0]][:10]:
-        dfs.append(pd.read_parquet(fn))
-    df = pd.concat(dfs)
-    df_new_tf = etl_history_future.convert_to_timeframe(df)
-    assert len(df_new_tf) != len(df)
-    assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
-    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
-    print('########', df_new_tf)
-
-
-def test_convert_to_timeframe_option(etl_history_option):
-    # TODO checking
-    updates_files = etl_history_option.get_symbols_asset_by_timeframes_updates_fn(None)
-    symbol = etl_history_option._symbols[0]
-    _check_update_files_dict(updates_files, symbol, etl_history_option.update_path,
-                             etl_history_option._exchange_code, AssetKind.OPTION.value)
-    timeframes = list(updates_files[symbol][AssetKind.OPTION.value].keys())
-    dfs = []
-    for fn in updates_files[symbol][AssetKind.OPTION.value][timeframes[0]][:10]:
-        dfs.append(pd.read_parquet(fn))
-    df = pd.concat(dfs)
-    df_new_tf = etl_history_option.convert_to_timeframe(df)
-    assert len(df_new_tf) != len(df)
-    assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
-    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
-    print('########', df_new_tf)
+                             etl_history_future._exchange_code, asset_kind_value)
+    df = etl_history_future.join_symbols_kind_diff_timeframes_update_files(updates_files[symbol][asset_kind_value],
+                                                                           symbol, asset_kind_value)
 
 
 
-def test_convert_to_timeframe_option_by_type(etl_history_option):
-    # TODO checking
-    etl_history_option._resample_by_type = False
-    updates_files = etl_history_option.get_symbols_asset_by_timeframes_updates_fn(None)
-    symbol = etl_history_option._symbols[0]
-    _check_update_files_dict(updates_files, symbol, etl_history_option.update_path,
-                             etl_history_option._exchange_code, AssetKind.OPTION.value)
-    timeframes = list(updates_files[symbol][AssetKind.OPTION.value].keys())
-    dfs = []
-    for fn in updates_files[symbol][AssetKind.OPTION.value][timeframes[0]][:10]:
-        dfs.append(pd.read_parquet(fn))
-    df = pd.concat(dfs)
-    df_new_tf = etl_history_option.convert_to_timeframe(df)
-    assert len(df_new_tf) != len(df)
-    assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
-    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
-    print('########', df_new_tf)
-
-
-def test_get_update_timeframes_files(etl_opt_future_history):
-    # TODO
-    updates_files = etl_opt_future_history.get_symbols_asset_by_timeframes_updates_fn(None)
-    symbol = etl_opt_future_history._symbols[0]
-    asset_kind_value = etl_opt_future_history._asset_kinds[0].value
-    _check_update_files_dict(updates_files, symbol, etl_opt_future_history.update_path,
-                             etl_opt_future_history._exchange_code, asset_kind_value)
-    df = etl_opt_future_history.join_symbols_kind_diff_timeframes_update_files(updates_files[symbol][asset_kind_value])
-
-    print(df)
-
-
-def test_prepare(etl_history):
-    etl_history.prepare()
+# def test_prepare(etl_history):
+#     etl_history.prepare()

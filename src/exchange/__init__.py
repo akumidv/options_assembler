@@ -4,4 +4,4 @@ from exchange.exchange_fabric import get_exchange
 from exchange.exchange_entities import ExchangeCode
 
 from exchange.binance import BinanceExchange
-from exchange.deribit import DeribitExchange, DeribitAssetKind
+from exchange.deribit import DeribitExchange, DeribitAssetKind, COLUMNS_TO_CURRENCY as DERIBIT_COLUMNS_TO_CURRENCY

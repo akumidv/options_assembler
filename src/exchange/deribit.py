@@ -31,12 +31,11 @@ class DeribitAssetKind(EnumCode):
 
 
 DOT_STRIKE_REGEXP = re.compile(r'(\d)d(\d)', flags=re.IGNORECASE)
-COLUMNS_TO_CURRENCY = [OCl.EXCHANGE_PRICE.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.LAST.nm,
-                       OCl.ASK.nm, OCl.BID.nm]
+COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_PRICE.nm]
+
 
 class DeribitMarket:
     """Deribit Market data api"""
-
 
     def __init__(self, client: RequestClass):
         self.client = client
@@ -89,8 +88,6 @@ class DeribitMarket:
                     return row
                 case 4:  # OPT AND OPT COMBO
                     row[OCl.SYMBOL.nm] = symbol
-                    row[OCl.PRICE.nm] = row[FCl.PRICE.nm]
-                    row[FCl.PRICE.nm] = None
                     expiration_date = parse_expiration_date(exchange_asset_symbol_arr[1])
                     if expiration_date is None:  # OPT COMBO
                         # Second value is strategy for combo, for example PCOND - put condor, CBUT - call butterfly
@@ -98,7 +95,7 @@ class DeribitMarket:
                         kind = DeribitAssetKind.OPTION_COMBO.code
                         option_type = None
                         strike = None
-                        futures_expiration_date = None
+                        future_expiration_date = None
                     else:  # OPT
                         kind = DeribitAssetKind.OPTION.code
                         option_type = exchange_asset_symbol_arr[3]
@@ -110,11 +107,11 @@ class DeribitMarket:
 
                         under_arr = row[OCl.EXCHANGE_UNDERLYING_SYMBOL.nm].split('-')
                         if len(under_arr) == 2:
-                            futures_expiration_date = parse_expiration_date(under_arr[1])
+                            future_expiration_date = parse_expiration_date(under_arr[1])
                         else:
                             if row[OCl.EXCHANGE_UNDERLYING_SYMBOL.nm] in ['SYN.EXPIRY',  # Expired already
                                                                           'index_price']:  # index price
-                                futures_expiration_date = None
+                                future_expiration_date = None
                             else:
                                 print('Syntax error in row:\n', row)
                                 raise SyntaxError(f'Can not get expiration from underlying_index '
@@ -123,12 +120,19 @@ class DeribitMarket:
                     row[OCl.STRIKE.nm] = strike
                     row[OCl.EXPIRATION_DATE.nm] = expiration_date
                     row[OCl.KIND.nm] = kind
-                    row[OCl.UNDERLYING_EXPIRATION_DATE.nm] = futures_expiration_date
-
-                    if OCl.UNDERLYING_PRICE.nm in row and row[OCl.UNDERLYING_PRICE.nm]:
+                    row[OCl.UNDERLYING_EXPIRATION_DATE.nm] = future_expiration_date
+                    if row['base_currency'] == row['quote_currency'] and 'estimated_delivery_price' in row and \
+                        row['estimated_delivery_price']:
+                        if row[OCl.PRICE.nm]:
+                            row[OCl.PRICE.nm] *= row['estimated_delivery_price']
                         for col in COLUMNS_TO_CURRENCY:
                             if col in row:
-                                row[col] *= row[OCl.UNDERLYING_PRICE.nm]
+                                row[f'{AbstractExchange.SOURCE_PREFIX}_{col}'] = row[col]
+                                if row[col]:
+                                    row[col] *= row['estimated_delivery_price']
+                        if OCl.VOLUME_NOTIONAL.nm in row and 'volume_usd' in row and \
+                            pd.isna(row[OCl.VOLUME_NOTIONAL.nm]):
+                            row[OCl.VOLUME_NOTIONAL.nm] = row['volume_usd']
                     return row
                 case _:
                     raise SyntaxError(f'Can parse instrument_name {row[OCl.EXCHANGE_SYMBOL.nm]}')
@@ -136,11 +140,10 @@ class DeribitMarket:
             raise err
 
     def _normalize_book(self, book_summary_df: pd.DataFrame,
-                        request_timestamp: pd.Timestamp) -> pd.DataFrame:  # BookData:
+                        request_timestamp: pd.Timestamp) -> pd.DataFrame:
         if book_summary_df.empty:
             return book_summary_df
         book_summary_df[OCl.REQUEST_TIMESTAMP.nm] = request_timestamp
-
         rename_columns = {'creation_timestamp': OCl.ORIGINAL_TIMESTAMP.nm,
                           'instrument_name': OCl.EXCHANGE_SYMBOL.nm,
                           'underlying_index': OCl.EXCHANGE_UNDERLYING_SYMBOL.nm,
@@ -149,23 +152,16 @@ class DeribitMarket:
                           'mark_iv': OCl.EXCHANGE_IV.nm,
                           'ask_price': OCl.ASK.nm,
                           'bid_price': OCl.BID.nm,
+                          'last': OCl.LAST.nm,
                           'high': OCl.HIGH_24.nm,
                           'low': OCl.LOW_24.nm,
-                          'last': OCl.LAST.nm,
                           }
-        rename_columns.update({col: f'{AbstractExchange.SOURCE_PREFIX}_{col}' for col in book_summary_df.columns if col not in ALL_COLUMN_NAMES \
-                               + ['high', 'low', 'last'] and col not in rename_columns})
         book_summary_df.rename(columns=rename_columns, inplace=True)
         book_summary_df = df_columns_to_timestamp(book_summary_df, columns=[OCl.ORIGINAL_TIMESTAMP.nm], unit='ms')
         book_summary_df[OCl.TIMESTAMP.nm] = book_summary_df[OCl.ORIGINAL_TIMESTAMP.nm].copy()
         book_summary_df = normalize_timestamp(book_summary_df, columns=[OCl.TIMESTAMP.nm], freq='1s')
-
-
-
-        # TODO get price - function in option_lib.normalization or enrichemnts
         book_summary_df = fill_option_price(book_summary_df)
         book_summary_df = book_summary_df.apply(self._kind_enrichment, axis='columns', result_type='expand')
-        # origin_volume_usd -> volume_notional
         return book_summary_df
 
 

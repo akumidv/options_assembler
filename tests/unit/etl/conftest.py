@@ -1,4 +1,6 @@
 import datetime
+
+import pandas as pd
 import pytest
 
 from option_etl.etl_class import EtlOptions, AssetBookData, SaveTask
@@ -18,8 +20,8 @@ class TestEtl(EtlOptions):
     def _save_tasks_dataframes_job(self):
         """Stop saving test tasks during tests"""
 
-    def get_symbols_books_snapshot(self, asset_name: str, request_timestamp: datetime.datetime) -> AssetBookData:
-        return AssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None, futures=None,
+    def get_symbols_books_snapshot(self, asset_name: str, request_timestamp: pd.Timestamp) -> AssetBookData:
+        return AssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None, future=None,
                              spot=None)
 
 

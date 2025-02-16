@@ -20,7 +20,7 @@ class OptionColumns(EnumDataFrameColumn):
     PRICE = 'price', float, 'last'
     ASK = 'ask', float, 'last'
     BID = 'bid', float, 'last'
-    OPEN_INTEREST = 'open_interest', float, 'avg'
+    OPEN_INTEREST = 'open_interest', float, 'last'
     VOLUME = 'volume', float, 'last'
     VOLUME_NOTIONAL = 'volume_notional', float, 'last'
     UNDERLYING_EXPIRATION_DATE = 'underlying_expiration_date', pd.Timestamp, 'last'

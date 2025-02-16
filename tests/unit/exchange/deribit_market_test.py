@@ -43,16 +43,17 @@ def test_get_instruments(deribit_market):
     symbols_df = deribit_market.get_instruments()
     assert isinstance(symbols_df, pd.DataFrame)
     assert len(symbols_df) > 0
-    assert f'{AbstractExchange.SOURCE_PREFIX}_price_index' in symbols_df.columns
-    assert not symbols_df[symbols_df[f'{AbstractExchange.SOURCE_PREFIX}_price_index'] == 'btc_usd'].empty
+    assert f'price_index' in symbols_df.columns
+    assert not symbols_df[symbols_df[f'price_index'] == 'btc_usd'].empty
 
 
 def test_get_book_summary_by_currency(deribit_market):
     book_summary_df = deribit_market.get_book_summary_by_currency(currency=DeribitExchange.CURRENCIES[0])
     assert isinstance(book_summary_df, pd.DataFrame)
     assert len(book_summary_df) > 0
-    assert f'{AbstractExchange.SOURCE_PREFIX}_base_currency' in book_summary_df.columns
-    assert not book_summary_df[book_summary_df[f'{AbstractExchange.SOURCE_PREFIX}_base_currency'] == DeribitExchange.CURRENCIES[0]].empty
+    assert 'base_currency' in book_summary_df.columns
+    assert not book_summary_df[
+        book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
 
 
 def test__normalize_book_spot(deribit_market):
@@ -104,7 +105,8 @@ def test_get_book_summary_by_currency_option_spot(deribit_market):
     assert isinstance(book_summary_df, pd.DataFrame)
     assert len(book_summary_df) > 0
     assert 'base_currency' in book_summary_df.columns
-    assert not book_summary_df[book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
+    assert not book_summary_df[
+        book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
 
 
 def test__normalize_book_future(deribit_market):
@@ -134,6 +136,7 @@ def test__normalize_book_future(deribit_market):
     assert FCl.KIND.nm in df.columns
     assert list(df[FCl.KIND.nm].unique()) == [DeribitAssetKind.FUTURE.code]
     assert None not in list(df[FCl.EXPIRATION_DATE.nm].unique())
+    assert df[OCl.PRICE.nm].notnull().any()
 
 
 def test_get_book_summary_by_currency_future(deribit_market):
@@ -159,9 +162,11 @@ def test_get_book_summary_by_currency_future(deribit_market):
                                                                   kind=DeribitAssetKind.FUTURE)
     assert isinstance(book_summary_df, pd.DataFrame)
     assert len(book_summary_df) > 0
-    assert f'{AbstractExchange.SOURCE_PREFIX}_base_currency' in book_summary_df.columns
-    assert not book_summary_df[book_summary_df[f'{AbstractExchange.SOURCE_PREFIX}_base_currency'] == DeribitExchange.CURRENCIES[0]].empty
+    assert 'base_currency' in book_summary_df.columns
+    assert not book_summary_df[
+        book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
     assert list(book_summary_df[FCl.KIND.nm].unique()) == [DeribitAssetKind.FUTURE.code]
+    assert book_summary_df[OCl.PRICE.nm].notnull().any()
 
 
 def test__normalize_book_future_combo(deribit_market):
@@ -211,20 +216,22 @@ def test_get_book_summary_by_currency_future_combo(deribit_market):
     assert isinstance(book_summary_df, pd.DataFrame)
     assert len(book_summary_df) > 0
     assert 'base_currency' in book_summary_df.columns
-    assert not book_summary_df[book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
+    assert not book_summary_df[
+        book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
     assert list(book_summary_df[OCl.KIND.nm].unique()) == [DeribitAssetKind.FUTURE_COMBO.code]
     assert None not in list(book_summary_df[OCl.EXPIRATION_DATE.nm].unique())
+    assert book_summary_df[OCl.PRICE.nm].notnull().any()
 
 
 def test__normalize_book_option(deribit_market):
     opt_df = pd.DataFrame({'high': [None, None, None, None, 0.0145, None, None],
                            'low': [None, None, None, None, 0.0145, None, None],
                            'last': [None, None, 0.0001, None, 0.0145, None, None],
+                           'bid_price': [0.101, None, None, None, 0.018, 0.1070, None],
+                           'ask_price': [0.2385, None, None, None, 0.019, 0.1460, None],
                            'instrument_name': ['BTC-7FEB25-106000-P', 'BTC-18JAN25-107000-P', 'BTC-24JAN25-60000-P',
                                                'BTC-27JUN25-230000-C', 'BTC-31JAN25-92000-P', 'ETH-18JAN25-3000-C',
                                                'DOGE_USDC-7FEB25-0d4064-C'],
-                           'bid_price': [0.101, None, None, None, 0.018, 0.1070, None],
-                           'ask_price': [0.2385, None, None, None, 0.019, 0.1460, None],
                            'open_interest': [0.0, 0.0, 0.0, 0.0, 135.94, 0.0, 0.0],
                            'mark_price': [0.1042716, 0.05807133, 0.0, 0.01184211, 0.01866323, 0.107292, 0.001296],
                            'price_change': [None, None, None, None, None, None, None],
@@ -250,6 +257,7 @@ def test__normalize_book_option(deribit_market):
     assert None not in list(df[OCl.EXPIRATION_DATE.nm].unique())
     assert None not in list(df[OCl.STRIKE.nm].unique())
     assert None not in list(df[OCl.OPTION_TYPE.nm].unique())
+    assert df[OCl.PRICE.nm].notnull().any()
 
 
 def test_get_book_summary_by_currency_option(deribit_market):
@@ -274,11 +282,12 @@ def test_get_book_summary_by_currency_option(deribit_market):
     assert isinstance(book_summary_df, pd.DataFrame)
     assert len(book_summary_df) > 0
     assert 'base_currency' in book_summary_df.columns
-    assert not book_summary_df[book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
+    assert not book_summary_df[
+        book_summary_df['base_currency'] == DeribitExchange.CURRENCIES[0]].empty
     assert None not in list(book_summary_df[OCl.EXPIRATION_DATE.nm].unique())
     assert None not in list(book_summary_df[OCl.STRIKE.nm].unique())
     assert None not in list(book_summary_df[OCl.OPTION_TYPE.nm].unique())
-    df = book_summary_df
+    assert book_summary_df[OCl.PRICE.nm].notnull().any()
 
 
 def test__normalize_book_option_combo(deribit_market):

@@ -24,7 +24,7 @@ class AssetBookData:
     asset_name: str
     request_timestamp: pd.Timestamp
     option: pd.DataFrame | None
-    futures: pd.DataFrame | None
+    future: pd.DataFrame | None
     spot: pd.DataFrame | None
 
 
@@ -129,9 +129,10 @@ class EtlOptions(ABC):
         print(report_text)
         self._messanger.send_message(report_text)
 
-    def get_updates_folder(self, asset_name: str, asset_kind: AssetKind, timeframe: Timeframe) -> str:
+    def get_updates_folder(self, asset_name: str, asset_kind: AssetKind | str, timeframe: Timeframe) -> str:
         """Return path to folder where all update should be stored"""
-        return f'{self._update_data_path}/{self.exchange.exchange_code}/{asset_name}/{asset_kind.value}/{timeframe.value}'
+        return f'{self._update_data_path}/{self.exchange.exchange_code}/{asset_name}/' \
+               f'{asset_kind if isinstance(asset_kind,str) else asset_kind.value}/{timeframe.value}'
 
     def start(self):
         """Start scheduled loading"""
@@ -259,7 +260,7 @@ class EtlOptions(ABC):
                            f'{request_timestamp.strftime("%y-%m-%dT%H-%M")}.parquet'
                 return f'{request_timestamp.year}/{request_timestamp.strftime("%y-%m-%d")}.parquet'
 
-    def get_timeframe_update_path(self, asset_name: str, asset_kind: AssetKind, request_timestamp: pd.Timestamp):
+    def get_timeframe_update_path(self, asset_name: str, asset_kind: AssetKind | str, request_timestamp: pd.Timestamp):
         """Get path for request datetime correspondent to timeframe"""
         base_path = self.get_updates_folder(asset_name, asset_kind, self._timeframe)
         update_folder = self.get_request_timeframe_folder(self._timeframe, request_timestamp)
@@ -308,7 +309,7 @@ class EtlOptions(ABC):
         """
         fabric = {
             'option': AssetKind.OPTION,
-            'futures': AssetKind.FUTURE,
+            'future': AssetKind.FUTURE,
             'spot': AssetKind.SPOT
         }
         request_timestamp = book_data.request_timestamp

@@ -261,7 +261,6 @@ async def _get_funding_rate_history(instruments: pd.DataFrame, start_timestamp, 
                            'end_timestamp': end_timestamp} for instrument_name in
                           instruments['instrument_name'].to_list() if 'PERPETUAL' in instrument_name]
         dfs = []
-        print('###list_of_params', list_of_params)
         responses, params_ids = await call_ws_api_list(METHOD_GET_FUNDING_RATE_HISTORY, list_of_params)
         for response in responses:
             params = params_ids[response['id']]
