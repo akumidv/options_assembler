@@ -16,6 +16,7 @@ from option_lib.entities import Timeframe, AssetKind, OptionColumns as OCl, Futu
 from option_lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
 from option_lib.provider import PandasLocalFileProvider, RequestParameters
 from exchange.exchange_entities import ExchangeCode
+from exchange import AbstractExchange
 
 
 class EtlHistory:
@@ -26,9 +27,9 @@ class EtlHistory:
         'full_history': False,
         'resample_model': DEFAULT_RESAMPLE_MODEL,
         'resample_by_exchange_symbol': True,
+        'source_fields': True,
         'update_history': True,
         'parallelize': False,
-
     }
     update_fn_pattern: re.Pattern = re.compile(r'^(\d{4}|\d{2})-\d{2}-\d{2}((T\d{2}-\d{2})|(T\d{2}))?\.parquet$')
 
@@ -64,9 +65,14 @@ class EtlHistory:
         self._ochl_model = self._params['ochl_model']
         self._tasks_limit = self._params['tasks_limit']
         self._full_history = self._params['full_history']
-        self._resample_model = self._params['resample_model']
+        self._resample_model: dict = self._params['resample_model']
+        if self._params['source_fields']:
+            self._resample_model = self._update_resample_model_for_source(self._resample_model)
+
         self._resample_by_exchange_symbol = self._params['resample_by_exchange_symbol']
         self._update_history = self._params['update_history']
+
+
 
     def prepare(self):
         """Load history dataframe and load list of increments and update by them
@@ -74,13 +80,13 @@ class EtlHistory:
         start_ts = self.detect_last_update()
         update_files = self.get_symbols_asset_by_timeframes_updates_fn(start_ts)
 
-        start_tm = time.time()
         for sym_idx, symbol in enumerate(update_files):
-            print(f'{sym_idx}/{len(update_files.keys())} {symbol} '
-                  f'{"" if sym_idx == 0 else str(round((time.time() - start_tm) / 60, 2)) + " sec"}')
+            start_tm = time.time()
+            print(f'{sym_idx}/{len(update_files.keys())} {symbol} ')
             for asset_kind in update_files[symbol]:
                 timeframes_updates_files = update_files[symbol][asset_kind]
                 self.join_symbols_kind_diff_timeframes_update_files(timeframes_updates_files, symbol, asset_kind)
+            print(f'  {symbol} {round((time.time() - start_tm), 2)} sec')
 
     def _add_ochl_columns(self, df):
         if self._ochl_model:
@@ -266,3 +272,13 @@ class EtlHistory:
         else:
             updates_files[symbol][asset_kind][timeframe].extend([os.path.join(root_path, fn) for fn in sorted(files)])
         return updates_files
+
+    @staticmethod
+    def _update_resample_model_for_source(resample_model: dict) -> dict:
+        prefix = AbstractExchange.SOURCE_PREFIX
+        list_of_source_columns = [OCl.PRICE.nm, OCl.LAST.nm, OCl.ASK.nm, OCl.BID.nm, OCl.EXCHANGE_PRICE.nm]
+        for col in list_of_source_columns:
+            source_col = f'{prefix}_{col}'
+            if col in resample_model and source_col not in resample_model:
+                resample_model[source_col] = resample_model[col]
+        return resample_model

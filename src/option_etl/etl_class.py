@@ -18,6 +18,7 @@ from exchange import AbstractExchange
 from messanger import AbstractMessanger, StandardMessanger
 
 
+
 @dataclass
 class AssetBookData:
     """Asset book data for timeframe"""
@@ -38,6 +39,7 @@ class EtlOptions(ABC):
     """ETL Class"""
     TASKS_LIMIT = 4
     SAVE_TASKS_LIMIT = 2
+    HOST_NAME = os.uname()[1]
     _save_tasks: list[SaveTask] = []
     _save_tasks_update_lock = threading.Lock()
     _get_data_lock = threading.Lock()
@@ -51,6 +53,7 @@ class EtlOptions(ABC):
     _number_saved_files: int = 0
     _messages: list = []
     _messages_lock = threading.Lock()
+
 
     def __init__(self, exchange: AbstractExchange, asset_names: list[str] | str | None, timeframe: Timeframe,
                  update_data_path: str, timeframe_cron: dict | None = None, messanger: AbstractMessanger | None = None,
@@ -94,7 +97,7 @@ class EtlOptions(ABC):
             self._report()
 
     def _report(self):
-        report_text = f'`[ETL REPORT]` [{datetime.datetime.now().isoformat(timespec="seconds")}] ' \
+        report_text = f'`[{self.HOST_NAME} ETL REPORT]` {datetime.datetime.now().isoformat(timespec="seconds")}\n' \
                       f'Exchange: **{self.exchange.exchange_code}** for timeframe *{self._timeframe.value}*\n' \
                       f'Saved files {self._number_saved_files} (waiting {len(self._save_tasks)}), ' \
                       f'{self._number_of_requests} requests made ' \
@@ -154,11 +157,11 @@ class EtlOptions(ABC):
                 return {'hour': '*', 'minute': '0,7,14,15,22,29,30,37,44,45,52,59'} if is_detailed else \
                        {'hour': '*', 'minute': '14,29,44,59'}
             case Timeframe.MINUTE_30:
-                return {'hour': '*', 'minute': '0,15,29,30,45,59'}  if is_detailed else {'hour': '*', 'minute': '29,59'}
+                return {'hour': '*', 'minute': '0,15,29,30,45,59'} if is_detailed else {'hour': '*', 'minute': '29,59'}
             case Timeframe.HOUR_1:
-                return {'hour': '*', 'minute': '0,30,59'}  if is_detailed else {'hour': '*', 'minute': 59}
+                return {'hour': '*', 'minute': '0,30,59'} if is_detailed else {'hour': '*', 'minute': 59}
             case Timeframe.HOUR_4:
-                return {'hour': '0,2,3,4,6,7,8,10,11,12,14,15,16,18,19,20,22,23', 'minute': 59}  if is_detailed else \
+                return {'hour': '0,2,3,4,6,7,8,10,11,12,14,15,16,18,19,20,22,23', 'minute': 59} if is_detailed else \
                        {'hour': '3,7,11,15,19,23', 'minute': 59}
             case _:
                 raise NotImplementedError(f'Unknown timeframe  {timeframe.value}')
@@ -237,7 +240,7 @@ class EtlOptions(ABC):
         Should return object with future and options dataframe with column name from FutureColumns, OptionColumns"""
 
     @staticmethod
-    def get_request_timeframe_folder(timeframe: Timeframe, request_timestamp: pd.Timestamp) -> str:
+    def get_request_timeframe_file(timeframe: Timeframe, request_timestamp: pd.Timestamp) -> str:
         """Get timeframe hierarchy folder structure and name"""
         match timeframe:
             case Timeframe.EOD:
@@ -250,20 +253,20 @@ class EtlOptions(ABC):
                        f'{request_timestamp.strftime("%y-%m-%dT%H-%M")}.parquet'
             case Timeframe.HOUR_1:
                 return f'{request_timestamp.year}/{request_timestamp.month}/' \
-                       f'{request_timestamp.strftime("%y-%m-%dT%H")}.parquet'
+                       f'{request_timestamp.strftime("%y-%m-%dT%H-%M")}.parquet'
             case _:
-                if timeframe.mult < 60:
+                if timeframe.mult <= 120:
                     return f'{request_timestamp.year}/{request_timestamp.month}/{request_timestamp.day}/' \
                            f'{request_timestamp.strftime("%y-%m-%dT%H-%M")}.parquet'
-                elif timeframe.mult < 60 * 24:
+                elif timeframe.mult <= 60 * 24 * 2:
                     return f'{request_timestamp.year}/{request_timestamp.month}/' \
-                           f'{request_timestamp.strftime("%y-%m-%dT%H-%M")}.parquet'
+                           f'{request_timestamp.strftime("%y-%m-%dT%H")}.parquet'
                 return f'{request_timestamp.year}/{request_timestamp.strftime("%y-%m-%d")}.parquet'
 
     def get_timeframe_update_path(self, asset_name: str, asset_kind: AssetKind | str, request_timestamp: pd.Timestamp):
         """Get path for request datetime correspondent to timeframe"""
         base_path = self.get_updates_folder(asset_name, asset_kind, self._timeframe)
-        update_folder = self.get_request_timeframe_folder(self._timeframe, request_timestamp)
+        update_folder = self.get_request_timeframe_file(self._timeframe, request_timestamp)
         return os.path.abspath(os.path.normpath(os.path.join(base_path, update_folder)))
 
     def add_save_task_to_background(self, save_task):

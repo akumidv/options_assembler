@@ -3,7 +3,7 @@ import datetime
 
 import pandas as pd
 
-from option_lib.entities import Timeframe
+from option_lib.entities import Timeframe, OptionColumns as OCl
 from option_lib.provider import AbstractProvider, RequestParameters
 
 
@@ -52,6 +52,7 @@ class OptionData:
                                            timeframe=self._provider_params.timeframe)
             self._df_hist = self._provider.load_option_history(self._option_symbol, params=opt_params,
                                                                columns=self._opt_columns)
+            self._df_hist.dropna(subset=[OCl.PRICE.nm], inplace=True)
         return self._df_hist
 
     @df_hist.setter
