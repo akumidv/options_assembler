@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 
 from option_lib.entities import OptionColumns as OCl, OptionType
-from option_lib.chain import get_chain_atm_strike, select_chain
+from option_lib.chain import get_chain_atm_strike, select_chain, get_max_settlement_valid_expired_date
 from option_lib.enrichment import add_intrinsic_and_time_value
 
 
@@ -23,7 +23,7 @@ def _get_nearest_to_distance_strike(df_chain: pd.DataFrame, distance: float) -> 
 
 
 def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float | None = None,
-                                      expiration_date: datetime.date | None = None,
+                                      expiration_date: pd.Timestamp | None = None,
                                       option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
     """
     expiration_date None - will be used nearest for last settlement_date in history dataframe
@@ -33,10 +33,9 @@ def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float | None = 
     if distance is None:
         distance = 0
     if expiration_date is None:
-        expiration_date = df_opt_fut_hist[df_opt_fut_hist[OCl.TIMESTAMP.nm] == df_opt_fut_hist[OCl.TIMESTAMP.nm].max()][
-            OCl.EXPIRATION_DATE.nm].min()
+        expiration_date = get_max_settlement_valid_expired_date(df_opt_fut_hist)
     df_hist = df_opt_fut_hist[(df_opt_fut_hist[OCl.EXPIRATION_DATE.nm] == expiration_date) & (
-            df_opt_fut_hist[OCl.OPTION_TYPE.nm] == option_type.code)] \
+        df_opt_fut_hist[OCl.OPTION_TYPE.nm] == option_type.code)] \
         .sort_values(by=OCl.TIMESTAMP.nm).reset_index(drop=True).copy()
     if df_hist.empty:
         raise ValueError(f'No data found for expiration data {expiration_date} and option type {option_type.value}')
@@ -50,7 +49,7 @@ def time_value_series_by_atm_distance(df_opt_fut_hist, distance: float | None = 
 
 
 def time_value_series_by_strike_to_atm_distance(df_opt_fut_hist, strike: float | None = None,
-                                                expiration_date: datetime.date | None = None,
+                                                expiration_date: pd.Timestamp | None = None,
                                                 option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
     """
     expiration_date None - will be used nearest for last settlement_date in history dataframe
@@ -59,7 +58,7 @@ def time_value_series_by_strike_to_atm_distance(df_opt_fut_hist, strike: float |
     """
     df_cur_chain = select_chain(df_opt_fut_hist, expiation_date=expiration_date)
     if expiration_date is None:
-        expiration_date = df_cur_chain.iloc[0][OCl.EXPIRATION_DATE.nm]
+        expiration_date = df_cur_chain[OCl.EXPIRATION_DATE.nm].min()
     distance = _calc_atm_distance(df_cur_chain, strike)
     del df_cur_chain
     df_time_value_series = time_value_series_by_atm_distance(df_opt_fut_hist, distance, expiration_date, option_type)
@@ -67,8 +66,8 @@ def time_value_series_by_strike_to_atm_distance(df_opt_fut_hist, strike: float |
 
 
 def time_value_series_for_strike(df_opt_fut_hist, strike: float | None = None,
-                                                expiration_date: datetime.date | None = None,
-                                                option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
+                                 expiration_date: datetime.date | None = None,
+                                 option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
     """
     expiration_date None - will be used nearest for last settlement_date in history dataframe
     strike None - will be used ATM Strike

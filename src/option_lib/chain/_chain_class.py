@@ -6,8 +6,19 @@ import pandas as pd
 from option_lib.entities import OptionColumns as OCl
 from option_lib.option_data_class import OptionData
 
-from option_lib.chain.chain_selector import validate_chain, select_chain, get_chain_settlement_and_expiration_date
-from option_lib.chain.price_status import (get_chain_atm_itm_otm, get_chain_atm_nearest_strikes, get_chain_atm_strike)
+from option_lib.chain.chain_selector import (
+    validate_chain,
+    select_chain,
+    get_chain_settlement_and_expiration_date,
+    get_max_settlement_valid_expired_date,
+    get_settlement_longest_period_expired_date
+)
+
+from option_lib.chain.price_status import (
+    get_chain_atm_itm_otm,
+    get_chain_atm_nearest_strikes,
+    get_chain_atm_strike
+)
 from option_lib.chain.desk import convert_chain_to_desk
 
 
@@ -40,8 +51,8 @@ class OptionChain:
         """Validate dataframe is it option chain"""
         validate_chain(df_chain)
 
-    def select_chain(self, settlement_date: datetime.date | None = None,
-                     expiation_date: datetime.date | None = None) -> pd.DataFrame:
+    def select_chain(self, settlement_date: pd.Timestamp | None = None,
+                     expiation_date: pd.Timestamp | None = None) -> pd.DataFrame:
         """Select for chain dataframe. If parameters do not set - it return chain for nearest actual expiration date
         TODO from exchange provider current df_chain can be get directly from exchange api, so have sense to move get
         form provider if impossible - get from history
@@ -52,6 +63,15 @@ class OptionChain:
 
         self._data.df_chain = select_chain(self._data.df_hist, settlement_date, expiation_date)
         return self._data.df_chain
+
+    def get_max_settlement_valid_expired_date(self) -> pd.Timestamp:
+        """In chain search expired date after or equal settlement date"""
+        return get_max_settlement_valid_expired_date(self._data.df_hist)
+
+    def get_settlement_longest_period_expired_date(self,
+                                                       settlement_date: pd.Timestamp | None = None) -> pd.Timestamp:
+        """In history dataframe foe settlement date search expiration date with longest series of data"""
+        return get_settlement_longest_period_expired_date(self._data.df_hist, settlement_date)
 
     def add_atm_itm_otm(self) -> Self:
         """Add column with ATM/ITM/OTM"""

@@ -18,16 +18,20 @@ def test_enum_code_columns():
 
 
 def test_prov_fut_columns():
+    func = lambda x: x
+
     class TestEnumDataFrameColumn(EnumDataFrameColumn):
         """Test Enum code type"""
-        TEST_1 = 'datetime',  datetime.date
-        TEST_2 = 'int',  int
+        TEST_1 = 'datetime', datetime.date, func
+        TEST_2 = 'int', int, func
         # TEST_1 = 'datetime', 'code1', datetime.date
         # TEST_2 = 'int', 'code2', int
+
     assert TestEnumDataFrameColumn.TEST_1
     assert TestEnumDataFrameColumn('int')
     test_code = TestEnumDataFrameColumn.TEST_1
     assert hasattr(test_code, 'value')
     assert hasattr(test_code, 'nm')
     assert hasattr(test_code, 'type')
+    assert hasattr(test_code, 'resample_func')
     assert test_code.type == datetime.date

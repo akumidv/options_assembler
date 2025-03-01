@@ -24,7 +24,7 @@ class ChartPriceClass:
         self.figure_data: list = []
 
     def _get_time_values_dfs(self, df: None | pd.DataFrame | list[pd.DataFrame],
-                             expiration_date: datetime.date | None,
+                             expiration_date: pd.Timestamp | None,
                              option_type: OptionType | None,
                              strike: float | None = None, distance: float | None = None
                              ) -> list[pd.DataFrame]:
@@ -51,10 +51,11 @@ class ChartPriceClass:
         return ['Call ATM for nearest expiration date'] if is_empty_df is None else (
             [name] if not isinstance(name, list) else name)
 
-    def time_values(self, df: None | pd.DataFrame | list[pd.DataFrame] = None, name: str | list[str] | None = None) -> \
-        list[go.Scatter]:
-        """Prepare chart data. Default return chart for call with ATM strike, for nearest expiration  """
-        dfs = self._get_time_values_dfs(df, None, None, None)
+    def time_values(self, df: None | pd.DataFrame | list[pd.DataFrame] = None, name: str | list[str] | None = None,
+                    expiration_date: pd.Timestamp | None = None) -> list[go.Scatter]:
+        """Prepare chart data. Default return chart for call with ATM strike, for nearest or set expiration.
+          Expiration ignored if dfs are set"""
+        dfs = self._get_time_values_dfs(df, expiration_date=expiration_date, option_type=None, strike=None)
         names = self._get_time_values_names(name, df is None)
         data = get_chart_data_for_time_values_series(dfs, names)
         self.figure_data.extend(data)

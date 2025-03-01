@@ -8,9 +8,9 @@ from functools import lru_cache
 from option_lib.option_data_class import OptionData
 from exchange.deribit import DeribitExchange
 from option_lib.enrichment import join_option_with_future
-from option_lib.chain.chain_selector import select_chain
+from option_lib.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
 from option_lib.chain.price_status import get_chain_atm_strike
-from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe
+from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe, OptionColumns as OCl
 from option_lib.provider import PandasLocalFileProvider, RequestParameters
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
@@ -139,6 +139,16 @@ def fixture_df_chain(df_opt_hist):
     if _CACHE.get('DF_CHAIN') is None:
         _CACHE['DF_CHAIN'] = select_chain(df_opt_hist)
     return _CACHE['DF_CHAIN'].copy()
+
+
+@pytest.fixture(name='df_chain_exp_len')
+def fixture_df_chain_exp_len(df_opt_hist):
+    """Option dataframe with future"""
+    if _CACHE.get('MIN_CHAIN_EXPIRATION_LEN') is None:
+        expiration_date = get_max_settlement_valid_expired_date(df_opt_hist)
+        _CACHE['MIN_CHAIN_EXPIRATION_LEN'] = len(df_opt_hist[df_opt_hist[OCl.EXPIRATION_DATE.nm] ==
+                                                             expiration_date][OCl.TIMESTAMP.nm].unique())
+    return _CACHE['MIN_CHAIN_EXPIRATION_LEN']
 
 
 @pytest.fixture(name='atm_strike')

@@ -104,7 +104,7 @@ class EtlOptions(ABC):
                       f'in {self._number_of_jobs} jobs by avg {self._avg_job_time: .2f} sec'
         messages = self._get_messages()
         if len(messages) > 0:
-            report_text += '(!)`Warning messages`:\n'
+            report_text += '\n(!)`Warning messages`:\n'
             report_text += '\n- '.join(messages)
         self._messanger.send_message(report_text)
 
