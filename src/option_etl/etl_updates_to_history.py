@@ -72,12 +72,12 @@ class EtlHistory:
         self._resample_by_exchange_symbol = self._params['resample_by_exchange_symbol']
         self._update_history = self._params['update_history']
 
-
-
     def prepare(self):
         """Load history dataframe and load list of increments and update by them
         - may be additional class or function"""
         start_ts = self.detect_last_update()
+        if start_ts is not None:
+            print('[INFO] Start date', start_ts)
         update_files = self.get_symbols_asset_by_timeframes_updates_fn(start_ts)
 
         for sym_idx, symbol in enumerate(update_files):
@@ -135,22 +135,32 @@ class EtlHistory:
                 # TODO move to thread pool for loading files not one by one but by threads - faster
                 for timeframe in sorted(update_files_by_period[period]):
                     for fn in sorted(update_files_by_period[period][timeframe]):
-                        df = pd.read_parquet(fn)
-                        period_dfs.append(df)
+                        try:
+                            df = pd.read_parquet(fn)
+                            period_dfs.append(df)
+                        except Exception as err:
+                            err_text = f'[ERROR] for file {fn}: {err}'
+                            print(err_text)
+                            raise RuntimeError(err_text)
                 period_df = pd.concat(period_dfs, ignore_index=True, copy=False)
                 period_df = self._add_ochl_columns(period_df)
                 if self._low_memory_usage and len(period_df) > max_period_records_num_for_optimize:  # reduce mem usage
                     period_df = self._convert_timeframe(period_df)
+
                 year_dfs.append(period_df)
             fn = self._get_filepath(symbol, asset_kind, year)
+            year_df = pd.concat(year_dfs, ignore_index=True, copy=False)
+            early_timestamp: pd.Timestamp = year_df[OCl.TIMESTAMP.nm].min()
+            last_timestamp: pd.Timestamp = year_df[OCl.TIMESTAMP.nm].max()
             if self._update_history and os.path.isfile(fn):
                 df_prev = pd.read_parquet(fn)
-                year_dfs.append(df_prev)
-            year_df = pd.concat(year_dfs, ignore_index=True, copy=False)
+                year_df = pd.concat([df_prev, year_df], ignore_index=True, copy=False)
             year_df = self._convert_timeframe(year_df)
             os.makedirs(os.path.dirname(fn), exist_ok=True)
             year_df.to_parquet(fn)
-            print(f'  - updated {symbol}/{asset_kind} for {year} with record: {len(year_df)}: '
+            print(f'  - updated {symbol}/{asset_kind} for {year} with record: {len(year_df)} and period '
+                  f'{early_timestamp.tz_localize(None).isoformat(timespec="minutes")}-'
+                  f'{last_timestamp.tz_localize(None).isoformat(timespec="minutes")}: '
                   f'{fn.replace(self.update_path, "")}')
 
     def detect_last_update(self) -> pd.Timestamp | None:

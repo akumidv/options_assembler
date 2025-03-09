@@ -37,7 +37,8 @@ def test_enrichment_add_future(option_instance):
     if OCl.UNDERLYING_PRICE.nm in df_opt.columns:
         df_opt.drop(columns=[OCl.UNDERLYING_PRICE.nm], inplace=True)
     assert OCl.UNDERLYING_PRICE.nm not in df_opt.columns
-    option_instance.enrichment.add_future()
+    # option_instance.enrichment.add_future()
+    option_instance.enrichment.enrich_options(OCl.UNDERLYING_PRICE)
     df_opt = option_instance.df_hist
     assert isinstance(df_opt, pd.DataFrame)
     assert OCl.UNDERLYING_PRICE.nm in df_opt.columns

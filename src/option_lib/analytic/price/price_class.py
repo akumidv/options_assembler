@@ -1,9 +1,8 @@
 """"Public price analytic api class that should hide realization of functions"""
-import datetime
 import pandas as pd
 
+from option_lib.entities import OptionType, OptionColumns as OCl
 from option_lib.option_data_class import OptionData
-from option_lib.entities import OptionType
 from option_lib.analytic.price._time_values import (
     time_value_series_by_strike_to_atm_distance, time_value_series_by_atm_distance
 )
@@ -23,12 +22,12 @@ class OptionAnalyticPrice:
                                                     expiration_date: pd.Timestamp | None = None,
                                                     option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
         """Get time value series by strike to atm distance"""
-        self._enrichment.add_intrinsic_and_time_value()
+        self._enrichment.enrich_options([OCl.INTRINSIC_VALUE, OCl.TIME_VALUE])
         return time_value_series_by_strike_to_atm_distance(self._data.df_hist, strike, expiration_date, option_type)
 
     def time_value_series_by_atm_distance(self, distance: float | None = None,
                                           expiration_date: pd.Timestamp | None = None,
                                           option_type: OptionType | None = OptionType.CALL) -> pd.DataFrame:
         """Get time value series by distance from atm"""
-        self._enrichment.add_intrinsic_and_time_value()
+        self._enrichment.enrich_options([OCl.INTRINSIC_VALUE, OCl.TIME_VALUE])
         return time_value_series_by_atm_distance(self._data.df_hist, distance, expiration_date, option_type)

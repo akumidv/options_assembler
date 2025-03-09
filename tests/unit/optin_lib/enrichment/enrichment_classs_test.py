@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 
-from option_lib.entities import OptionColumns as Ocl
+from option_lib.entities import OptionColumns as OCl
 from option_lib.enrichment import OptionEnrichment
 
 
@@ -18,38 +18,44 @@ def test_option_enrichment_class_init(option_data):
     assert isinstance(opt_enr, OptionEnrichment)
 
 
+def test__prepare_order_of_columns_enrichment(opt_enrich):
+    columns_to_enrich = [OCl.TIME_VALUE, OCl.INTRINSIC_VALUE, OCl.PRICE_STATUS]
+    columns = opt_enrich._prepare_order_of_columns_enrichment(columns_to_enrich)
+    assert columns == [OCl.UNDERLYING_PRICE, OCl.INTRINSIC_VALUE, OCl.TIME_VALUE, OCl.PRICE_STATUS]
+
+
 def test_option_enrichment_get_joint_option_with_future(opt_enrich):
-    if Ocl.UNDERLYING_PRICE.nm in opt_enrich.df_hist.columns:
-        opt_enrich.df_hist.drop(columns=[Ocl.UNDERLYING_PRICE.nm], inplace=True)
-    assert Ocl.UNDERLYING_PRICE.nm not in opt_enrich.df_hist.columns
-    df_opt = opt_enrich.get_joint_option_with_future()
+    if OCl.UNDERLYING_PRICE.nm in opt_enrich.data.df_hist.columns:
+        opt_enrich.data.df_hist.drop(columns=OCl.UNDERLYING_PRICE.nm, inplace=True)
+    assert OCl.UNDERLYING_PRICE.nm not in opt_enrich.data.df_hist.columns
+    df_opt = opt_enrich.enrich_options(OCl.UNDERLYING_PRICE)
     assert isinstance(df_opt, pd.DataFrame)
-    assert Ocl.UNDERLYING_PRICE.nm in df_opt.columns
+    assert OCl.UNDERLYING_PRICE.nm in df_opt.columns
 
 
 def test_option_enrichment_add_future(opt_enrich):
-    if Ocl.UNDERLYING_PRICE.nm in opt_enrich.df_hist.columns:
-        opt_enrich.df_hist.drop(columns=[Ocl.UNDERLYING_PRICE.nm], inplace=True)
-    assert Ocl.UNDERLYING_PRICE.nm not in opt_enrich.df_hist.columns
-    res = opt_enrich.add_future()
+    if OCl.UNDERLYING_PRICE.nm in opt_enrich.data.df_hist.columns:
+        opt_enrich.data.df_hist.drop(columns=[OCl.UNDERLYING_PRICE.nm], inplace=True)
+    assert OCl.UNDERLYING_PRICE.nm not in opt_enrich.data.df_hist.columns
+    res = opt_enrich.add_column(OCl.UNDERLYING_PRICE)
     assert isinstance(res, OptionEnrichment)
-    assert isinstance(opt_enrich.df_hist, pd.DataFrame)
-    assert Ocl.UNDERLYING_PRICE.nm in opt_enrich.df_hist.columns
+    assert isinstance(opt_enrich.data.df_hist, pd.DataFrame)
+    assert OCl.UNDERLYING_PRICE.nm in opt_enrich.data.df_hist.columns
 
 
-def  test_option_enrichment_add_intrinsic_and_time_value(opt_enrich):
-    assert Ocl.INTRINSIC_VALUE.nm not in opt_enrich.df_hist.columns
-    res = opt_enrich.add_intrinsic_and_time_value()
+def test_option_enrichment_add_intrinsic_and_time_value(opt_enrich):
+    assert OCl.INTRINSIC_VALUE.nm not in opt_enrich.data.df_hist.columns
+    res = opt_enrich.add_column(OCl.INTRINSIC_VALUE)
     assert isinstance(res, OptionEnrichment)
-    assert isinstance(opt_enrich.df_hist, pd.DataFrame)
-    assert Ocl.INTRINSIC_VALUE.nm in opt_enrich.df_hist.columns
-    assert Ocl.TIME_VALUE.nm in opt_enrich.df_hist.columns
+    assert isinstance(opt_enrich.data.df_hist, pd.DataFrame)
+    assert OCl.INTRINSIC_VALUE.nm in opt_enrich.data.df_hist.columns
+    assert OCl.TIME_VALUE.nm in opt_enrich.data.df_hist.columns
 
 
 def test_add_atm_itm_otm(opt_enrich):
-    assert Ocl.PRICE_STATUS.nm not in opt_enrich.df_hist.columns
-    opt_enrich.df_hist = opt_enrich.df_hist.iloc[-10_000:]
-    res = opt_enrich.add_atm_itm_otm()
+    assert OCl.PRICE_STATUS.nm not in opt_enrich.data.df_hist.columns
+    opt_enrich.data.df_hist = opt_enrich.data.df_hist.iloc[-10_000:]
+    res = opt_enrich.add_column(OCl.PRICE_STATUS)
     assert isinstance(res, OptionEnrichment)
-    assert isinstance(opt_enrich.df_hist, pd.DataFrame)
-    assert Ocl.PRICE_STATUS.nm in opt_enrich.df_hist.columns
+    assert isinstance(opt_enrich.data.df_hist, pd.DataFrame)
+    assert OCl.PRICE_STATUS.nm in opt_enrich.data.df_hist.columns

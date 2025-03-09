@@ -193,6 +193,7 @@ class EtlOptions(ABC):
     def _add_message(self, message: str):
         with self._messages_lock:
             self._messages.append(message)
+        print(message, flush=True)
 
     def _book_snapshot_timeframe_job(self):
         """
@@ -290,8 +291,8 @@ class EtlOptions(ABC):
                 self._number_saved_files += len(tasks)
                 del tasks
 
-    @staticmethod
-    def _save_task_dataframe(save_task: SaveTask) -> None:
+    # @staticmethod
+    def _save_task_dataframe(self, save_task: SaveTask) -> None:
         if save_task.df is None:
             return
         fn = save_task.store_path
@@ -300,10 +301,32 @@ class EtlOptions(ABC):
         df = save_task.df
         if os.path.isfile(fn):
             # For deribit when diff currencies requested they have some intersection symbols in response
-            df_cur = pd.read_parquet(fn)
-            df = pd.concat([df_cur, df], ignore_index=True, copy=False)
+            try:
+                df_cur = pd.read_parquet(fn)
+                df = pd.concat([df_cur, df], ignore_index=True, copy=False)
+            except Exception as err:
+                new_fn = f'{fn}_{datetime.datetime.now(tz=datetime.UTC).isoformat().replace(":", "_")}'
+                try:
+                    os.rename(fn, new_fn)
+                    error_text = f'[ERROR] loading updating file {fn}. File renamed to {new_fn}'
+                except Exception as new_err:
+                    error_text = f'[ERROR] loading and renaming updating file {fn}: {err}/{new_err}'
+                self._add_message(error_text)
         df.reset_index(drop=True, inplace=True)
-        df.to_parquet(fn)
+        try:
+            df.to_parquet(fn)
+        except Exception as err:
+            error_text = f'[ERROR] saving file {fn}: {err}'
+            try:
+                df.to_parquet(fn)
+            except Exception as new_err:
+                new_fn = f'{fn}_{datetime.datetime.now(tz=datetime.UTC).isoformat().replace(":", "_")}'
+                try:
+                    df.to_parquet(new_fn)
+                    error_text += f'. Saved as {new_fn} ({new_err})'
+                except Exception as new_save_err:
+                    error_text += f'. Can able save as {new_fn} ({new_err}/{new_save_err}). Skipped'
+            self._add_message(error_text)
         save_task.df = None
 
     def _save_timeframe_book_update(self, book_data: AssetBookData):

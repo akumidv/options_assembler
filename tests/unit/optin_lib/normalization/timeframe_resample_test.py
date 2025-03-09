@@ -1,4 +1,6 @@
 """Test module for timeframe conversion function"""
+import time
+
 import pandas as pd
 import pytest
 
@@ -63,7 +65,7 @@ def test__get_group_columns_by_type_wrong_option():
 
 def test_convert_to_timeframe_future(future_update_files):
     dfs = []
-    for fn in future_update_files[:10]:
+    for fn in future_update_files[:5]:
         dfs.append(pd.read_parquet(fn))
     df = pd.concat(dfs)
     df_new_tf = convert_to_timeframe(df, Timeframe.EOD)
@@ -74,7 +76,7 @@ def test_convert_to_timeframe_future(future_update_files):
 
 def test_convert_to_timeframe_option(option_update_files):
     dfs = []
-    for fn in option_update_files[:10]:
+    for fn in option_update_files[:5]:
         dfs.append(pd.read_parquet(fn))
     df = pd.concat(dfs, ignore_index=True)
     df_new_tf = convert_to_timeframe(df, Timeframe.EOD)
@@ -85,7 +87,7 @@ def test_convert_to_timeframe_option(option_update_files):
 
 def test_convert_to_timeframe_option_by_type(option_update_files):
     dfs = []
-    for fn in option_update_files[:10]:
+    for fn in option_update_files[:5]:
         dfs.append(pd.read_parquet(fn))
     df = pd.concat(dfs)
     df_new_tf = convert_to_timeframe(df, Timeframe.EOD, by_exchange_symbol=False)

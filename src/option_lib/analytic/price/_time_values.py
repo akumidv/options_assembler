@@ -17,6 +17,7 @@ def _calc_atm_distance(df_chain: pd.DataFrame, strike: float) -> float:
 
 
 def _get_nearest_to_distance_strike(df_chain: pd.DataFrame, distance: float) -> pd.DataFrame:
+    """Distance is absolute price value"""
     atm_strike = get_chain_atm_strike(df_chain)
     df_chain.loc[:, '_distance'] = (df_chain[OCl.STRIKE.nm] - atm_strike - distance).abs()
     return df_chain.loc[df_chain['_distance'] == df_chain['_distance'].min()]

@@ -1,6 +1,7 @@
 """Pandas columns code, value and types"""
 import enum
 import datetime
+from typing import OrderedDict
 from option_lib.entities.enum_code import EnumDataFrameColumn
 from option_lib.entities._option_types import OptionPriceStatus
 import pandas as pd
@@ -13,7 +14,7 @@ class OptionColumns(EnumDataFrameColumn):
     """
     # NAME, value, code, type, resample function name
     # Base mandatory columns from provider
-    TIMESTAMP = 'timestamp', pd.Timestamp, 'last'
+    TIMESTAMP = 'timestamp', pd.Timestamp, 'last',
     STRIKE = 'strike', float, 'last'
     EXPIRATION_DATE = 'expiration_date', pd.Timestamp, 'last'
     OPTION_TYPE = 'option_type', str, 'last'  # OptionType
@@ -25,7 +26,7 @@ class OptionColumns(EnumDataFrameColumn):
     VOLUME_NOTIONAL = 'volume_notional', float, 'last'
     UNDERLYING_EXPIRATION_DATE = 'underlying_expiration_date', pd.Timestamp, 'last'
 
-    # Extra columns for options (joined for example)
+    # Extra columns for options (joined for example), not mandatory
     SYMBOL = 'symbol', str, 'last'
     EXCHANGE_SYMBOL = 'exchange_symbol', str, 'last'
     EXCHANGE_UNDERLYING_SYMBOL = 'exchange_underlying_symbol', str, 'last'
@@ -33,9 +34,21 @@ class OptionColumns(EnumDataFrameColumn):
     EXCHANGE_PRICE = 'exchange_price', float, 'last'  # Estimated by exchange price
     EXCHANGE_IV = 'exchange_iv', float, 'last'  # IV caclculated by exchange based on exchange_price
 
-    # Added by enrichment
+    # OCHL model
+    OPEN = 'open', float, 'first'
+    CLOSE = 'close', float, 'last'
+    HIGH = 'high', float, 'max'
+    LOW = 'low', float, 'min'
+
+    # ETL
+    REQUEST_TIMESTAMP = 'request_timestamp', pd.Timestamp, 'last'
+    ORIGINAL_TIMESTAMP = 'original_timestamp', pd.Timestamp, 'last'
+    LAST = 'last', float, 'last'
+    LOW_24 = 'low_24', float, None
+    HIGH_24 = 'high_24', float, None
+
+    # Added by enrichment or present in options dataframe
     # Future columns
-    # FUTURES_PRICE = 'Futures Price', 'futures_price', float
     UNDERLYING_PRICE = 'underlying_price', float, 'last'
 
     # Money columns
@@ -51,18 +64,12 @@ class OptionColumns(EnumDataFrameColumn):
 
     # Greeks
 
-    # OCHL model
-    OPEN = 'open', float, 'first'
-    CLOSE = 'close', float, 'last'
-    HIGH = 'high', float, 'max'
-    LOW = 'low', float, 'min'
 
-    # ETL
-    REQUEST_TIMESTAMP = 'request_timestamp', pd.Timestamp, 'last'
-    ORIGINAL_TIMESTAMP = 'original_timestamp', pd.Timestamp, 'last'
-    LAST = 'last', float, 'last'
-    LOW_24 = 'low_24', float, None
-    HIGH_24 = 'high_24', float, None
+OPTION_COLUMNS_DEPENDENCIES = {
+    OptionColumns.INTRINSIC_VALUE: [OptionColumns.UNDERLYING_PRICE],
+    OptionColumns.TIME_VALUE: [OptionColumns.INTRINSIC_VALUE],
+    OptionColumns.PRICE_STATUS: [OptionColumns.UNDERLYING_PRICE],
+}
 
 
 @enum.unique

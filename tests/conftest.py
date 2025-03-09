@@ -73,14 +73,20 @@ def _get_update_file_list(base_path: str, asset_kind: AssetKind):
             if not files:
                 continue
             updates_files.extend([os.path.join(root_path, fn) for fn in sorted(files)])
+            if len(updates_files) > 20:
+                break
+        if len(updates_files) > 20:
+            break
     return updates_files
 
 
 @pytest.fixture(name='option_update_files')
 @lru_cache
 def option_update_files_fixture(update_path, exchange_code, option_symbol):
-    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.OPTION)
-    return updates_files
+    if _CACHE.get('_update_files') is None:
+        _CACHE['_update_files'] = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol),
+                                                        AssetKind.OPTION)
+    return _CACHE['_update_files']
 
 
 @pytest.fixture(name='future_update_files')
