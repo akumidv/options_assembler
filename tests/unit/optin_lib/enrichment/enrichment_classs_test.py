@@ -2,8 +2,8 @@
 import pandas as pd
 import pytest
 
-from option_lib.entities import OptionColumns as OCl
-from option_lib.enrichment import OptionEnrichment
+from options_assembler.entities import OptionColumns as OCl
+from options_assembler.enrichment import OptionEnrichment
 
 
 @pytest.fixture(name='opt_enrich')

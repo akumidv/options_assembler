@@ -3,8 +3,8 @@ import datetime
 import pandas as pd
 import pytest
 
-from option_lib.chain import OptionChain
-from option_lib.entities import OptionColumns as OCl
+from options_assembler.chain import OptionChain
+from options_assembler.entities import OptionColumns as OCl
 
 
 @pytest.fixture(name='opt_chain')

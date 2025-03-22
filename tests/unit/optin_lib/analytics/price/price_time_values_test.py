@@ -1,10 +1,10 @@
 """Tests for time values analysis"""
 import pandas as pd
 
-from option_lib.analytic.price._time_values import (
+from options_assembler.analytic.price._time_values import (
     time_value_series_by_strike_to_atm_distance, time_value_series_by_atm_distance
 )
-from option_lib.entities import OptionColumns as OCl
+from options_assembler.entities import OptionColumns as OCl
 
 
 

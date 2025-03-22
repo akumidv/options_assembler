@@ -1,7 +1,7 @@
 """Tests for OptionData class"""
 import pandas as pd
-from option_lib.option_data_class import OptionData
-from option_lib.provider import PandasLocalFileProvider
+from options_assembler.option_data_class import OptionData
+from options_assembler.provider import PandasLocalFileProvider
 
 
 def test_option_data_class_init(exchange_provider, option_symbol):

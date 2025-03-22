@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 import pytest
 
-from option_lib.entities import (
+from options_assembler.entities import (
     OptionColumns as OCl,
     FuturesColumns as FCl,
     SpotColumns as SCl,

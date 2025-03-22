@@ -1,9 +1,9 @@
 import datetime
 import pytest
 import pandas as pd
-from option_etl.etl_class import AssetBookData, SaveTask
+from options_etl.etl_class import AssetBookData, SaveTask
 
-from option_lib.entities import Timeframe
+from options_assembler.entities import Timeframe
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
 

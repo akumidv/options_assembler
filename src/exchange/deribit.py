@@ -6,19 +6,19 @@ import re
 import pandas as pd
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
-from option_lib.entities.enum_code import EnumCode
-from option_lib.entities import (
+from options_assembler.entities.enum_code import EnumCode
+from options_assembler.entities import (
     Timeframe, AssetKind, OptionType,
     OptionColumns as OCl,
     FuturesColumns as FCl,
     SpotColumns as SCl,
     ALL_COLUMN_NAMES
 )
-from option_lib.normalization.datetime_conversion import df_columns_to_timestamp
-from option_lib.provider import DataEngine, RequestParameters
+from options_assembler.normalization.datetime_conversion import df_columns_to_timestamp
+from options_assembler.provider import DataEngine, RequestParameters
 from exchange.exchange_entities import ExchangeCode
 from exchange._abstract_exchange import AbstractExchange, RequestClass
-from option_lib.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
+from options_assembler.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
 
 
 class DeribitAssetKind(EnumCode):

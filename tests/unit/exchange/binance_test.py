@@ -1,6 +1,6 @@
 """Binance exchange provider"""
 
-from option_lib.provider import AbstractProvider
+from options_assembler.provider import AbstractProvider
 from exchange import AbstractExchange
 from exchange.binance import BinanceExchange
 

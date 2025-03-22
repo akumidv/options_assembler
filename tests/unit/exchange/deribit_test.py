@@ -1,8 +1,8 @@
 """Deribit exchange provider"""
 import pytest
 import pandas as pd
-from option_lib.entities import AssetKind
-from option_lib.provider import AbstractProvider
+from options_assembler.entities import AssetKind
+from options_assembler.provider import AbstractProvider
 from exchange import AbstractExchange
 from exchange.deribit import DeribitExchange
 

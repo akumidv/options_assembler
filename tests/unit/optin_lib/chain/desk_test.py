@@ -1,8 +1,8 @@
 """Desk for chain module tests"""
 import pandas as pd
 
-from option_lib.chain.desk import convert_chain_to_desk
-from option_lib.entities import OptionColumns as OCl
+from options_assembler.chain.desk import convert_chain_to_desk
+from options_assembler.entities import OptionColumns as OCl
 
 def test_convert_chain_to_desk(df_chain):
     df_desk = convert_chain_to_desk(df_chain)

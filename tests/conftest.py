@@ -5,13 +5,13 @@ import pytest
 import pandas as pd
 from functools import lru_cache
 
-from option_lib.option_data_class import OptionData
+from options_assembler.option_data_class import OptionData
 from exchange.deribit import DeribitExchange
-from option_lib.enrichment import join_option_with_future
-from option_lib.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
-from option_lib.chain.price_status import get_chain_atm_strike
-from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe, OptionColumns as OCl
-from option_lib.provider import PandasLocalFileProvider, RequestParameters
+from options_assembler.enrichment import join_option_with_future
+from options_assembler.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
+from options_assembler.chain.price_status import get_chain_atm_strike
+from options_assembler.entities import LegType, OptionLeg, AssetKind, Timeframe, OptionColumns as OCl
+from options_assembler.provider import PandasLocalFileProvider, RequestParameters
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
 

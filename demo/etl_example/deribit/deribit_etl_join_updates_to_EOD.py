@@ -2,8 +2,8 @@
  Join deribit updated to EOD history files
 """
 import os
-from option_lib.entities import Timeframe
-from option_etl.etl_updates_to_history import EtlHistory
+from options_assembler.entities import Timeframe
+from options_etl.etl_updates_to_history import EtlHistory
 
 from exchange.exchange_entities import ExchangeCode
 

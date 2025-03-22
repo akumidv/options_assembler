@@ -5,8 +5,8 @@ from typing import NamedTuple
 import httpx
 import pandas as pd
 
-from option_lib.provider import DataEngine
-from option_lib.provider import AbstractProvider
+from options_assembler.provider import DataEngine
+from options_assembler.provider import AbstractProvider
 from exchange.exchange_exception import APIException, RequestException
 
 

@@ -3,9 +3,9 @@ import datetime
 import pandas as pd
 import pytest
 
-from option_etl.etl_class import EtlOptions, AssetBookData, SaveTask
+from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
 from exchange import DeribitExchange
-from option_lib.entities import Timeframe, AssetKind
+from options_assembler.entities import Timeframe, AssetKind
 
 FUT_YEAR_SYMBOLS_CACHE = None
 

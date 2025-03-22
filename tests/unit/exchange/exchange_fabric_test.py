@@ -1,6 +1,6 @@
 """Exchange fabric tests"""
 from exchange.exchange_entities import ExchangeCode
-from option_lib.provider import DataEngine
+from options_assembler.provider import DataEngine
 from exchange import (
     get_exchange, DeribitExchange, BinanceExchange
 )

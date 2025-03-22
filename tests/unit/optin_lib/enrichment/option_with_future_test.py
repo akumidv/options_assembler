@@ -1,8 +1,8 @@
 """Tests for joining option with futures"""
 import pandas as pd
 
-from option_lib.enrichment import _option_with_future as option_with_future
-from option_lib.entities import OptionColumns as OCl
+from options_assembler.enrichment import _option_with_future as option_with_future
+from options_assembler.entities import OptionColumns as OCl
 
 
 def test_join_option_future(df_opt_hist, df_fut_hist):

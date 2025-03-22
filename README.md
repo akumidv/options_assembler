@@ -1,6 +1,5 @@
-# option_lib
-Option library have goal to assist implement in code content and ideas from books that I'm reading about options
-and do not lose this effort in future for my bots ideas
+# options_assembler.
+Option library have goal to assist implement in code base concepts of using options.
 
 ## Demo
 Easiest way to check haw to use option_lib is open Jupyter Notebook files in demo folder on your Google Collab.

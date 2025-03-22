@@ -4,7 +4,7 @@ Set path to store data in DATA_PATH environment
 """
 import os
 import pandas as pd
-from option_lib.entities import Timeframe
+from options_assembler.entities import Timeframe
 from messanger import TelegramMessanger
 from exchange import DeribitExchange
 from option_etl import EtlDeribit

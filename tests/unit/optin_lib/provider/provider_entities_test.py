@@ -1,8 +1,8 @@
 """Provider entities tests"""
 import datetime
-from option_lib.entities import Timeframe
+from options_assembler.entities import Timeframe
 
-from option_lib.provider import RequestParameters
+from options_assembler.provider import RequestParameters
 
 
 def test_provider_parameters():

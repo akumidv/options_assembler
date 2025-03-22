@@ -1,7 +1,7 @@
 """Provider fabric tests"""
-from option_lib.provider import get_provider, DataSource, DataEngine
+from options_assembler.provider import get_provider, DataSource, DataEngine
 from exchange import ExchangeCode
-from option_lib.provider import (
+from options_assembler.provider import (
     PandasLocalFileProvider
 )
 from exchange import BinanceExchange, DeribitExchange

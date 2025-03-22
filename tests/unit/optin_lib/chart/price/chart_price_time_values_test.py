@@ -3,9 +3,9 @@ import datetime
 
 import pytest
 from plotly import graph_objs as go
-from option_lib.chart.price.chart_price_class import ChartPriceClass
-from option_lib.enrichment import add_intrinsic_and_time_value
-from option_lib.enrichment import join_option_with_future
+from options_assembler.chart.price.chart_price_class import ChartPriceClass
+from options_assembler.enrichment import add_intrinsic_and_time_value
+from options_assembler.enrichment import join_option_with_future
 
 
 @pytest.fixture(name='chart_price')

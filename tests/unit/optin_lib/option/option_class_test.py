@@ -3,8 +3,8 @@ import pandas as pd
 import pytest
 
 from option_lib import Option
-from option_lib.entities import OptionColumns as OCl
-from option_lib.provider import PandasLocalFileProvider
+from options_assembler.entities import OptionColumns as OCl
+from options_assembler.provider import PandasLocalFileProvider
 
 
 @pytest.fixture(name='option_instance')

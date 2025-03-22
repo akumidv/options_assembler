@@ -1,7 +1,7 @@
 """Fabric to choose exchange by it name"""
 
 from typing import Dict, Type
-from option_lib.provider import DataEngine
+from options_assembler.provider import DataEngine
 from exchange._abstract_exchange import AbstractExchange
 from exchange.exchange_entities import ExchangeCode
 from exchange.binance import BinanceExchange
