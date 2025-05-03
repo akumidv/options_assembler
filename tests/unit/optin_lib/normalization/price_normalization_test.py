@@ -1,8 +1,8 @@
 import pandas as pd
-from options_assembler.entities import (
+from option_lib.entities import (
     OptionColumns as OCl, OptionType
 )
-from options_assembler.normalization.price import fill_option_price
+from option_lib.normalization.price import fill_option_price
 
 
 def test_fill_option_price():

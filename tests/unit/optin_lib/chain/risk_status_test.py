@@ -1,5 +1,5 @@
-from options_assembler.entities import OptionColumns as OCl
-from options_assembler.chain.price_status import get_chain_atm_strike
+from option_lib.entities import OptionColumns as OCl
+from option_lib.chain.price_status import get_chain_atm_strike
 
 
 def test_get_chain_atm_strike(df_chain):

@@ -13,7 +13,7 @@ import pandas as pd
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.base import STATE_STOPPED as JOBS_STATE_STOPPED
-from options_assembler.entities import Timeframe, AssetKind
+from option_lib.entities import Timeframe, AssetKind
 from exchange import AbstractExchange
 from messanger import AbstractMessanger, StandardMessanger
 
@@ -335,7 +335,7 @@ class EtlOptions(ABC):
         """
         fabric = {
             'option': AssetKind.OPTION,
-            'future': AssetKind.FUTURE,
+            'future': AssetKind.FUTURES,
             'spot': AssetKind.SPOT
         }
         request_timestamp = book_data.request_timestamp

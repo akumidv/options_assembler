@@ -2,8 +2,8 @@ import datetime
 
 import pandas as pd
 
-from options_assembler.entities import OptionColumns as OCl
-from options_assembler.chain.chain_selector import select_chain, validate_chain, get_chain_settlement_and_expiration_date
+from option_lib.entities import OptionColumns as OCl
+from option_lib.chain.chain_selector import select_chain, validate_chain, get_chain_settlement_and_expiration_date
 
 
 def test_select_chain(df_opt_hist):

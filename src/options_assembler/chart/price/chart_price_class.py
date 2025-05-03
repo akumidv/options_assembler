@@ -3,10 +3,10 @@ import datetime
 import pandas as pd
 
 from plotly import graph_objs as go
-from options_assembler.entities import OptionColumns as OCl, OptionType
+from option_lib.entities import OptionColumns as OCl, OptionType
 from options_assembler.option_data_class import OptionData
 from options_assembler.analytic import OptionAnalytic
-from options_assembler.chart.price._time_value_chart import get_chart_data_for_time_values_series
+from option_lib.chart.price._time_value_chart import get_chart_data_for_time_values_series
 
 
 class ChartPriceClass:
@@ -42,8 +42,8 @@ class ChartPriceClass:
         for df_ts in dfs:
             if OCl.TIMESTAMP.nm not in df_ts.columns:
                 raise KeyError(f'{OCl.TIMESTAMP.nm} not in dataframe columns')
-            if OCl.TIME_VALUE.nm not in df_ts.columns:
-                raise KeyError(f'{OCl.TIME_VALUE.nm} not in dataframe columns')
+            if OCl.TIMED_VALUE.nm not in df_ts.columns:
+                raise KeyError(f'{OCl.TIMED_VALUE.nm} not in dataframe columns')
         return dfs
 
     @staticmethod

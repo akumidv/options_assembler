@@ -2,7 +2,7 @@
 import datetime
 import pandas as pd
 import pytest
-from options_assembler.normalization.datetime_conversion import parse_expiration_date, df_columns_to_timestamp
+from option_lib.normalization.datetime_conversion import parse_expiration_date, df_columns_to_timestamp
 
 
 @pytest.mark.parametrize('date_str', ['3FEB25', '19SEP22'])

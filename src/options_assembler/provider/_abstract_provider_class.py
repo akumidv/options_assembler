@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 import datetime
 import pandas as pd
 
-from options_assembler.entities import OptionColumns, FuturesColumns, Timeframe, AssetKind
+from option_lib.entities import OptionColumns, FuturesColumns, Timeframe, AssetType
 from options_assembler.provider._provider_entities import RequestParameters
 
 
@@ -28,27 +28,27 @@ class AbstractProvider(ABC):
         super().__init__(**kwargs)
 
     @abstractmethod
-    def get_symbols_list(self, asset_kind: AssetKind) -> list[str]:
+    def get_assets_list(self, asset_type: AssetType) -> list[str]:
         """List of symbols"""
 
-    def get_symbol_history_years(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe):
+    def get_asset_history_years(self, asset_code: str, asset_type: AssetType, timeframe: Timeframe):
         """List of history years"""
 
     @abstractmethod
-    def load_option_history(self, symbol: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
+    def load_option_history(self, asset_code: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
         """Provide option by period, timeframe"""
 
     @abstractmethod
-    def load_option_book(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+    def load_option_book(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
                          timeframe: Timeframe = Timeframe.EOD, columns: list | None = None) -> pd.DataFrame:
         """Provide option for datetime, timeframe"""
 
     @abstractmethod
-    def load_future_history(self, symbol: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
+    def load_future_history(self, asset_code: str, params: RequestParameters, columns: list | None = None) -> pd.DataFrame:
         """Provide future by period, timeframe"""
 
     @abstractmethod
-    def load_future_book(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+    def load_future_book(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
                          timeframe: Timeframe = Timeframe.EOD, columns: list | None = None) -> pd.DataFrame:
         """Provide future for datetime, timeframe"""
 

@@ -20,9 +20,9 @@ if IS_DEVELOP:
     os.makedirs(DEV_CACHE_PATH, exist_ok=True)
 
 TYPE_TO_MOEX_ASSET_TYPE = {
-    AssetType.FUTURE.code: 'futures',
+    AssetType.FUTURES.code: 'futures',
     AssetType.SHARE.code: "share",
-    AssetType.COMMODITIES.code: "commodity",
+    AssetType.COMMODITY.code: "commodity",
     AssetType.CURRENCY.code: 'currency',
     AssetType.INDEX.code: 'index',
 }
@@ -198,11 +198,11 @@ class MoexOptions(Connector):
         return df
 
     def _convert_values(self, df: pd.DataFrame, columns: list | None = None):
-        type_replace_dict = {'futures': AssetType.FUTURE.code,
+        type_replace_dict = {'futures': AssetType.FUTURES.code,
                              'index': AssetType.INDEX.code,
                              'share': AssetType.SHARE.code,
                              'currency': AssetType.CURRENCY.code,
-                             'commodity': AssetType.COMMODITIES.code}
+                             'commodity': AssetType.COMMODITY.code}
         columns_retype = self._filter_list_by_column(df.columns, columns if columns else ['underlying_type',
                                                                                           'underlying_subtype'])
         if type_replace_dict:
@@ -257,7 +257,7 @@ class MoexOptions(Connector):
         """
         if futures is None:
             und_df = await self.get_symbol_list(underlying_type='futures')
-            futures = list(und_df[und_df['underlying_type'] == AssetType.FUTURE.code]['exchange_symbol'].unique())
+            futures = list(und_df[und_df['underlying_type'] == AssetType.FUTURES.code]['exchange_symbol'].unique())
             expiration_dates = [None] * len(futures)
         elif expiration_dates is None or len(futures) != len(expiration_dates):
             expiration_dates = [None] * len(futures)
@@ -472,4 +472,3 @@ TODO Timeframe convert for D as last datetime after trades stop and before start
                                                       'underlying_id']], on='underlying_id', how='left')
         del option_base_df
         return options_df
-

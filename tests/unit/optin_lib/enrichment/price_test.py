@@ -4,15 +4,15 @@ import datetime
 import pandas as pd
 import pytest
 
-from options_assembler.entities import OptionColumns as OCl, OptionPriceStatus
-from options_assembler.enrichment import price
+from option_lib.entities import OptionColumns as OCl, OptionPriceStatus
+from option_lib.enrichment import price
 
 
 def test_add_intrinsic_and_time_value(df_opt_hist):
     df_opt_ext = price.add_intrinsic_and_time_value(df_opt_hist)
     assert isinstance(df_opt_ext, pd.DataFrame)
     assert OCl.INTRINSIC_VALUE.nm in df_opt_ext.columns
-    assert OCl.TIME_VALUE.nm in df_opt_ext.columns
+    assert OCl.TIMED_VALUE.nm in df_opt_ext.columns
 
 
 def test_add_atm_itm_otm(df_opt_hist):

@@ -1,6 +1,12 @@
 # options_assembler.
 Option library have goal to assist implement in code base concepts of using options.
 
+## Env
+Install all dependecies for dev and test by
+```bash
+poetry install --with etl,dev,test
+```
+
 ## Demo
 Easiest way to check haw to use option_lib is open Jupyter Notebook files in demo folder on your Google Collab.
 

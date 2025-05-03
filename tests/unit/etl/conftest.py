@@ -3,9 +3,11 @@ import datetime
 import pandas as pd
 import pytest
 
-from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
+from option_lib.entities import Timeframe, AssetKind
 from exchange import DeribitExchange
-from options_assembler.entities import Timeframe, AssetKind
+from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
+
+
 
 FUT_YEAR_SYMBOLS_CACHE = None
 
@@ -36,5 +38,5 @@ def etl_options_fixture(deribit_client, data_path):
 def year_symbols_fixture(etl_history):
     global FUT_YEAR_SYMBOLS_CACHE
     if FUT_YEAR_SYMBOLS_CACHE is None:
-        FUT_YEAR_SYMBOLS_CACHE = etl_history._get_asset_history_years(AssetKind.FUTURE)
+        FUT_YEAR_SYMBOLS_CACHE = etl_history._get_asset_history_years(AssetKind.FUTURES)
     return FUT_YEAR_SYMBOLS_CACHE

@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 from dataclasses import dataclass
 from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
-from options_assembler.entities import (
+from option_lib.entities import (
     Timeframe,
     OptionColumns as OCl,
     OPTION_NON_SPOT_COLUMN_NAMES, OPTION_NON_FUTURES_COLUMN_NAMES
@@ -52,18 +52,18 @@ class EtlDeribit(EtlOptions):
             return DeribitAssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None,
                                         future=None, spot=None, future_combo=None, option_combo=None)
         book_summary_df[OCl.REQUEST_TIMESTAMP.nm] = request_timestamp
-        options_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.OPTION.code].reset_index(
+        options_df = book_summary_df[book_summary_df[OCl.ASSET_TYPE.nm] == DeribitAssetKind.OPTION.code].reset_index(
             drop=True)
         options_combo_df = book_summary_df[
-            book_summary_df[OCl.KIND.nm] == DeribitAssetKind.OPTION_COMBO.code].reset_index(drop=True)
+            book_summary_df[OCl.ASSET_TYPE.nm] == DeribitAssetKind.OPTION_COMBO.code].reset_index(drop=True)
         future_columns = [col for col in book_summary_df.columns if col not in OPTION_NON_FUTURES_COLUMN_NAMES]
-        future_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.FUTURE.code][future_columns]
+        future_df = book_summary_df[book_summary_df[OCl.ASSET_TYPE.nm] == DeribitAssetKind.FUTURE.code][future_columns]
         future_df = self._drop_service_or_doublet_columns(future_df)
-        future_combo_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.FUTURE_COMBO.code
+        future_combo_df = book_summary_df[book_summary_df[OCl.ASSET_TYPE.nm] == DeribitAssetKind.FUTURE_COMBO.code
                                           ][future_columns]
         future_combo_df = self._drop_service_or_doublet_columns(future_combo_df)
         spot_columns = [col for col in book_summary_df.columns if col not in OPTION_NON_SPOT_COLUMN_NAMES]
-        spot_df = book_summary_df[book_summary_df[OCl.KIND.nm] == DeribitAssetKind.SPOT.code][spot_columns]
+        spot_df = book_summary_df[book_summary_df[OCl.ASSET_TYPE.nm] == DeribitAssetKind.SPOT.code][spot_columns]
         spot_df = self._drop_service_or_doublet_columns(spot_df)
         return DeribitAssetBookData(asset_name=asset_name, request_timestamp=request_timestamp,
                                     option=options_df if not options_df.empty else None,
@@ -75,7 +75,7 @@ class EtlDeribit(EtlOptions):
 
     def _add_save_task_to_background_to_asset_name(self, df: pd.DataFrame, asset_kind: DeribitAssetKind,
                                                    request_datetime: pd.Timestamp):
-        asset_name = df.iloc[0][OCl.SYMBOL.nm]
+        asset_name = df.iloc[0][OCl.BASE_CODE.nm]
         save_path = self.get_timeframe_update_path(asset_name, asset_kind, request_datetime)
         self.add_save_task_to_background(SaveTask(save_path, df.copy()))
 
@@ -91,7 +91,7 @@ class EtlDeribit(EtlOptions):
         for asset_kind_attr in fabric:
             df = getattr(book_data, asset_kind_attr)
             if df is not None:
-                df.groupby(OCl.SYMBOL.nm, group_keys=False) \
+                df.groupby(OCl.BASE_CODE.nm, group_keys=False) \
                     .apply(self._add_save_task_to_background_to_asset_name, fabric[asset_kind_attr],
                            request_datetime, include_groups=True)
                 setattr(book_data, asset_kind_attr, None)

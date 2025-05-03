@@ -3,7 +3,7 @@ import datetime
 
 import pandas as pd
 
-from options_assembler.entities import Timeframe, OptionColumns as OCl
+from option_lib.entities import Timeframe, OptionColumns as OCl
 from options_assembler.provider import AbstractProvider, RequestParameters
 
 

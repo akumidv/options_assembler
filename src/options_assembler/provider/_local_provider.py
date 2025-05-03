@@ -12,7 +12,7 @@ import builtins
 import datetime
 import pandas as pd
 from pydantic import validate_call
-from options_assembler.entities import Timeframe, AssetKind
+from option_lib.entities import Timeframe, AssetKind
 from options_assembler.provider._file_provider import FileProvider
 from options_assembler.provider._provider_entities import RequestParameters
 
@@ -88,6 +88,6 @@ class PandasLocalFileProvider(FileProvider):
             params = RequestParameters()
         if columns is None:
             columns = self.future_columns
-        df_fut = self._load_data_for_period(asset_kind=AssetKind.FUTURE, symbol=symbol,
+        df_fut = self._load_data_for_period(asset_kind=AssetKind.FUTURES, symbol=symbol,
                                             params=params, columns=columns)
         return df_fut

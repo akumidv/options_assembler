@@ -5,13 +5,18 @@ import pytest
 import pandas as pd
 from functools import lru_cache
 
+from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe, OptionColumns as OCl
+from option_lib.enrichment import join_option_with_future
+from option_lib.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
+from option_lib.chain.price_status import get_chain_atm_strike
+
 from options_assembler.option_data_class import OptionData
-from exchange.deribit import DeribitExchange
-from options_assembler.enrichment import join_option_with_future
-from options_assembler.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
-from options_assembler.chain.price_status import get_chain_atm_strike
-from options_assembler.entities import LegType, OptionLeg, AssetKind, Timeframe, OptionColumns as OCl
 from options_assembler.provider import PandasLocalFileProvider, RequestParameters
+
+from exchange.deribit import DeribitExchange
+from exchange.moex import MoexExchange
+
+
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
 
@@ -92,7 +97,7 @@ def option_update_files_fixture(update_path, exchange_code, option_symbol):
 @pytest.fixture(name='future_update_files')
 @lru_cache
 def future_update_files_fixture(update_path, exchange_code, option_symbol):
-    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURE)
+    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURES)
     return updates_files
 
 
@@ -194,3 +199,10 @@ def deribit_client_fixture():
     """Deribit client"""
     deribit = DeribitExchange(api_url=DeribitExchange.TEST_API_URL)
     return deribit
+
+
+@pytest.fixture(name='moex_client')
+def moex_client_fixture():
+    """Moex client"""
+    moex = MoexExchange(api_url=MoexExchange.TEST_API_URL)
+    return moex

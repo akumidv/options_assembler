@@ -2,7 +2,7 @@ import datetime
 
 import pandas as pd
 import pytest
-from options_assembler.entities import Timeframe, OptionColumns as OCl
+from option_lib.entities import Timeframe, OptionColumns as OCl
 
 from options_etl.deribit_etl import EtlDeribit, DeribitAssetBookData
 from exchange import DeribitExchange
@@ -36,13 +36,13 @@ def test_get_symbols_books_snapshot(etl_deribit):
 
 def test__save_timeframe_book_update(etl_deribit):
     options_df = pd.DataFrame(
-        {f'{OCl.SYMBOL.nm}': ['BTC-USD', 'BTC-USD', 'ETH-USD', 'ETH-USD'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
-    future_df = pd.DataFrame({f'{OCl.SYMBOL.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
-    spot_df = pd.DataFrame({f'{OCl.SYMBOL.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
+        {f'{OCl.BASE_CODE.nm}': ['BTC-USD', 'BTC-USD', 'ETH-USD', 'ETH-USD'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
+    future_df = pd.DataFrame({f'{OCl.BASE_CODE.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
+    spot_df = pd.DataFrame({f'{OCl.BASE_CODE.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
     futures_combo_df = pd.DataFrame(
-        {f'{OCl.SYMBOL.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
+        {f'{OCl.BASE_CODE.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
     option_combo_df = pd.DataFrame(
-        {f'{OCl.SYMBOL.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
+        {f'{OCl.BASE_CODE.nm}': ['BTC', 'BTC', 'ETH', 'ETH'], f'{OCl.PRICE.nm}': [100, 100, 50, 50]})
     saved_tasks = len(etl_deribit._save_tasks)
     book_data = DeribitAssetBookData(asset_name='BTC', request_timestamp=pd.Timestamp.now(tz=datetime.UTC),
                                      option=options_df, future=future_df, spot=spot_df, future_combo=futures_combo_df,

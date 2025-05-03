@@ -3,16 +3,15 @@ from typing import Self, Callable
 
 import pandas as pd
 
-from options_assembler.entities import OptionColumns, OptionColumns as OCl, OPTION_COLUMNS_DEPENDENCIES
-from options_assembler.option_data_class import OptionData
-from options_assembler.enrichment._option_with_future import (
+from option_lib.entities import OptionColumns, OptionColumns as OCl, OPTION_COLUMNS_DEPENDENCIES
+from option_lib.enrichment.price import (
+    add_intrinsic_and_time_value, add_atm_itm_otm_by_chain
+)
+from option_lib.enrichment._option_with_future import (
     join_option_with_future
 )
 
-from options_assembler.enrichment.price import (
-    add_intrinsic_and_time_value, add_atm_itm_otm_by_chain
-)
-
+from options_assembler.option_data_class import OptionData
 
 class OptionEnrichment:
     """
@@ -24,7 +23,7 @@ class OptionEnrichment:
     _COL_TO_ENRICH_FUNC_MAP: dict[OptionColumns, Callable] = {
         OCl.UNDERLYING_PRICE: join_option_with_future,
         OCl.INTRINSIC_VALUE: add_intrinsic_and_time_value,
-        OCl.TIME_VALUE: add_intrinsic_and_time_value,
+        OCl.TIMED_VALUE: add_intrinsic_and_time_value,
         OCl.PRICE_STATUS: add_atm_itm_otm_by_chain,
     }
 

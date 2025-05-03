@@ -13,7 +13,7 @@ import re
 from abc import ABC
 import pandas as pd
 from pydantic import validate_call
-from options_assembler.entities import Timeframe, AssetKind
+from option_lib.entities import Timeframe, AssetType, AssetKind
 from options_assembler.provider._abstract_provider_class import AbstractProvider
 
 
@@ -27,7 +27,7 @@ class FileProvider(AbstractProvider, ABC):
         self.exchange_data_path = exchange_data_path
         super().__init__(exchange_code=exchange_code)
 
-    def get_symbols_list(self, asset_kind: AssetKind):
+    def get_assets_list(self, asset_kind: AssetKind):
         """Prepare list of underlying assets symbols"""
         symbols = []
         for symbol in os.listdir(self.exchange_data_path):
@@ -36,38 +36,41 @@ class FileProvider(AbstractProvider, ABC):
                 symbols.append(symbol)
         return symbols
 
-    def _get_history_folder(self, symbol: str, asset_kind: AssetKind | str, timeframe: Timeframe | str):
-        return f'{self.exchange_data_path}/{symbol}/{asset_kind if isinstance(asset_kind, str ) else asset_kind.value}/' \
+    def _get_history_folder(self, asset_code: str, asset_type: AssetType | str, timeframe: Timeframe | str):
+        asset_kind = asset_type if isinstance(asset_type, str) else asset_type.value
+        if asset_kind != AssetKind.OPTION.value or asset_kind != AssetKind.FUTURES.value:
+            asset_kind = AssetKind.SPOT.value
+        return f'{self.exchange_data_path}/{asset_code}/{asset_kind}/' \
                f'{timeframe if isinstance(timeframe, str) else timeframe.value}'
 
-    def get_symbol_history_years(self, symbol: str, asset_kind: AssetKind, timeframe: Timeframe) -> list[int]:
+    def get_asset_history_years(self, asset_code: str, asset_type: AssetType, timeframe: Timeframe) -> list[int]:
         """Get years of history data for symbol"""
         fn_pattern = re.compile(r'\d{4}.parquet')
-        history_folder = self._get_history_folder(symbol, asset_kind, timeframe)
+        history_folder = self._get_history_folder(asset_code, asset_type, timeframe)
         if not os.path.isdir(history_folder):
             return []
         history_files = [int(fn[:4]) for fn in os.listdir(history_folder) if fn_pattern.match(fn)]
         return history_files
 
-    def fn_path_prepare(self, symbol: str, asset_kind: AssetKind | str, timeframe: Timeframe | str, year: int):
+    def fn_path_prepare(self, asset_code: str, asset_type: AssetType | str, timeframe: Timeframe | str, year: int):
         """Prepare path for files"""
-        history_folder = self._get_history_folder(symbol, asset_kind, timeframe)
+        history_folder = self._get_history_folder(asset_code, asset_type, timeframe)
         return f'{history_folder}/{year}.parquet'
 
     @validate_call
-    def load_option_chain(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+    def load_option_chain(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
                           expiration_date: datetime.datetime | None = None,
                           timeframe: Timeframe = Timeframe.EOD,
                           columns: list | None = None) -> pd.DataFrame | None:
         """Providing option chain by local file system is not supported return None"""
         return None
 
-    def load_option_book(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+    def load_option_book(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
                          timeframe: Timeframe = Timeframe.EOD, columns: list | None = None) -> pd.DataFrame:
         """Providing option book by local file system is not supported return None"""
         return None
 
-    def load_future_book(self, symbol: str, settlement_datetime: datetime.datetime | None = None,
+    def load_future_book(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
                          timeframe: Timeframe = Timeframe.EOD, columns: list | None = None) -> pd.DataFrame:
         """Providing option book by local file system is not supported return None"""
         return None

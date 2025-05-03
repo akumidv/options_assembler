@@ -4,8 +4,8 @@ import time
 import pandas as pd
 import pytest
 
-from options_assembler.entities import OptionColumns as OCl, Timeframe, OptionType
-from options_assembler.normalization.timeframe_resample import _get_group_columns_by_type, convert_to_timeframe
+from option_lib.entities import OptionColumns as OCl, Timeframe, OptionType
+from option_lib.normalization.timeframe_resample import _get_group_columns_by_type, convert_to_timeframe
 
 
 def test__get_group_columns_by_type_spot():
@@ -15,9 +15,9 @@ def test__get_group_columns_by_type_spot():
     df = pd.DataFrame({OCl.PRICE.nm: [123], OCl.EXPIRATION_DATE.nm: [pd.NA]})
     group_columns = _get_group_columns_by_type(df)
     assert group_columns == []
-    df = pd.DataFrame({OCl.PRICE.nm: [123, 234], OCl.SYMBOL.nm: ['BTC', 'ETH']})
+    df = pd.DataFrame({OCl.PRICE.nm: [123, 234], OCl.BASE_CODE.nm: ['BTC', 'ETH']})
     group_columns = _get_group_columns_by_type(df)
-    assert group_columns == [OCl.SYMBOL.nm]
+    assert group_columns == [OCl.BASE_CODE.nm]
 
 
 def test__get_group_columns_by_type_future():
@@ -29,10 +29,10 @@ def test__get_group_columns_by_type_future():
     df = pd.DataFrame.from_dict(fut_dict)
     group_columns = _get_group_columns_by_type(df)
     assert group_columns == [OCl.EXPIRATION_DATE.nm]
-    fut_dict.update({OCl.SYMBOL.nm: ['BTC', 'ETH']})
+    fut_dict.update({OCl.BASE_CODE.nm: ['BTC', 'ETH']})
     df = pd.DataFrame(fut_dict)
     group_columns = _get_group_columns_by_type(df)
-    assert group_columns == [OCl.SYMBOL.nm, OCl.EXPIRATION_DATE.nm]
+    assert group_columns == [OCl.BASE_CODE.nm, OCl.EXPIRATION_DATE.nm]
 
 
 def test__get_group_columns_by_type_option():
@@ -42,10 +42,10 @@ def test__get_group_columns_by_type_option():
     df = pd.DataFrame(opt_dict)
     group_columns = _get_group_columns_by_type(df)
     assert group_columns == [OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE.nm, OCl.STRIKE.nm]
-    opt_dict.update({OCl.SYMBOL.nm: ['BTC', 'ETH']})
+    opt_dict.update({OCl.BASE_CODE.nm: ['BTC', 'ETH']})
     df = pd.DataFrame(opt_dict)
     group_columns = _get_group_columns_by_type(df)
-    assert group_columns == [OCl.SYMBOL.nm, OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE.nm, OCl.STRIKE.nm]
+    assert group_columns == [OCl.BASE_CODE.nm, OCl.EXPIRATION_DATE.nm, OCl.OPTION_TYPE.nm, OCl.STRIKE.nm]
 
 
 def test__get_group_columns_by_type_wrong_option():
@@ -71,7 +71,7 @@ def test_convert_to_timeframe_future(future_update_files):
     df_new_tf = convert_to_timeframe(df, Timeframe.EOD)
     assert len(df_new_tf) != len(df)
     assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
-    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
+    assert len(df_new_tf[OCl.ASSET_CODE.nm].unique()) == len(df[OCl.ASSET_CODE.nm].unique())
 
 
 def test_convert_to_timeframe_option(option_update_files):
@@ -82,7 +82,7 @@ def test_convert_to_timeframe_option(option_update_files):
     df_new_tf = convert_to_timeframe(df, Timeframe.EOD)
     assert len(df_new_tf) != len(df)
     assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
-    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
+    assert len(df_new_tf[OCl.ASSET_CODE.nm].unique()) == len(df[OCl.ASSET_CODE.nm].unique())
 
 
 def test_convert_to_timeframe_option_by_type(option_update_files):
@@ -93,4 +93,4 @@ def test_convert_to_timeframe_option_by_type(option_update_files):
     df_new_tf = convert_to_timeframe(df, Timeframe.EOD, by_exchange_symbol=False)
     assert len(df_new_tf) != len(df)
     assert len(df_new_tf[OCl.EXPIRATION_DATE.nm].unique()) == len(df[OCl.EXPIRATION_DATE.nm].unique())
-    assert len(df_new_tf[OCl.EXCHANGE_SYMBOL.nm].unique()) == len(df[OCl.EXCHANGE_SYMBOL.nm].unique())
+    assert len(df_new_tf[OCl.ASSET_CODE.nm].unique()) == len(df[OCl.ASSET_CODE.nm].unique())
