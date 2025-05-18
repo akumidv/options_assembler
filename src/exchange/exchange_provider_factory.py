@@ -3,9 +3,9 @@ A Factory function constructs a provider depending on the storage and engine cho
 """
 from typing import Dict, Type
 from functools import partial
-from options_assembler.provider._provider_entities import DataEngine, DataSource
-from options_assembler.provider._abstract_provider_class import AbstractProvider
-from options_assembler.provider._local_provider import PandasLocalFileProvider
+from provider import DataEngine, DataSource
+from provider import AbstractProvider
+from provider import PandasLocalFileProvider
 from exchange.exchange_fabric import get_exchange
 
 

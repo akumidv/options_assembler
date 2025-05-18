@@ -5,7 +5,7 @@ import datetime
 import pandas as pd
 
 from option_lib.entities import AssetKind, Timeframe
-from options_assembler.provider import DataEngine, RequestParameters
+from provider import DataEngine, RequestParameters
 from exchange.exchange_entities import ExchangeCode
 from exchange._abstract_exchange import AbstractExchange, BookData
 
@@ -25,7 +25,7 @@ class BinanceExchange(AbstractExchange):
     def get_assets_list(self, asset_kind: AssetKind) -> list[str]:
         raise NotImplementedError
 
-    def get_symbols_books_snapshot(self, symbols: list[str] | str | None = None) -> pd.DataFrame:
+    def get_options_assets_books_snapshot(self, asset_codes: list[str] | str | None = None) -> pd.DataFrame:
         pass
 
     def __init__(self, engine: DataEngine = DataEngine.PANDAS):

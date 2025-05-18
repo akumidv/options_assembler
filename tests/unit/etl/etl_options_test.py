@@ -55,3 +55,8 @@ def test__check_is_request_later_then_timestamp(etl_options):
     assert not etl_options._check_is_request_later_then_timestamp(request_datetime, last_request_datetime, Timeframe.EOD)
     request_datetime = last_request_datetime + datetime.timedelta(days=2)
     assert etl_options._check_is_request_later_then_timestamp(request_datetime, last_request_datetime, Timeframe.EOD)
+
+@pytest.mark.parametrize("cron_string", ['1,15,30,59 5-20 * * *', '5 * * * *'])
+def test__parse_cron_string(etl_options, cron_string):
+    timeframe_cron = etl_options._parse_cron_string(cron_string)
+    assert isinstance(timeframe_cron, dict)

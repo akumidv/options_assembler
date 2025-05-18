@@ -10,3 +10,4 @@ test.env
 /data
 *.tar
 TODO.txt
+/demo/**/_*.*

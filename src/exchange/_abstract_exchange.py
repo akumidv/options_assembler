@@ -5,8 +5,8 @@ from typing import NamedTuple
 import httpx
 import pandas as pd
 
-from options_assembler.provider import DataEngine
-from options_assembler.provider import AbstractProvider
+from provider import DataEngine
+from provider import AbstractProvider
 from exchange.exchange_exception import APIException, RequestException
 
 
@@ -26,9 +26,13 @@ class RequestClass:
         'User-Agent': 'Option Library Client',
     }
 
-    def __init__(self, api_url):
+    def __init__(self, api_url, http_params: dict | None = None):
         self.api_url = api_url[:-1] if api_url[-1] == '/' else api_url
-        self.session = httpx.Client(headers=self.HEADERS)
+        if not isinstance(http_params, dict):
+            http_params = {'headers': self.HEADERS}
+        elif 'headers' not in http_params:
+            http_params['headers'] = self.HEADERS
+        self.session = httpx.Client(**http_params)
         self.timestamp_offset = 0
 
     def request_api(self, endpoint_path: str, signed: bool = False, **kwargs):
@@ -64,11 +68,11 @@ class AbstractExchange(AbstractProvider, ABC):
     SOURCE_PREFIX = 'source'
 
     @abstractmethod
-    def __init__(self, engine: DataEngine, exchange_code: str, api_url: str, **kwargs):
+    def __init__(self, engine: DataEngine, exchange_code: str, api_url: str, http_params: dict | None = None, **kwargs):
         """"""
-        self.client = RequestClass(api_url)
+        self.client = RequestClass(api_url, http_params)
         super().__init__(exchange_code, **kwargs)
 
     @abstractmethod
-    def get_symbols_books_snapshot(self, symbols: list[str] | str | None = None) -> pd.DataFrame:
+    def get_options_assets_books_snapshot(self, asset_codes: list[str] | str | None = None) -> pd.DataFrame:
         """Get symbols books snapshot"""

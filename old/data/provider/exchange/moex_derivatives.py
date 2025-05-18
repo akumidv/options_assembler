@@ -20,7 +20,7 @@ if IS_DEVELOP:
     os.makedirs(DEV_CACHE_PATH, exist_ok=True)
 
 TYPE_TO_MOEX_ASSET_TYPE = {
-    AssetType.FUTURES.code: 'futures',
+    AssetType.FUTURE.code: 'futures',
     AssetType.SHARE.code: "share",
     AssetType.COMMODITY.code: "commodity",
     AssetType.CURRENCY.code: 'currency',
@@ -198,7 +198,7 @@ class MoexOptions(Connector):
         return df
 
     def _convert_values(self, df: pd.DataFrame, columns: list | None = None):
-        type_replace_dict = {'futures': AssetType.FUTURES.code,
+        type_replace_dict = {'futures': AssetType.FUTURE.code,
                              'index': AssetType.INDEX.code,
                              'share': AssetType.SHARE.code,
                              'currency': AssetType.CURRENCY.code,
@@ -257,7 +257,7 @@ class MoexOptions(Connector):
         """
         if futures is None:
             und_df = await self.get_symbol_list(underlying_type='futures')
-            futures = list(und_df[und_df['underlying_type'] == AssetType.FUTURES.code]['exchange_symbol'].unique())
+            futures = list(und_df[und_df['underlying_type'] == AssetType.FUTURE.code]['exchange_symbol'].unique())
             expiration_dates = [None] * len(futures)
         elif expiration_dates is None or len(futures) != len(expiration_dates):
             expiration_dates = [None] * len(futures)

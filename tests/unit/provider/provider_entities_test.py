@@ -2,7 +2,7 @@
 import datetime
 from option_lib.entities import Timeframe
 
-from options_assembler.provider import RequestParameters
+from provider import RequestParameters
 
 
 def test_provider_parameters():

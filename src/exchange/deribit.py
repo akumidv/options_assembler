@@ -10,7 +10,7 @@ from option_lib.entities.enum_code import EnumCode
 from option_lib.entities import (
     Timeframe, AssetKind, OptionType,
     OptionColumns as OCl,
-    FuturesColumns as FCl,
+    FutureColumns as FCl,
     SpotColumns as SCl,
     ALL_COLUMN_NAMES
 )
@@ -18,10 +18,10 @@ from option_lib.normalization.datetime_conversion import df_columns_to_timestamp
 from option_lib.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
 from exchange.exchange_entities import ExchangeCode
 from exchange._abstract_exchange import AbstractExchange, RequestClass
-from options_assembler.provider import DataEngine, RequestParameters
+from provider import DataEngine, RequestParameters
 class DeribitAssetKind(EnumCode):
     """Deribit instrument kinds"""
-    FUTURE = 'future', AssetKind.FUTURES.code
+    FUTURE = 'future', AssetKind.FUTURE.code
     OPTION = AssetKind.OPTION.value, AssetKind.OPTION.code
     SPOT = AssetKind.SPOT.value, AssetKind.SPOT.code # TODO Crytpo !
     FUTURE_COMBO = 'future_combo', 'fc'
@@ -281,7 +281,7 @@ class DeribitExchange(AbstractExchange):
         symbols_df = self.market.get_instruments()
         return [symbol.upper() for symbol in symbols_df['price_index'].unique()]
 
-    def get_symbols_books_snapshot(self, symbols: list[str] | str | None = None) -> pd.DataFrame:
+    def get_options_assets_books_snapshot(self, asset_codes: list[str] | str | None = None) -> pd.DataFrame:
         """Get all option snapshot
              ask base_currency         bid  current_funding  estimated_delivery_price  exchange_price     exchange_symbol expiration_date    funding_8h  high_24 kind        last   low_24  \
 0     94671.0000           BTC  94620.0000              0.0                94644.5656      94647.9745  BTC_USDT-PERPETUAL             NaT -1.000000e-08  95415.0    f  95401.0000  94726.0
@@ -335,17 +335,17 @@ class DeribitExchange(AbstractExchange):
 5466     NaN                        NaT               NaN
 5467     NaN                        NaT               NaN
         """
-        if symbols is None:
-            symbols = self.CURRENCIES
-        elif isinstance(symbols, str):
-            symbols = [symbols]
-        if len(symbols) == 1:
-            book_summary_df = self.market.get_book_summary_by_currency(currency=symbols[0])
+        if asset_codes is None:
+            asset_codes = self.CURRENCIES
+        elif isinstance(asset_codes, str):
+            asset_codes = [asset_codes]
+        if len(asset_codes) == 1:
+            book_summary_df = self.market.get_book_summary_by_currency(currency=asset_codes[0])
         else:
             books = []
             with ThreadPoolExecutor(max_workers=self.TASKS_LIMIT) as executor:
                 job_results = {executor.submit(self.market.get_book_summary_by_currency, currency): currency
-                               for currency in symbols}
+                               for currency in asset_codes}
                 for job_res in concurrent.futures.as_completed(job_results):
                     book_summary_df: pd.DataFrame | Exception = job_res.result()
                     if isinstance(book_summary_df, Exception):

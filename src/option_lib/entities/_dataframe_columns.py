@@ -74,9 +74,10 @@ class OptionColumns(EnumDataFrameColumn):
     ASSET_TYPE = 'asset_type', str, 'last'  # AssetKind TODO prev 'kind'
     UNDERLYING_CODE = 'underlying_asset_code', str, 'last'  # TODO prev 'exchange_underlying_symbol' # None for spot
     UNDERLYING_TYPE = 'underlying_asset_type', str, 'last'  # AssetType
-    OPTION_KIND = 'option_kind', str, 'last'  # OptionKind
     BASE_CODE = 'base_asset_code', str, 'last'  # TODO prev 'symbol'
     TITLE = 'title', str, 'last'
+    OPTION_STYLE = 'option_style', str, 'last'  # OptionStyle
+    CURRENCY = 'currency', str, 'last'  # Currency
 
 
 OPTION_COLUMNS_DEPENDENCIES = {
@@ -87,7 +88,7 @@ OPTION_COLUMNS_DEPENDENCIES = {
 
 
 @enum.unique
-class FuturesColumns(EnumDataFrameColumn):
+class FutureColumns(EnumDataFrameColumn):
     """
     Pandas option column name, type
     """
@@ -158,8 +159,8 @@ class SpotColumns(EnumDataFrameColumn):
 
 
 OPTION_NON_FUTURES_COLUMN_NAMES = [col.nm for col in OptionColumns if
-                                   col.nm not in [f_col.nm for f_col in FuturesColumns]]
+                                   col.nm not in [f_col.nm for f_col in FutureColumns]]
 OPTION_NON_SPOT_COLUMN_NAMES = [col.nm for col in OptionColumns if col.nm not in [s_col.nm for s_col in SpotColumns]]
 
-ALL_COLUMN_NAMES = list(set([col.nm for col in OptionColumns] + [col.nm for col in FuturesColumns] +
+ALL_COLUMN_NAMES = list(set([col.nm for col in OptionColumns] + [col.nm for col in FutureColumns] +
                             [col.nm for col in SpotColumns]))

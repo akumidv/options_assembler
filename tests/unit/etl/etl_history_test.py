@@ -23,7 +23,7 @@ def etl_history_fixture(data_path, update_path):
 @lru_cache(maxsize=2)
 def etl_btc_future_history_fixture(data_path, option_symbol, update_path):
     etl_history = EtlHistory(exchange_code=ExchangeCode.DERIBIT, history_path=data_path, update_path=update_path,
-                             timeframe=Timeframe.EOD, symbols=[option_symbol], asset_kinds=[AssetKind.FUTURES])
+                             timeframe=Timeframe.EOD, symbols=[option_symbol], asset_kinds=[AssetKind.FUTURE])
     return etl_history
 
 @pytest.fixture(name='etl_history_option')
@@ -46,12 +46,12 @@ def etl_spot_history_fixture(data_path, option_symbol, update_path):
 def year_symbols_fixture(etl_history, fut_year_symbols):
     global START_TS
     if START_TS is None:
-        START_TS = etl_history._get_start_timestamp(fut_year_symbols, AssetKind.FUTURES)
+        START_TS = etl_history._get_start_timestamp(fut_year_symbols, AssetKind.FUTURE)
     return START_TS
 
 
 def test__get_asset_history_years(etl_history):
-    year_symbols = etl_history._get_asset_history_years(AssetKind.FUTURES)
+    year_symbols = etl_history._get_asset_history_years(AssetKind.FUTURE)
     assert isinstance(year_symbols, dict)
     if year_symbols:
         years = list(year_symbols.keys())
@@ -63,7 +63,7 @@ def test__get_asset_history_years(etl_history):
 
 def test__get_start_timestamp(etl_history, fut_year_symbols):
     global START_TS
-    fut_start_ts = etl_history._get_start_timestamp(fut_year_symbols, AssetKind.FUTURES)
+    fut_start_ts = etl_history._get_start_timestamp(fut_year_symbols, AssetKind.FUTURE)
     START_TS = fut_start_ts
     max_year = max(fut_year_symbols.keys())
     assert fut_start_ts is not None

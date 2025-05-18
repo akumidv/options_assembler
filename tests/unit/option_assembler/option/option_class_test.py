@@ -4,7 +4,7 @@ import pytest
 
 from option_lib.entities import OptionColumns as OCl
 from options_assembler import Option
-from options_assembler.provider import PandasLocalFileProvider
+from provider import PandasLocalFileProvider
 
 
 @pytest.fixture(name='option_instance')

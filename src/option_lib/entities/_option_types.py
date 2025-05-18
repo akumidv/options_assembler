@@ -13,7 +13,7 @@ class OptionType(EnumCode):
 
 
 @enum.unique
-class OptionKind(EnumCode):
+class OptionStyle(EnumCode):
     """
     Usage code "c" instead of value "call" for filter dataframe reduce time for ~5%-30% and memory usage
     """

@@ -1,16 +1,18 @@
 """Fabric to choose exchange by it name"""
 
 from typing import Dict, Type
-from options_assembler.provider import DataEngine
+from provider import DataEngine
 from exchange._abstract_exchange import AbstractExchange
 from exchange.exchange_entities import ExchangeCode
 from exchange.binance import BinanceExchange
 from exchange.deribit import DeribitExchange
+from exchange.moex import MoexExchange
 
 
 _EXCHANGES: Dict[ExchangeCode, Type[AbstractExchange]] = {
     ExchangeCode.BINANCE: BinanceExchange,
-    ExchangeCode.DERIBIT: DeribitExchange
+    ExchangeCode.DERIBIT: DeribitExchange,
+    ExchangeCode.MOEX: MoexExchange
 }
 
 

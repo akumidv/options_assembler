@@ -14,7 +14,7 @@ from abc import ABC
 import pandas as pd
 from pydantic import validate_call
 from option_lib.entities import Timeframe, AssetType, AssetKind
-from options_assembler.provider._abstract_provider_class import AbstractProvider
+from provider._abstract_provider_class import AbstractProvider
 
 
 class FileProvider(AbstractProvider, ABC):
@@ -38,7 +38,7 @@ class FileProvider(AbstractProvider, ABC):
 
     def _get_history_folder(self, asset_code: str, asset_type: AssetType | str, timeframe: Timeframe | str):
         asset_kind = asset_type if isinstance(asset_type, str) else asset_type.value
-        if asset_kind != AssetKind.OPTION.value or asset_kind != AssetKind.FUTURES.value:
+        if asset_kind != AssetKind.OPTION.value or asset_kind != AssetKind.FUTURE.value:
             asset_kind = AssetKind.SPOT.value
         return f'{self.exchange_data_path}/{asset_code}/{asset_kind}/' \
                f'{timeframe if isinstance(timeframe, str) else timeframe.value}'

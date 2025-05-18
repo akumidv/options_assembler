@@ -1,7 +1,6 @@
 """Utils for date and datetime conversion"""
 import datetime
 import pandas as pd
-import numpy as np
 
 
 def parse_expiration_date(date_str: str) -> datetime.date | None:
@@ -10,7 +9,7 @@ def parse_expiration_date(date_str: str) -> datetime.date | None:
         return None
     try:
         year = int(date_str[-2:])
-        if len(date_str) == 6 and date_str[-4] in ['0', '1']:
+        if len(date_str) == 6 and date_str[-4] in ['0', '1']: # Month as number
             month = int(date_str[-4:-2])
             day = int(date_str[:-4])
         else:

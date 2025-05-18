@@ -38,5 +38,5 @@ def etl_options_fixture(deribit_client, data_path):
 def year_symbols_fixture(etl_history):
     global FUT_YEAR_SYMBOLS_CACHE
     if FUT_YEAR_SYMBOLS_CACHE is None:
-        FUT_YEAR_SYMBOLS_CACHE = etl_history._get_asset_history_years(AssetKind.FUTURES)
+        FUT_YEAR_SYMBOLS_CACHE = etl_history._get_asset_history_years(AssetKind.FUTURE)
     return FUT_YEAR_SYMBOLS_CACHE

@@ -11,7 +11,7 @@ from option_lib.chain.chain_selector import select_chain, get_max_settlement_val
 from option_lib.chain.price_status import get_chain_atm_strike
 
 from options_assembler.option_data_class import OptionData
-from options_assembler.provider import PandasLocalFileProvider, RequestParameters
+from provider import PandasLocalFileProvider, RequestParameters
 
 from exchange.deribit import DeribitExchange
 from exchange.moex import MoexExchange
@@ -97,7 +97,7 @@ def option_update_files_fixture(update_path, exchange_code, option_symbol):
 @pytest.fixture(name='future_update_files')
 @lru_cache
 def future_update_files_fixture(update_path, exchange_code, option_symbol):
-    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURES)
+    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURE)
     return updates_files
 
 
@@ -201,8 +201,12 @@ def deribit_client_fixture():
     return deribit
 
 
-@pytest.fixture(name='moex_client')
-def moex_client_fixture():
+@pytest.fixture(name='moex_exchange')
+def moex_exchange_fixture():
     """Moex client"""
     moex = MoexExchange(api_url=MoexExchange.TEST_API_URL)
     return moex
+
+@pytest.fixture(name='moex_asset_code')
+def moex_asset_code_fixture():
+    return 'SI'

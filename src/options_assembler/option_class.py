@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 
 from option_lib.entities import Timeframe
-from options_assembler.provider import AbstractProvider, RequestParameters
+from provider import AbstractProvider, RequestParameters
 from options_assembler.option_data_class import OptionData
 from options_assembler.enrichment import OptionEnrichment
 from options_assembler.chain import OptionChain

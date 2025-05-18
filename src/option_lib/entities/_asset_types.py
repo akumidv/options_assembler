@@ -10,7 +10,7 @@ class AssetType(EnumCode):
     INDEX = 'index', 'i'
     CURRENCY = 'currency', 'c'
     CRYPTO = 'crypto', 'y'
-    FUTURES = 'future', 'f'
+    FUTURE = 'future', 'f'
     OPTION = 'option', 'o'
 
 @enum.unique
@@ -19,5 +19,5 @@ class AssetKind(EnumCode):
     Usage code for database and parquet to reduce time for filtering
     """
     OPTION = AssetType.OPTION.value, AssetType.OPTION.code
-    FUTURES = AssetType.FUTURES.value, AssetType.FUTURES.code # TODO rename to futures but also should be data folders rename
+    FUTURE = AssetType.FUTURE.value, AssetType.FUTURE.code # TODO rename to futures but also should be data folders rename
     SPOT = 'spot', 's'  # No sense

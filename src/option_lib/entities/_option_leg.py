@@ -14,7 +14,7 @@ class LegType(EnumCode):
     """
     OPTION_CALL = OptionType.CALL.value, OptionType.CALL.code
     OPTION_PUT = OptionType.PUT.value, OptionType.PUT.code
-    FUTURE = AssetKind.FUTURES.value, AssetKind.FUTURES.code
+    FUTURE = AssetKind.FUTURE.value, AssetKind.FUTURE.code
 
 
 class OptionLeg(BaseModel):

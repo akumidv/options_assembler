@@ -6,7 +6,7 @@ import pytest
 
 from option_lib.entities import (
     OptionColumns as OCl,
-    FuturesColumns as FCl,
+    FutureColumns as FCl,
     SpotColumns as SCl
 )
 from exchange import RequestClass

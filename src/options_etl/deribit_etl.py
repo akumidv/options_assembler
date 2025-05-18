@@ -47,7 +47,7 @@ class EtlDeribit(EtlOptions):
         """Load deribit option and future"""
         if request_timestamp is None:
             request_timestamp = pd.Timestamp.now(tz=datetime.UTC)
-        book_summary_df = self.exchange.get_symbols_books_snapshot(asset_name)
+        book_summary_df = self.exchange.get_options_assets_books_snapshot(asset_name)
         if book_summary_df is None or book_summary_df.empty:
             return DeribitAssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None,
                                         future=None, spot=None, future_combo=None, option_combo=None)

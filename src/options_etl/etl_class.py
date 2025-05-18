@@ -18,7 +18,6 @@ from exchange import AbstractExchange
 from messanger import AbstractMessanger, StandardMessanger
 
 
-
 @dataclass
 class AssetBookData:
     """Asset book data for timeframe"""
@@ -54,9 +53,9 @@ class EtlOptions(ABC):
     _messages: list = []
     _messages_lock = threading.Lock()
 
-
     def __init__(self, exchange: AbstractExchange, asset_names: list[str] | str | None, timeframe: Timeframe,
-                 update_data_path: str, timeframe_cron: dict | None = None, messanger: AbstractMessanger | None = None,
+                 update_data_path: str, timeframe_cron: dict | str | None = None,
+                 messanger: AbstractMessanger | None = None,
                  is_detailed: bool = False):
         """
         Initialize ETL
@@ -73,17 +72,23 @@ class EtlOptions(ABC):
 
         self._last_request_timestamp = pd.Timestamp.now(tz=datetime.UTC)
         self._heartbeat_last_message_time = self._last_request_timestamp
-        self._scheduler_background: BackgroundScheduler = BackgroundScheduler(timezone=datetime.UTC)
+        self._scheduler_background: BackgroundScheduler = BackgroundScheduler(timezone=datetime.UTC,
+                                                                              job_defaults={'max_instances': 1})
         self._heartbeat_message_interval = pd.Timedelta(minutes=timeframe.mult * 2 if timeframe.mult < 30 else 60)
         self._scheduler_background.add_job(self._heartbeat, 'interval',
-                                           minutes=1 if self._heartbeat_message_interval.total_seconds() * 60 < 30
-                                           else 10)
-        self._scheduler_background.add_job(self._report, 'interval', hours=4 if timeframe.mult >= 30 else 1)
-        self._scheduler_background.add_job(self._save_tasks_dataframes_job, 'interval', seconds=60)
+                                           minutes=(1 if self._heartbeat_message_interval.total_seconds() * 60 < 30
+                                                    else 10), max_instances=1)
+        self._scheduler_background.add_job(self._report, 'interval', hours=(4 if timeframe.mult >= 30 else 1),
+                                           max_instances=1)
+        self._scheduler_background.add_job(self._save_tasks_dataframes_job, 'interval', seconds=60, max_instances=1)
         if timeframe_cron is None:
             timeframe_cron = self._get_cron_params_from_timeframe(timeframe, is_detailed)
-        self._scheduler_etl: BlockingScheduler = BlockingScheduler(timezone=datetime.UTC)
-        self._scheduler_etl.add_job(self._book_snapshot_timeframe_job, 'cron', **timeframe_cron)
+        elif isinstance(timeframe_cron, str):
+            timeframe_cron = self._parse_cron_string(timeframe_cron)
+        self._scheduler_etl: BlockingScheduler = BlockingScheduler(timezone=datetime.UTC,
+                                                                   job_defaults={'max_instances': 1})
+        self._scheduler_etl.add_job(self._book_snapshot_timeframe_job, 'cron', **timeframe_cron, timezone=datetime.UTC,
+                                    max_instances=1)
 
     def _heartbeat(self):
         if pd.Timestamp.now(tz=datetime.UTC) - self._heartbeat_last_message_time > self._heartbeat_message_interval:
@@ -123,8 +128,9 @@ class EtlOptions(ABC):
             return text
 
         """Print jobs"""
-        report_text = 'Assets:' + ','.join(self._asset_names) if isinstance(self._asset_names,
-                                                                            list) else self._asset_names
+        report_text = 'Assets:' + ','.join(self._asset_names) \
+            if isinstance(self._asset_names, list) \
+            else (self._asset_names if self._asset_names else 'All assets.')
         report_text += f'\nTimeframe: {self._timeframe.value}'
         report_text += f'\nStored path: {os.path.abspath(os.path.normpath(self._update_data_path))}'
         report_text += report_jobs(self._scheduler_etl)
@@ -135,7 +141,7 @@ class EtlOptions(ABC):
     def get_updates_folder(self, asset_name: str, asset_kind: AssetKind | str, timeframe: Timeframe) -> str:
         """Return path to folder where all update should be stored"""
         return f'{self._update_data_path}/{self.exchange.exchange_code}/{asset_name}/' \
-               f'{asset_kind if isinstance(asset_kind,str) else asset_kind.value}/{timeframe.value}'
+               f'{asset_kind if isinstance(asset_kind, str) else asset_kind.value}/{timeframe.value}'
 
     def start(self):
         """Start scheduled loading"""
@@ -143,10 +149,22 @@ class EtlOptions(ABC):
         self._scheduler_etl.start()
 
     @staticmethod
+    def _parse_cron_string(timeframe_cron: str):
+        if not isinstance(timeframe_cron, str):
+            raise TypeError('Parsed cron should be string')
+        cron_arr = timeframe_cron.split(' ')
+        if len(cron_arr) != 5:
+            raise ValueError('Cron structure mismatch')
+
+        return {'day_of_week': cron_arr[4], 'month': cron_arr[3], 'day': cron_arr[2], 'hour': cron_arr[1],
+                'minute': cron_arr[0]}
+
+    @staticmethod
     def _get_cron_params_from_timeframe(timeframe: Timeframe, is_detailed: bool = False):
         match timeframe:
             case Timeframe.EOD:
-                return {'day': '*', 'hour': '0,12,23', 'minute': 59} if is_detailed else {'day': '*', 'hour': 23, 'minute': 59}
+                return {'day': '*', 'hour': '0,12,23', 'minute': 59} if is_detailed else {'day': '*', 'hour': 23,
+                                                                                          'minute': 59}
             case Timeframe.MINUTE_1:
                 return {'hour': '*', 'minute': '*'}
             case Timeframe.MINUTE_5:
@@ -155,14 +173,14 @@ class EtlOptions(ABC):
                         } if is_detailed else {'hour': '*', 'minute': '4,9,14,19,24,29,34,39,44,49,54,59'}
             case Timeframe.MINUTE_15:
                 return {'hour': '*', 'minute': '0,7,14,15,22,29,30,37,44,45,52,59'} if is_detailed else \
-                       {'hour': '*', 'minute': '14,29,44,59'}
+                    {'hour': '*', 'minute': '14,29,44,59'}
             case Timeframe.MINUTE_30:
                 return {'hour': '*', 'minute': '0,15,29,30,45,59'} if is_detailed else {'hour': '*', 'minute': '29,59'}
             case Timeframe.HOUR_1:
                 return {'hour': '*', 'minute': '0,30,59'} if is_detailed else {'hour': '*', 'minute': 59}
             case Timeframe.HOUR_4:
                 return {'hour': '0,2,3,4,6,7,8,10,11,12,14,15,16,18,19,20,22,23', 'minute': 59} if is_detailed else \
-                       {'hour': '3,7,11,15,19,23', 'minute': 59}
+                    {'hour': '3,7,11,15,19,23', 'minute': 59}
             case _:
                 raise NotImplementedError(f'Unknown timeframe  {timeframe.value}')
 
@@ -308,7 +326,7 @@ class EtlOptions(ABC):
                 new_fn = f'{fn}_{datetime.datetime.now(tz=datetime.UTC).isoformat().replace(":", "_")}'
                 try:
                     os.rename(fn, new_fn)
-                    error_text = f'[ERROR] loading updating file {fn}. File renamed to {new_fn}'
+                    error_text = f'[ERROR] loading updating file {fn}. File renamed to {new_fn}. Error: {err}'
                 except Exception as new_err:
                     error_text = f'[ERROR] loading and renaming updating file {fn}: {err}/{new_err}'
                 self._add_message(error_text)
@@ -335,7 +353,7 @@ class EtlOptions(ABC):
         """
         fabric = {
             'option': AssetKind.OPTION,
-            'future': AssetKind.FUTURES,
+            'future': AssetKind.FUTURE,
             'spot': AssetKind.SPOT
         }
         request_timestamp = book_data.request_timestamp

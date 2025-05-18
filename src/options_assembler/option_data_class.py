@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 
 from option_lib.entities import Timeframe, OptionColumns as OCl
-from options_assembler.provider import AbstractProvider, RequestParameters
+from provider import AbstractProvider, RequestParameters
 
 
 class OptionData:

@@ -11,8 +11,8 @@ from abc import ABC, abstractmethod
 import datetime
 import pandas as pd
 
-from option_lib.entities import OptionColumns, FuturesColumns, Timeframe, AssetType
-from options_assembler.provider._provider_entities import RequestParameters
+from option_lib.entities import OptionColumns, FutureColumns, Timeframe, AssetType
+from provider._provider_entities import RequestParameters
 
 
 class AbstractProvider(ABC):
@@ -21,7 +21,7 @@ class AbstractProvider(ABC):
     option_columns = [OptionColumns.TIMESTAMP.nm, OptionColumns.STRIKE.nm, OptionColumns.EXPIRATION_DATE.nm,
                       OptionColumns.OPTION_TYPE.nm, OptionColumns.PRICE.nm, OptionColumns.UNDERLYING_EXPIRATION_DATE.nm,
                       OptionColumns.UNDERLYING_PRICE.nm]
-    future_columns = [FuturesColumns.TIMESTAMP.nm, FuturesColumns.EXPIRATION_DATE.nm, FuturesColumns.PRICE.nm]
+    future_columns = [FutureColumns.TIMESTAMP.nm, FutureColumns.EXPIRATION_DATE.nm, FutureColumns.PRICE.nm]
 
     def __init__(self, exchange_code: str, **kwargs):
         self.exchange_code = exchange_code

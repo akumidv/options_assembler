@@ -3,8 +3,8 @@ import pytest
 import pandas as pd
 
 from option_lib.entities import AssetKind, Timeframe
-from options_assembler.provider import RequestParameters
-from options_assembler.provider._file_provider import FileProvider
+from provider import RequestParameters
+from provider._file_provider import FileProvider
 
 
 class TestFileProvider(FileProvider):
