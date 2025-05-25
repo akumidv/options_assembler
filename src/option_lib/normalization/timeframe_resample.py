@@ -76,10 +76,10 @@ def _resample_by_kind_type_or_exchange_symbol(df: pd.DataFrame, timeframe: Timef
 
     forward_fill_columns = [col for col in resample_model if resample_model[col] == 'last' and col in df.columns]
     if len(forward_fill_columns):
-        df[forward_fill_columns].ffill(inplace=True)
+        df[forward_fill_columns].infer_objects(copy=False).ffill(inplace=True)
     back_fill_columns = [col for col in resample_model if resample_model[col] == 'first' and col in df.columns]
     if len(back_fill_columns):
-        df[back_fill_columns].bfill(inplace=True)
+        df[back_fill_columns].infer_objects(copy=False).bfill(inplace=True)
     df_resample = df.resample(rule=timeframe.offset, on=OCl.TIMESTAMP.nm, closed='left', label='left',
                               group_keys=False).apply(resample_model)
     return df_resample

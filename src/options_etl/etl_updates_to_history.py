@@ -43,7 +43,7 @@ class EtlHistory:
         self.update_path: str = os.path.normpath(os.path.abspath(update_path))
         self._timeframe: Timeframe = timeframe
         self._symbols: list[str] | None = symbols
-        self._asset_kinds = asset_kinds if asset_kinds is not None else [AssetKind.FUTURE, AssetKind.OPTION]
+        self._asset_kinds = asset_kinds if asset_kinds is not None else [AssetKind.SPOT, AssetKind.FUTURE, AssetKind.OPTION]
         self._source_timeframes: list[Timeframe] = list(sorted([tm for tm in Timeframe
                                                                 if tm.mult <= self._timeframe.mult],
                                                                key=lambda tm: tm.mult))
@@ -119,7 +119,6 @@ class EtlHistory:
                 if timeframe.mult not in update_files_by_period[fn_key]:
                     update_files_by_period[fn_key][timeframe.mult] = []
                 update_files_by_period[fn_key][timeframe.mult].append(fn_path)
-
         periods_by_year = {}
         for year_month in update_files_by_period:
             year = int(year_month.split('-')[0])
@@ -235,6 +234,8 @@ class EtlHistory:
             symbols = list(filter(lambda x: x in self._symbols, symbols))
         for symbol in symbols:
             symbols_path = os.path.join(exchange_path, symbol)
+            if os.path.isfile(symbols_path):
+                continue
             asset_kind_dirs = os.listdir(symbols_path)
             for asset_kind in asset_kind_dirs:
                 if asset_kind in asset_kind_names:
@@ -245,21 +246,26 @@ class EtlHistory:
                         timeframe_path = os.path.join(asset_kind_path, tm)
                         for root_path, dirs, files in os.walk(timeframe_path):
                             if root_path[len(timeframe_path):].count(os.sep) > max_depth:
+                                print(f'[WARNING] path more than deep {max_depth}', timeframe_path)
                                 break
-                            files = self._filter_files(files, start_ts)
+                            files = self._filter_files(files, start_ts, root_path)
                             if not files:
                                 continue
                             updates_files = self._update_symbols_timeframes_fn(updates_files, symbol, asset_kind,
                                                                                tm, root_path, files)
         return updates_files
 
-    def _filter_files(self, files: list[str], start_ts: pd.Timestamp | None) -> list[str]:
+    def _filter_files(self, files: list[str], start_ts: pd.Timestamp | None = None,
+                      root_path: str | None = None) -> list[str]:
         if not files:
             return files
+        correct_files = list(filter(lambda fn: self.update_fn_pattern.match(fn), files))
+        if len(correct_files) != len(files):
+            print(f'[WARING] files have incorrect names {root_path}:', [fn for fn in files if fn not in correct_files])
         if start_ts:
-            return list(filter(lambda fn: self.update_fn_pattern.match(fn) and self._parse_fn_timestamp(fn) >= start_ts,
-                               files))
-        return list(filter(lambda fn: self.update_fn_pattern.match(fn), files))
+            return list(filter(lambda fn:  self._parse_fn_timestamp(fn) >= start_ts,
+                               correct_files))
+        return correct_files
 
     @staticmethod
     def _parse_fn_timestamp(fn) -> pd.Timestamp:

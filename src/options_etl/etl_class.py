@@ -72,15 +72,14 @@ class EtlOptions(ABC):
 
         self._last_request_timestamp = pd.Timestamp.now(tz=datetime.UTC)
         self._heartbeat_last_message_time = self._last_request_timestamp
-        self._scheduler_background: BackgroundScheduler = BackgroundScheduler(timezone=datetime.UTC,
-                                                                              job_defaults={'max_instances': 1})
+        self._scheduler_background: BackgroundScheduler = BackgroundScheduler(timezone=datetime.UTC) # job_defaults={'max_instances': 1})
         self._heartbeat_message_interval = pd.Timedelta(minutes=timeframe.mult * 2 if timeframe.mult < 30 else 60)
         self._scheduler_background.add_job(self._heartbeat, 'interval',
                                            minutes=(1 if self._heartbeat_message_interval.total_seconds() * 60 < 30
                                                     else 10), max_instances=1)
         self._scheduler_background.add_job(self._report, 'interval', hours=(4 if timeframe.mult >= 30 else 1),
                                            max_instances=1)
-        self._scheduler_background.add_job(self._save_tasks_dataframes_job, 'interval', seconds=60, max_instances=1)
+        self._scheduler_background.add_job(self._save_tasks_dataframes_job, 'interval', seconds=120, max_instances=1)
         if timeframe_cron is None:
             timeframe_cron = self._get_cron_params_from_timeframe(timeframe, is_detailed)
         elif isinstance(timeframe_cron, str):

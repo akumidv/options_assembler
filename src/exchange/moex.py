@@ -485,6 +485,7 @@ class MoexExchange(AbstractExchange):
                                                                  OCl.ORIGINAL_TIMESTAMP.nm]],
                                                 on=OCl.SERIES_CODE.nm, how='left')
         book_summary_df[OCl.UNDERLYING_CODE.nm] = book_summary_df[OCl.UNDERLYING_CODE.nm] \
+            .infer_objects(copy=False) \
             .fillna(book_summary_df[OCl.BASE_CODE.nm])
         return book_summary_df
 

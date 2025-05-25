@@ -36,11 +36,11 @@ class FileProvider(AbstractProvider, ABC):
                 symbols.append(symbol)
         return symbols
 
-    def _get_history_folder(self, asset_code: str, asset_type: AssetType | str, timeframe: Timeframe | str):
-        asset_kind = asset_type if isinstance(asset_type, str) else asset_type.value
-        if asset_kind != AssetKind.OPTION.value or asset_kind != AssetKind.FUTURE.value:
-            asset_kind = AssetKind.SPOT.value
-        return f'{self.exchange_data_path}/{asset_code}/{asset_kind}/' \
+    def _get_history_folder(self, asset_code: str, asset_kind: AssetKind | str, timeframe: Timeframe | str):
+        asset_kind_value = asset_kind if isinstance(asset_kind, str) else asset_kind.value
+        if asset_kind_value != AssetKind.OPTION.value and asset_kind_value != AssetKind.FUTURE.value:
+            asset_kind_value = AssetKind.SPOT.value
+        return f'{self.exchange_data_path}/{asset_code}/{asset_kind_value}/' \
                f'{timeframe if isinstance(timeframe, str) else timeframe.value}'
 
     def get_asset_history_years(self, asset_code: str, asset_type: AssetType, timeframe: Timeframe) -> list[int]:
@@ -52,9 +52,9 @@ class FileProvider(AbstractProvider, ABC):
         history_files = [int(fn[:4]) for fn in os.listdir(history_folder) if fn_pattern.match(fn)]
         return history_files
 
-    def fn_path_prepare(self, asset_code: str, asset_type: AssetType | str, timeframe: Timeframe | str, year: int):
+    def fn_path_prepare(self, asset_code: str, asset_kind: AssetKind | str, timeframe: Timeframe | str, year: int):
         """Prepare path for files"""
-        history_folder = self._get_history_folder(asset_code, asset_type, timeframe)
+        history_folder = self._get_history_folder(asset_code, asset_kind, timeframe)
         return f'{history_folder}/{year}.parquet'
 
     @validate_call

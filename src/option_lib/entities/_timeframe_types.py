@@ -11,8 +11,8 @@ class Timeframe(EnumMultiplier):
     MINUTE_5 = '5m', 5, '5min'
     MINUTE_15 = '15m', 15, '15min'
     MINUTE_30 = '30m', 30, '30min'
-    HOUR_1 = '1h', 60, '1H'
-    HOUR_4 = '4h', 240, '4H'
+    HOUR_1 = '1h', 60, '1h'
+    HOUR_4 = '4h', 240, '4h'
 
     def __new__(cls, value: str, mult: int | float, offset: str):
         obj = object.__new__(cls)

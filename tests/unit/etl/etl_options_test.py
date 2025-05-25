@@ -31,7 +31,7 @@ def test__save_timeframe_book_update(etl_options):
     spot_df = pd.DataFrame()
     saved_tasks = len(etl_options._save_tasks)
     book_data = AssetBookData(asset_name='BTC',
-                              request_timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
+                              request_timestamp=pd.Timestamp.now(tz=datetime.timezone.utc),
                               option=options_df, future=future_df, spot=spot_df)
     etl_options._save_timeframe_book_update(book_data)
     assert len(etl_options._save_tasks) == 3 + saved_tasks

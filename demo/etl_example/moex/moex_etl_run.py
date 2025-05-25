@@ -16,7 +16,7 @@ if __name__ == '__main__':
     telegram_token = os.environ.get('TG_BOT_TOKEN')
     telegram_chat_id = os.environ.get('TG_CHAT')
     timeframe = Timeframe(os.environ.get('ETL_TIMEFRAME', '1h'))
-    etl_cron = os.environ.get('ETL_CRON', None)
+    etl_cron = os.environ.get('ETL_CRON', '0,27,57 * * * *') # 5-21
     messanger = TelegramMessanger(telegram_token, telegram_chat_id) if telegram_token and telegram_chat_id else None
     etl_deribit = EtlMoex(moex_exchange, None, timeframe=timeframe, update_data_path=update_data_path,
                              messanger=messanger, is_detailed=True, timeframe_cron=etl_cron)

@@ -145,5 +145,5 @@ def test_get_update_timeframes_files(etl_history_future):
 
 
 
-# def test_prepare(etl_history):
+# def test_file_pattern(etl_history):
 #     etl_history.prepare()
