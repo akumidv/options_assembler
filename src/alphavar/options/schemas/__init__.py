@@ -5,10 +5,15 @@ import os
 import pandas as pd
 
 from alphavar.options.schemas._result_schemas import (
+    ChainSchema,
+    DeskSchema,
     ForecastDistributionSchema,
+    PayoffCurveSchema,
+    PayoffLegsSchema,
     PriceSeriesSchema,
     SmileForecastSchema,
     SurfaceForecastSchema,
+    TimeValueSeriesSchema,
 )
 from alphavar.options.schemas._schemas import (
     FuturesHistory,
@@ -34,6 +39,11 @@ __all__ = [
     "ForecastDistributionSchema",
     "SmileForecastSchema",
     "SurfaceForecastSchema",
+    "ChainSchema",
+    "DeskSchema",
+    "TimeValueSeriesSchema",
+    "PayoffCurveSchema",
+    "PayoffLegsSchema",
     "validate",
     "validation_enabled",
 ]

@@ -3,9 +3,9 @@
 import pandas as pd
 
 from alphavar.io.exchange.exchange_entities import ExchangeCode
+from alphavar.io.provider import read_reference
 from alphavar.options.dictionary import OptionsTerm, Timeframe
 from alphavar.options.etl.etl_updates_to_history import EtlHistory
-from alphavar.options.lib.reference import read_reference
 
 T0 = pd.Timestamp("2025-01-01", tz="UTC")
 T1 = pd.Timestamp("2025-02-01", tz="UTC")

@@ -47,7 +47,7 @@ This is a hard, always-on rule — it overrides "make the tests pass":
 - The same applies to **architectural changes** (package layout, layer boundaries,
   public interfaces, data schema/column semantics, storage layout): explain the change
   and its rationale, then request the owner's explicit approval before treating it as
-  settled. (Architectural changes are also governed by ARCHITECTURE_REQUIREMENTS R0…R8.)
+  settled. (Architectural changes are also governed by ARCHITECTURE_REQUIREMENTS R0…R10.)
 - When in doubt, do not silently implement — explain the options and ask. Do not delete
   existing math/DataFrame logic; preserve the prior version (commented, marked
   `4VERIFY`) so the owner can compare during verification.
@@ -56,7 +56,7 @@ This is a hard, always-on rule — it overrides "make the tests pass":
 
 - Dependencies via **uv** (`uv sync --all-extras`); run commands with `uv run …`. ETL
   tests need the `etl` extra: `uv run --extra etl pytest`.
-- `DATA_PATH` is read from `test.env`; test artefacts (charts, dumps) go to the
+- `DATA_PATH` is read from `.env`; test artefacts (charts, dumps) go to the
   git-ignored `.tmp/` via the `tmp_output_dir` fixture.
 - Details and other operational gotchas:
   [_forge/memory/env-and-test-running.md](memory/env-and-test-running.md).

@@ -21,8 +21,9 @@ import sys
 import pandas as pd
 
 from alphavar.core.dictionary import InstrumentKind
+from alphavar.io.provider import write_reference
 from alphavar.options.dictionary import OptionsTerm
-from alphavar.options.lib.reference import extract_reference, write_reference
+from alphavar.options.lib.reference import extract_reference
 from alphavar.options.migration import rename_legacy_option_columns
 
 # Option kind folder names to scan: the canonical singular (ADR 0001) + the legacy plural,

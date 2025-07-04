@@ -3,13 +3,15 @@
 import datetime
 
 import pandas as pd
+from pandera.typing import DataFrame
 
 from alphavar.options.dictionary import OptionsTerm
+from alphavar.options.schemas import ChainSchema
 
 
 def select_chain(
     df_hist: pd.DataFrame, settlement_date: pd.Timestamp | None = None, expiation_date: pd.Timestamp | None = None
-) -> pd.DataFrame:
+) -> DataFrame[ChainSchema]:
     """Select for chain dataframe. If parameters do not set - it return chain for nearest actual expiration date"""
     if df_hist is None:
         raise ValueError("Option dataframe should be provided")

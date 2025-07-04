@@ -20,6 +20,28 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/analysis-guard.py\""
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/d2-ledger-reminder.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Task|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/delegation-log.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|Task|Agent|Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/delegation-nudge.py\""
           }
         ]
       }
@@ -30,6 +52,20 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/session-start-agent.py\""
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/model-routing.py\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_forge/keystone/hooks/model-routing.py\""
           }
         ]
       }

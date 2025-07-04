@@ -24,7 +24,9 @@ risk (payoff profiles) and time value, and visualize the results.
 
 The library follows a provider pattern: different data sources plug in through the
 `AbstractProvider` interface. The main entry point is the `Option` class in
-[src/alphavar/option_class.py](src/alphavar/option_class.py).
+[src/alphavar/options/option_class.py](src/alphavar/options/option_class.py). For the full
+public surface — which symbols sit in which tier (core / research facade / service / adapters)
+and their stability — see [docs/dev/api-tiers.md](docs/dev/api-tiers.md).
 
 ## Ecosystem & roadmap
 
@@ -73,7 +75,35 @@ ETL examples for different exchanges (Deribit, MOEX) are in `demo/etl_example/`.
 
 The easiest way to get sample data is to download it from the shared
 [Google Drive folder](https://drive.google.com/drive/folders/1NJNxkkUYzCfADIlPHyaZQ0jrfW9WJn2I?usp=sharing).
-Save the files into a data folder and point `DATA_PATH` (in `test.env`) at it.
+Save the files into a data folder and point `DATA_PATH` (in `.env`) at it.
+
+Target local data is organized by dataset, then exchange, then asset:
+
+```text
+DATA_PATH/
+  deribit_direct/
+    dataset.yaml
+    DERIBIT/
+      BTC/
+        asset.yaml
+        listings/
+          DERIBIT.yaml
+        reference/
+          option_contracts.parquet
+          future_contracts.parquet
+          contract_specs.parquet
+        option/
+          EOD/
+            2025.parquet
+```
+
+`dataset.yaml`, `asset.yaml`, and `listings/*.yaml` are human-readable metadata. Quote
+history stays in `{instrument_kind}/{timeframe}/{year}.parquet`; contract/reference data
+is stored separately under `reference/`.
+
+User-facing symbols may use `{exchange}:{asset}` notation such as `DERIBIT:BTC` or
+`NYSE:T`; the resolver expands that shorthand into dataset, provider, exchange, and asset
+context before constructing a provider.
 
 The `demo/` notebooks also include `gdrive` snippets showing how to download the data.
 
@@ -100,7 +130,8 @@ Architecture, design decisions, and development notes live in
 The repo supports two usage models:
 
 - **As a library** — import `alphavar` and drive the `Option` facade yourself (see *Quick
-  start* and the demo notebooks).
+  start* and the demo notebooks); the tiered public surface is mapped in
+  [docs/dev/api-tiers.md](docs/dev/api-tiers.md).
 - **Through an assistant** — the vendor-neutral entry point is [AGENTS.md](AGENTS.md)
   ([CLAUDE.md](CLAUDE.md) points to it); the full model is in
   [`_forge/keystone/README.md`](_forge/keystone/README.md).

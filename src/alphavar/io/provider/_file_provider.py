@@ -15,10 +15,10 @@ import pandas as pd
 
 from alphavar.core.dictionary import InstrumentKind
 from alphavar.io.provider._abstract_provider_class import AbstractProvider
+from alphavar.io.provider._reference_store import read_reference
 from alphavar.options.dictionary import Timeframe
 from alphavar.options.entities import AssetMeta
 from alphavar.options.lib.normalization import validate_path_segment
-from alphavar.options.lib.reference import read_reference
 
 # Legacy plural kind string -> canonical singular, for raw strings that may still carry the
 # old plural spelling. InstrumentKind values are already singular and pass through.

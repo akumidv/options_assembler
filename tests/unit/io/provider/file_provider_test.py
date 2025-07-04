@@ -106,8 +106,8 @@ def test_load_reference_absent_returns_none(file_provider, asset_code):
 
 
 def test_load_reference_round_trip(tmp_path):
+    from alphavar.io.provider import write_reference
     from alphavar.options.entities import AssetMeta
-    from alphavar.options.lib.reference import write_reference
 
     exchange_dir = tmp_path / "DERIBIT"
     (exchange_dir).mkdir()

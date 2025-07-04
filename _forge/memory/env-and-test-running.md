@@ -10,9 +10,11 @@ Non-obvious operational facts:
 - ETL (`alphavar.options.etl`) needs the optional `apscheduler` (extra `etl`). `uv run
   pytest` does NOT activate extras by default and prunes apscheduler → run tests with
   **`uv run --extra etl pytest`** (or `uv sync --all-extras` first).
-- `DATA_PATH` (market-data root) is read from `test.env` via pytest-dotenv; conftest
-  defaults it to the repo-local `data/` symlink. The `data` symlink is git-ignored and
-  machine-local. Hermetic committed fixtures are still TODO (TASKS.md T11).
+- `DATA_PATH` (market-data root) is read from `.env` via pytest-dotenv (`pyproject.toml`
+  `env_files=[".env"]`); when unset, conftest defaults it to the committed hermetic set
+  `tests/fixtures/data/` (T11 done), so a clean checkout is green with no local data. Point
+  `DATA_PATH` at the full machine-local `./data` tree (git-ignored) for richer local runs;
+  rebuild the fixtures with `uv run python -m tools.build_ci_fixtures`.
 - Test output artefacts (charts) go to project-root `.tmp/` (git-ignored) via the
   `tmp_output_dir` fixture / `ALPHAVAR_TMP_DIR` env var set in `tests/conftest.py`.
 - Pytest `pythonpath` includes `.` (repo root) and `src`, so the dev tools import as

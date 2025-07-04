@@ -1,7 +1,6 @@
 # 0001 — InstrumentKind/ContractKind as the canonical instrument kind everywhere
 
 - **Status:** Accepted
-- **Date:** 2026-06-14
 - **Owner:** akuminov@gmail.com
 - **References:** R2.2, R4.1, R4.3, R4.4, R4.5 (`ARCHITECTURE_REQUIREMENTS.md`); D2, D4
   (`DEVELOPMENT_REQUIREMENTS.md`); backlog T23.6 (data migration).

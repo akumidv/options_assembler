@@ -18,7 +18,7 @@ import pandas as pd
 from alphavar.core.dictionary import InstrumentKind
 from alphavar.io.exchange import AbstractExchange, get_exchange_class
 from alphavar.io.exchange.exchange_entities import ExchangeCode
-from alphavar.io.provider import PandasLocalFileProvider, RequestParameters
+from alphavar.io.provider import PandasLocalFileProvider, RequestParameters, read_reference, write_reference
 from alphavar.options.dictionary import ContractKind, OptionsTerm, Timeframe
 from alphavar.options.lib.normalization import validate_path_segment
 from alphavar.options.lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
@@ -26,9 +26,7 @@ from alphavar.options.lib.reference import (
     CONTRACT_KEY_COLUMNS,
     CONTRACT_REF_COLUMNS,
     append_on_change,
-    read_reference,
     split_reference,
-    write_reference,
 )
 
 logger = logging.getLogger(__name__)

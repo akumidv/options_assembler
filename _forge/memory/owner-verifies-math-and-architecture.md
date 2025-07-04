@@ -18,5 +18,5 @@ owner verification" (not "Done"). When in doubt, present options and ask rather 
 silently implement.
 
 Codified as **D2** in `_forge/DEVELOPMENT_REQUIREMENTS.md` (architectural invariants
-themselves are in `ARCHITECTURE_REQUIREMENTS.md` R0…R8). Example applied: the
+themselves are in `ARCHITECTURE_REQUIREMENTS.md` R0…R10). Example applied: the
 `_calc_premium_profile` payoff math (T14b). See [env-and-test-running.md](env-and-test-running.md).

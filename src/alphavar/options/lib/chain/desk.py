@@ -2,10 +2,15 @@
 Prepare desk for option chain
 """
 
+from pandera.typing import DataFrame
+
 from alphavar.options.dictionary import OptionsTerm, OptionsType
+from alphavar.options.schemas import DeskSchema
 
 
-def convert_chain_to_desk(df_chain, option_columns: list | None = None, future_columns: list | None = None):
+def convert_chain_to_desk(
+    df_chain, option_columns: list | None = None, future_columns: list | None = None
+) -> DataFrame[DeskSchema]:
     """Prepare option desk from options or option_chain"""
     if option_columns is None:
         option_columns = [OptionsTerm.TIMESTAMP, OptionsTerm.EXPIRATION_DATE, OptionsTerm.STRIKE, OptionsTerm.PRICE]

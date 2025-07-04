@@ -22,8 +22,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from alphavar.core.dictionary import InstrumentKind, column_names
+from alphavar.io.provider import read_reference
 from alphavar.options.dictionary import OptionsTerm
-from alphavar.options.lib.reference import CONTRACT_KEY_COLUMNS, CONTRACT_REF_COLUMNS, read_reference
+from alphavar.options.lib.reference import CONTRACT_KEY_COLUMNS, CONTRACT_REF_COLUMNS
 from alphavar.options.migration import OPTIONS_SPEC
 
 _LEGACY_RENAMES = OPTIONS_SPEC.renames  # full core + derivatives legacy→canonical map

@@ -1,7 +1,6 @@
 # 0003 — Composable result-chain: calculations feed calculations
 
-- **Status:** Proposed (owner-scoped 2026-06-20; architecture recorded, implementation phased)
-- **Date:** 2026-06-20
+- **Status:** Proposed (owner-scoped; architecture recorded, implementation phased)
 - **Owner:** akuminov@gmail.com
 - **References:** R3 (facade components), R5 (pure lib), R4 (term registry), D2; backlog T27
   (forecast — factor-conditional price models), T29/T30 (fitting), T33 (portfolio), T35 (risk).

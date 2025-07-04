@@ -70,7 +70,7 @@ pythonpath = [
     "."
 ]
 env_files = [
-    "test.env"
+    ".env"
 ]
 testpaths = [
     "tests",

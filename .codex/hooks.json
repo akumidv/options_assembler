@@ -13,6 +13,11 @@
             "type": "command",
             "command": "python3 \"$(git rev-parse --show-toplevel)/_forge/keystone/hooks/codex-hook.py\" analysis-guard",
             "statusMessage": "Checking analysis-before-mutation"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/_forge/keystone/hooks/codex-hook.py\" d2-ledger-reminder",
+            "statusMessage": "Checking D2 ledger"
           }
         ]
       }

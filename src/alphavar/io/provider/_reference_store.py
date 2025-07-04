@@ -1,15 +1,16 @@
 """Persist the reference layers to a per-asset folder (R4.6, T25) — storage adapter.
 
-Storage is per asset: ``{exchange}/{asset_code}/...`` holds the time series (one parquet per
-``{kind}/{timeframe}/{year}``); the slowly-changing reference lives alongside it at the asset
-root:
+File-based storage adapter for the slowly-changing reference, kept in the I/O layer (T41: it
+does file I/O, so it lives beside the file provider — not in the pure ``options/lib``). Storage
+is per asset: ``{exchange}/{asset_code}/...`` holds the time series (one parquet per
+``{kind}/{timeframe}/{year}``); the reference lives alongside it at the asset root:
 
 - ``_asset.json``  — the asset-level ``AssetMeta`` (one record per ``asset_code``);
 - ``_meta.parquet`` — the contract-level SCD-2 history (``valid_from``/``valid_to`` versions).
 
-These functions are pure file I/O over an *asset directory* path — no provider coupling (that
-is wired in increment 4). Reading an absent reference yields ``(None, empty frame)`` so an SCD
-history can be started from scratch with ``append_on_change``.
+These functions are pure file I/O over an *asset directory* path — no provider coupling; the
+``AbstractFileProvider`` wires them to an ``asset_code``. Reading an absent reference yields
+``(None, empty frame)`` so an SCD history can be started from scratch with ``append_on_change``.
 
 # 4VERIFY (owner, D2): the on-disk reference layout (sidecar ``_asset.json`` + ``_meta.parquet``
 # at the asset root, beside the existing ``{kind}/{timeframe}/{year}.parquet`` series) and the

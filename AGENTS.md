@@ -155,7 +155,7 @@ npm run dev
 
 - Tests live in the `tests/` directory.
 - Uses pytest with configuration in `pyproject.toml`.
-- The test environment reads `test.env` (set `DATA_PATH` there to point at sample data).
+- The test environment reads `.env` (set `DATA_PATH` there to point at sample data).
 - Pytest is configured with `src` on the pythonpath.
 
 ## Code Quality
@@ -181,7 +181,7 @@ npm run dev
   `.github/copilot-instructions.md`, …) are thin pointers here — do not duplicate rules.
 - `docs/` — user-facing documentation site (Next.js + Markdoc).
 - `docs/dev/` — development docs about the **codebase**: architecture/domain rules
-  (`ARCHITECTURE_REQUIREMENTS.md`, **R0…R8** — verify on new entities/domain or serious
+  (`ARCHITECTURE_REQUIREMENTS.md`, **R0…R10** — verify on new entities/domain or serious
   domain-model changes), day-to-day dev rules (`DEVELOPMENT_REQUIREMENTS.md`, **D1…D5** —
   check every change; **D2** and **D5** are always-on and overriding), design overview
   (`PROJECT_OVERVIEW.md`), and accepted decision records

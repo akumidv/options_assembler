@@ -1,16 +1,16 @@
-"""Reference storage adapter: write/read AssetMeta + SCD history round-trip (T25)."""
+"""Reference storage adapter: write/read AssetMeta + SCD history round-trip (T25; T41 home: io/provider)."""
 
 import pandas as pd
 
-from alphavar.options.dictionary import OptionsTerm
-from alphavar.options.entities import AssetMeta
-from alphavar.options.lib.reference import (
-    append_on_change,
+from alphavar.io.provider import (
     asset_meta_path,
     contract_history_path,
     read_reference,
     write_reference,
 )
+from alphavar.options.dictionary import OptionsTerm
+from alphavar.options.entities import AssetMeta
+from alphavar.options.lib.reference import append_on_change
 
 KEY = [OptionsTerm.EXCH_SYMBOL]
 ATTR = [OptionsTerm.OPTION_STYLE]

@@ -31,6 +31,16 @@ class ResultTerm:
     CHANGE: Final = "change"
     """Change of ``value`` vs the reference level ``spot`` (``value − spot``)."""
 
+    # --- Risk-profile output frame (payoff / risk graph) ---
+    RISK_PNL: Final = "risk_pnl"
+    """Per-strike P&L at expiration (intrinsic value net of premium paid)."""
+
+    RISK_PNL_PREMIUM: Final = "risk_pnl_premium"
+    """Per-strike mark-to-market ("today") P&L — the current-price line of a risk graph."""
+
+    LEG_ID: Final = "leg_id"
+    """Identifier of a single strategy leg in the per-leg payoff breakdown."""
+
     # --- Result scalars (ride on the result object / contract scalar-spec, not in the frame) ---
     HORIZON_YEARS: Final = "horizon_years"
     """Forecast horizon in ACT/365 calendar years."""

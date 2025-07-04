@@ -21,6 +21,9 @@ from __future__ import annotations
 from pandera.typing import DataFrame
 
 from alphavar.core.disc import register
+from alphavar.options.lib.analytic.price import time_value_series_by_atm_distance
+from alphavar.options.lib.analytic.risk import payoff_curve, payoff_legs
+from alphavar.options.lib.chain import convert_chain_to_desk, select_chain
 from alphavar.options.lib.forecast import (
     forecast_distribution,
     forecast_smile,
@@ -59,3 +62,19 @@ register(price_series, consumes=[("futures_history", "options_history")])
 register(forecast_distribution)
 register(forecast_smile)
 register(forecast_surface)
+
+# --- P4: analytic tidy producers (T42a) — chain selection, desk pivot, time-value series ------------
+# Single-frame Shape-2 producers whose output schema is read off the ``DataFrame[...]`` return type.
+# Input edges are supplied explicitly (the first parameter is named for the frame, not the kind): a
+# ``chain`` is one options-history slice; a ``desk`` is a call/put pivot of a ``chain``; a
+# ``time_value_series`` is derived from the options history for one selected strike.
+register(select_chain, kind="chain", consumes=["options_history"])
+register(convert_chain_to_desk, kind="desk", consumes=["chain"])
+register(time_value_series_by_atm_distance, kind="time_value_series", consumes=["options_history"])
+
+# --- P5: payoff (T42a) — two producers with a real edge: the combined curve is the sum of the legs.
+# ``payoff_legs`` is the base (per-leg P&L over a ``chain``); ``payoff_curve`` consumes it and sums
+# each strike across legs (``payoff_curve ← payoff_legs``). ``chain_payoff`` stays as the convenience
+# tuple over both.
+register(payoff_legs, kind="payoff_legs", consumes=["chain"])
+register(payoff_curve, kind="payoff_curve", consumes=["payoff_legs"])

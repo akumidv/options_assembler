@@ -1,7 +1,6 @@
 # 0004 — `lib` / class contracts and architecture remediation
 
 - **Status:** Accepted
-- **Date:** 2026-06-24
 - **Owner:** akuminov@gmail.com
 - **References:** R1, R3, R4.4, R8 (`ARCHITECTURE_REQUIREMENTS.md`); D2, D7
   (`DEVELOPMENT_REQUIREMENTS.md`); backlog T41-T44; ADR 0003 (result-chain contracts).

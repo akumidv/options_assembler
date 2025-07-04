@@ -8,6 +8,10 @@
 
 ## Closed (archive)
 
+**N1 — top-down architecture review (2026-07-03):** findings report (local artifact
+`_forge/artifacts/architecture-review-top-down.md`, untracked — `_forge/artifacts/` is
+gitignored); spawned A5–A7, C1–C2; inputs to T28 (exchange split) and T44 (vocabulary).
+
 **P0 — broken functionality:** T1, T1b, T2, T3, T4, T5, T6, T6b (2026-06-13).
 **P1 — security:** T7, T8, T8b, T9, T10 (2026-06-13).
 **T23 foundation (2026-06-13):** `core/dictionary` (`Col` plain-str registry) +
@@ -554,6 +558,7 @@ New archive entries follow the [tasks convention](keystone/pipelines/tasks.md): 
 no dates (use `git log`). The verbose `### T##` sections below predate the convention and are kept
 as frozen historical detail.
 
+- A1 · product API tiers · done · architect/engineer · declared the core/research/service/adapter surfaces + placed `flow` beside the tiers (ADR 0005); wrote `docs/dev/api-tiers.md` (symbol→tier inventory, consumer→assembler map), widened `alphavar.options.__all__` with `OptionsForecast`/`OptionsValidation`, DI server example. Owner-verified in the [D2 ledger](D2_VERIFICATION.md) (R9/R10 + A1 export contract rows ✅) · [design](design/product-server-architecture.md)
 - T45 · keystone realign v0.1.0→v0.2.1 · done · architect · `reviewer`→`review` (dir+charter), MODEL.md/Archetype terminology, `review-flow` replaces `architecture-review`/`security-review`/`system-design`, OPERATE layer noted, wrote `_forge/.keystone.toml`; sync/verify --strict green
 - T37 · result-chain V1 (price slice) · done · engineer · 3 autonomous producers + ResultTerm + Disc surface + flow prototype; forecast area reduced to producers · [design](design/result-chain/v1-price-slice.md)
 - T39 · keystone hook tests + CI gate · done · engineer · tests for `hook_core`; CI runs them, `verify.check_ci` requires it
