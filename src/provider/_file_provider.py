@@ -8,69 +8,77 @@ dataframe columns:
 """
 
 import os
-import datetime
 import re
 from abc import ABC
-import pandas as pd
-from pydantic import validate_call
-from option_lib.entities import Timeframe, AssetType, AssetKind
+from options_lib.entities import Timeframe, AssetKind
 from provider._abstract_provider_class import AbstractProvider
 
 
-class FileProvider(AbstractProvider, ABC):
+class AbstractFileProvider(AbstractProvider, ABC):
     """Load data from files"""
 
-    def __init__(self, exchange_code: str, data_path: str):
-        exchange_data_path = os.path.normpath(os.path.abspath(os.path.join(data_path, exchange_code)))
+    exchange_data_path: str
+
+    def __init__(self, exchange_code: str, data_path: str) -> None:
+        exchange_data_path: str = os.path.normpath(
+            os.path.abspath(os.path.join(data_path, exchange_code))
+        )
         if not os.path.isdir(exchange_data_path):
-            raise FileNotFoundError(f'Folder {exchange_data_path} is not exist')
+            raise FileNotFoundError(f"Folder {exchange_data_path} is not exist")
         self.exchange_data_path = exchange_data_path
         super().__init__(exchange_code=exchange_code)
 
-    def get_assets_list(self, asset_kind: AssetKind):
+    def get_assets_list(self, asset_kind: AssetKind) -> list[str]:
         """Prepare list of underlying assets symbols"""
-        symbols = []
+        symbols: list[str] = []
         for symbol in os.listdir(self.exchange_data_path):
-            asset_kinds = os.listdir(os.path.join(self.exchange_data_path, symbol))
+            asset_kinds: list[str] = os.listdir(
+                os.path.join(self.exchange_data_path, symbol)
+            )
             if asset_kind.value in asset_kinds:
                 symbols.append(symbol)
         return symbols
 
-    def _get_history_folder(self, asset_code: str, asset_kind: AssetKind | str, timeframe: Timeframe | str):
-        asset_kind_value = asset_kind if isinstance(asset_kind, str) else asset_kind.value
-        if asset_kind_value != AssetKind.OPTION.value and asset_kind_value != AssetKind.FUTURE.value:
+    def _get_history_folder(
+        self, asset_code: str, asset_kind: AssetKind | str, timeframe: Timeframe | str
+    ) -> str:
+        asset_kind_value: str = (
+            asset_kind if isinstance(asset_kind, str) else asset_kind.value
+        )
+        if (
+            asset_kind_value != AssetKind.OPTIONS.value
+            and asset_kind_value != AssetKind.FUTURES.value
+        ):
             asset_kind_value = AssetKind.SPOT.value
-        return f'{self.exchange_data_path}/{asset_code}/{asset_kind_value}/' \
-               f'{timeframe if isinstance(timeframe, str) else timeframe.value}'
+        return (
+            f"{self.exchange_data_path}/{asset_code}/{asset_kind_value}/"
+            f"{timeframe if isinstance(timeframe, str) else timeframe.value}"
+        )
 
-    def get_asset_history_years(self, asset_code: str, asset_type: AssetType, timeframe: Timeframe) -> list[int]:
+    def get_asset_history_years(
+        self, asset_code: str, asset_kind: AssetKind, timeframe: Timeframe
+    ) -> list[int]:
         """Get years of history data for symbol"""
-        fn_pattern = re.compile(r'\d{4}.parquet')
-        history_folder = self._get_history_folder(asset_code, asset_type, timeframe)
+        fn_pattern = re.compile(r"\d{4}.parquet")
+        history_folder: str = self._get_history_folder(
+            asset_code, asset_kind, timeframe
+        )
         if not os.path.isdir(history_folder):
             return []
-        history_files = [int(fn[:4]) for fn in os.listdir(history_folder) if fn_pattern.match(fn)]
+        history_files: list[int] = [
+            int(fn[:4]) for fn in os.listdir(history_folder) if fn_pattern.match(fn)
+        ]
         return history_files
 
-    def fn_path_prepare(self, asset_code: str, asset_kind: AssetKind | str, timeframe: Timeframe | str, year: int):
+    def fn_path_prepare(
+        self,
+        asset_code: str,
+        asset_kind: AssetKind | str,
+        timeframe: Timeframe | str,
+        year: int,
+    ) -> str:
         """Prepare path for files"""
-        history_folder = self._get_history_folder(asset_code, asset_kind, timeframe)
-        return f'{history_folder}/{year}.parquet'
-
-    @validate_call
-    def load_option_chain(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
-                          expiration_date: datetime.datetime | None = None,
-                          timeframe: Timeframe = Timeframe.EOD,
-                          columns: list | None = None) -> pd.DataFrame | None:
-        """Providing option chain by local file system is not supported return None"""
-        return None
-
-    def load_option_book(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
-                         timeframe: Timeframe = Timeframe.EOD, columns: list | None = None) -> pd.DataFrame:
-        """Providing option book by local file system is not supported return None"""
-        return None
-
-    def load_future_book(self, asset_code: str, settlement_datetime: datetime.datetime | None = None,
-                         timeframe: Timeframe = Timeframe.EOD, columns: list | None = None) -> pd.DataFrame:
-        """Providing option book by local file system is not supported return None"""
-        return None
+        history_folder: str = self._get_history_folder(
+            asset_code, asset_kind, timeframe
+        )
+        return f"{history_folder}/{year}.parquet"

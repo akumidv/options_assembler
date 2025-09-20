@@ -4,9 +4,9 @@ import datetime
 import pandas as pd
 import pytest
 
-from option_lib.entities import (
-    OptionColumns as OCl,
-    FutureColumns as FCl,
+from options_lib.entities import (
+    OptionsColumns as OCl,
+    FuturesColumns as FCl,
     SpotColumns as SCl
 )
 from exchange import RequestClass

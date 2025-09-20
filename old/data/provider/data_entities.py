@@ -35,7 +35,7 @@ OPTION_TYPE_MAP = {
 
 
 ASSET_TYPE_MAP = {
-    AssetType.FUTURE.code: AssetType.FUTURE,
+    AssetType.FUTURES.code: AssetType.FUTURES,
     AssetType.SHARE.code: AssetType.SHARE,
     AssetType.CRYPTO.code: AssetType.CRYPTO,
     AssetType.COMMODITIES.code: AssetType.COMMODITIES,

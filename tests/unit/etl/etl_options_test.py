@@ -4,7 +4,7 @@ import pandas as pd
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
 
-from option_lib.entities import Timeframe
+from options_lib.entities import Timeframe
 from options_etl.etl_class import AssetBookData, SaveTask
 
 

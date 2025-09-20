@@ -1,7 +1,7 @@
 """Deribit exchange provider"""
 import pytest
 import pandas as pd
-from option_lib.entities import AssetKind
+from options_lib.entities import AssetKind
 from provider import AbstractProvider
 from exchange import AbstractExchange
 from exchange.deribit import DeribitExchange
@@ -14,7 +14,7 @@ def test_deribit_exchange_init():
 
 
 def test_get_symbols_list_future(deribit_client):
-    asset_kind = AssetKind.FUTURE
+    asset_kind = AssetKind.FUTURES
     symbols = deribit_client.get_assets_list(asset_kind)
     assert isinstance(symbols, list)
     assert len(symbols) > 0

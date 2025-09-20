@@ -2,7 +2,7 @@ import datetime
 
 import pandas as pd
 import pytest
-from option_lib.entities import Timeframe, OptionColumns as OCl
+from options_lib.entities import Timeframe, OptionsColumns as OCl
 
 from options_etl.deribit_etl import EtlDeribit, DeribitAssetBookData
 from exchange import DeribitExchange

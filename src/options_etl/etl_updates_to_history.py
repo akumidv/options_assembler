@@ -12,8 +12,8 @@ from collections import OrderedDict
 # import itertools
 # from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
-from option_lib.entities import Timeframe, AssetKind, OptionColumns as OCl, FutureColumns as FCl, SpotColumns as SCl
-from option_lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
+from options_lib.entities import Timeframe, AssetKind, OptionsColumns as OCl, FuturesColumns as FCl, SpotColumns as SCl
+from options_lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
 from provider import PandasLocalFileProvider, RequestParameters
 from exchange.exchange_entities import ExchangeCode
 from exchange import AbstractExchange
@@ -43,7 +43,7 @@ class EtlHistory:
         self.update_path: str = os.path.normpath(os.path.abspath(update_path))
         self._timeframe: Timeframe = timeframe
         self._symbols: list[str] | None = symbols
-        self._asset_kinds = asset_kinds if asset_kinds is not None else [AssetKind.SPOT, AssetKind.FUTURE, AssetKind.OPTION]
+        self._asset_kinds = asset_kinds if asset_kinds is not None else [AssetKind.SPOT, AssetKind.FUTURES, AssetKind.OPTIONS]
         self._source_timeframes: list[Timeframe] = list(sorted([tm for tm in Timeframe
                                                                 if tm.mult <= self._timeframe.mult],
                                                                key=lambda tm: tm.mult))
@@ -192,10 +192,10 @@ class EtlHistory:
         request_parma = RequestParameters(period_to=max_year, timeframe=self._timeframe)
         year_symbols = random.sample(year_symbols, max_symbols) if len(year_symbols) > max_symbols else year_symbols
         for symbol in year_symbols:
-            if asset_kind.value == AssetKind.FUTURE.value:  # Use value there because it can be DeribitAssetKind and they will be different but the equal values
+            if asset_kind.value == AssetKind.FUTURES.value:  # Use value there because it can be DeribitAssetKind and they will be different but the equal values
                 df = self.provider.load_future_history(symbol, request_parma, columns=[FCl.TIMESTAMP.nm])
                 start_ts_new = df[FCl.TIMESTAMP.nm].max()
-            elif asset_kind.value == AssetKind.OPTION.value:
+            elif asset_kind.value == AssetKind.OPTIONS.value:
                 df = self.provider.load_option_history(symbol, request_parma, columns=[OCl.TIMESTAMP.nm])
                 start_ts_new = df[OCl.TIMESTAMP.nm].max()
             else:

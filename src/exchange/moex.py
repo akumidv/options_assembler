@@ -8,16 +8,16 @@ import concurrent
 from typing import Any
 from pydantic import validate_call
 from concurrent.futures import ThreadPoolExecutor
-from option_lib.entities.enum_code import EnumCode
-from option_lib.entities import (
-    Timeframe, AssetKind, OptionType, AssetType, OptionStyle,
-    OptionColumns as OCl,
-    FutureColumns as FCl,
+from options_lib.entities.enum_code import EnumCode
+from options_lib.entities import (
+    Timeframe, AssetKind, OptionsType, AssetType, OptionsStyle,
+    OptionsColumns as OCl,
+    FuturesColumns as FCl,
     SpotColumns as SCl,
     ALL_COLUMN_NAMES, Currency
 )
-from option_lib.normalization.datetime_conversion import df_columns_to_timestamp
-from option_lib.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
+from options_lib.normalization.datetime_conversion import df_columns_to_timestamp
+from options_lib.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
 
 from provider import DataEngine, RequestParameters
 from exchange.cache import Cache
@@ -27,6 +27,7 @@ from exchange._abstract_exchange import AbstractExchange, RequestClass, APIExcep
 
 ttl_cache = Cache(128, is_new_day_ttl_reset=True)
 
+
 class MoexAssetType(EnumCode):
     """https://iss.moex.com/iss/docs/option-calc/v1/glossary/
     sset_type = currency, share, futures, commodity, index
@@ -35,7 +36,7 @@ class MoexAssetType(EnumCode):
     SHARE = AssetType.SHARE.value, AssetType.SHARE.code
     COMMODITY = AssetType.COMMODITY.value, AssetType.COMMODITY.code
     INDEX = AssetType.INDEX.value, AssetType.INDEX.code
-    FUTURE = 'futures', AssetType.FUTURE.code
+    FUTURES = 'futures', AssetKind.FUTURES.code
     # OPTION = AssetType.OPTION.value, AssetType.OPTION.code
 
 
@@ -147,8 +148,8 @@ underlying_type               c
                 .rename(columns={'asset_code': OCl.BASE_CODE.nm, 'futures_code': OCl.UNDERLYING_CODE.nm,
                                  'asset_type': OCl.UNDERLYING_TYPE.nm, 'secid': OCl.ASSET_CODE.nm}) \
                 .replace({OCl.UNDERLYING_TYPE.nm: {at.value: at.code for at in MoexAssetType},
-                          OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionType}})
-            opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTION.code
+                          OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionsType}})
+            opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTIONS.code
             opt_df = df_columns_to_timestamp(opt_df, columns=[OCl.EXPIRATION_DATE.nm])
             return opt_df
         except APIException as err:
@@ -196,8 +197,8 @@ underlying_type               c
                 del series_call['put']
                 series_call['updatetime'] = series_call['updatetime'] + '+03:00'
                 series_put = series_call.copy()
-                series_call[OCl.OPTION_TYPE.nm] = OptionType.CALL.code
-                series_put[OCl.OPTION_TYPE.nm] = OptionType.PUT.code
+                series_call[OCl.OPTION_TYPE.nm] = OptionsType.CALL.code
+                series_put[OCl.OPTION_TYPE.nm] = OptionsType.PUT.code
                 series_call.update(call)
                 series_put.update(put)
                 options.extend([series_call, series_put])
@@ -208,7 +209,7 @@ underlying_type               c
                                  'volume_contracts': OCl.VOLUME.nm, 'openposition': OCl.OPEN_INTEREST.nm}) \
                 .replace({OCl.UNDERLYING_TYPE.nm: {at.value: at.code for at in MoexAssetType}})
             opt_df = df_columns_to_timestamp(opt_df, columns=[OCl.EXPIRATION_DATE.nm, OCl.ORIGINAL_TIMESTAMP.nm])
-            opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTION.code
+            opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTIONS.code
             return opt_df
         except APIException as err:
             if err.status_code == 422:
@@ -226,7 +227,7 @@ underlying_type               c
     def get_option_series_list(self, asset_code: str, series_code: str,
                                asset_type: MoexAssetType | str | None = None,
                                strike: int | None = None,
-                               option_type: OptionType | None = None) -> pd.DataFrame | None:
+                               option_type: OptionsType | None = None) -> pd.DataFrame | None:
         """
         https://iss.moex.com/iss/docs/option-calc/v1/requests_optionboard/#_4
         :param asset_code:
@@ -250,9 +251,9 @@ underlying_type               c
                 .rename(columns={'asset_code': OCl.BASE_CODE.nm, 'futures_code': OCl.UNDERLYING_CODE.nm,
                                  'asset_type': OCl.UNDERLYING_TYPE.nm, 'secid': OCl.ASSET_CODE.nm}) \
                 .replace({OCl.UNDERLYING_TYPE.nm: {at.value: at.code for at in MoexAssetType},
-                          OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionType}})
+                          OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionsType}})
             opt_df = df_columns_to_timestamp(opt_df, columns=[OCl.EXPIRATION_DATE.nm])
-            opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTION.code
+            opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTIONS.code
             opt_df[OCl.SERIES_CODE.nm] = series_code
             return opt_df
 
@@ -302,17 +303,17 @@ underlying_type               c
                                request_timestamp: pd.Timestamp | None = None) -> pd.DataFrame:
         option = []
         for call in response['call']:
-            call[OCl.OPTION_TYPE.nm] = OptionType.CALL.code
+            call[OCl.OPTION_TYPE.nm] = OptionsType.CALL.code
             option.append(call)
         for put in response['put']:
-            put[OCl.OPTION_TYPE.nm] = OptionType.PUT.code
+            put[OCl.OPTION_TYPE.nm] = OptionsType.PUT.code
             option.append(put)
 
         opt_df = pd.DataFrame(option) \
             .rename(columns={'secid': OCl.ASSET_CODE.nm, 'offer': OCl.ASK.nm,
                              'theorprice': OCl.EXCHANGE_PRICE.nm, 'volatility': OCl.EXCHANGE_IV.nm}) \
             .replace({OCl.UNDERLYING_TYPE.nm: {at.value: at.code for at in MoexAssetType},
-                      OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionType}}) \
+                      OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionsType}}) \
             .sort_values(by=[OCl.STRIKE.nm, OCl.OPTION_TYPE.nm]).reset_index(drop=True)
         if asset_type is not None:
             opt_df[OCl.UNDERLYING_TYPE.nm] = asset_type.code if isinstance(asset_type,
@@ -320,10 +321,10 @@ underlying_type               c
                 asset_type).code
         opt_df = df_columns_to_timestamp(opt_df, columns=[OCl.EXPIRATION_DATE.nm])
         opt_df[OCl.BASE_CODE.nm] = asset_code
-        opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTION.code
+        opt_df[OCl.ASSET_TYPE.nm] = AssetType.OPTIONS.code
         opt_df[OCl.SERIES_CODE.nm] = series_code
-        opt_df[OCl.OPTION_STYLE.nm] = OptionStyle.AMERICAN.code if series_code.lower().endswith(
-            'a') else OptionStyle.EUROPEAN.code
+        opt_df[OCl.OPTION_STYLE.nm] = OptionsStyle.AMERICAN.code if series_code.lower().endswith(
+            'a') else OptionsStyle.EUROPEAN.code
         opt_df[OCl.EXPIRATION_DATE.nm] = parse_expiration_date(series_code[-8:-2])
         opt_df[OCl.REQUEST_TIMESTAMP.nm] = pd.Timestamp.now(
             tz=datetime.UTC) if request_timestamp is None else request_timestamp
@@ -335,7 +336,7 @@ underlying_type               c
 
         opt_df = fill_option_price(opt_df)
         opt_df_call_otm = opt_df[
-            (opt_df[OCl.OPTION_TYPE.nm] == OptionType.CALL.code) & (opt_df[OCl.INTRINSIC_VALUE.nm] > 0)]
+            (opt_df[OCl.OPTION_TYPE.nm] == OptionsType.CALL.code) & (opt_df[OCl.INTRINSIC_VALUE.nm] > 0)]
         underlying_price = opt_df_call_otm.iloc[0][OCl.STRIKE.nm] + opt_df_call_otm.iloc[0][OCl.INTRINSIC_VALUE.nm]
         opt_df[OCl.UNDERLYING_PRICE.nm] = underlying_price
         return opt_df
@@ -362,10 +363,10 @@ class MoexExchange(AbstractExchange):
             print(f'[ERROR] asset options request for {asset_code}: {err}')
             return None
 
-    def get_assets_list(self, asset_type: AssetType | MoexAssetType | str | None = None) -> list[str]:
+    def get_assets_list(self, asset_kind: AssetKind | str | None = None) -> list[str]:
         """       """
-        asset_codes = self._get_asset_list_wo_options(asset_type)
-        if asset_type not in [AssetType.OPTION, AssetType.OPTION.value]:
+        asset_codes = self._get_asset_list_wo_options(asset_kind)
+        if asset_kind not in [AssetKind.OPTIONS, AssetKind.OPTIONS.value]:
             return asset_codes
         options_asset_codes = []
         with ThreadPoolExecutor(max_workers=self.TASKS_LIMIT) as executor:
@@ -379,14 +380,14 @@ class MoexExchange(AbstractExchange):
         return options_asset_codes
 
     @ttl_cache.it
-    def _get_asset_list_wo_options(self, asset_type: AssetType | MoexAssetType | str | None = None):
-        if asset_type in [AssetType.OPTION, AssetType.OPTION.value]:
-            asset_type = None
-        elif asset_type in [AssetType.FUTURE, AssetType.FUTURE.value, MoexAssetType.FUTURE.value]:
-            asset_type = MoexAssetType.FUTURE
-        elif isinstance(asset_type, AssetType):
-            asset_type = MoexAssetType(asset_type.value)
-        assets_code_df = self.options.get_assets(asset_type)
+    def _get_asset_list_wo_options(self, asset_kind: AssetKind | str | None = None):
+        if asset_kind in [AssetType.OPTIONS, AssetType.OPTIONS.value]:
+            asset_kind = None
+        elif asset_kind in [AssetKind.FUTURES, AssetKind.FUTURES.value, MoexAssetType.FUTURES.value]:
+            asset_kind = MoexAssetType.FUTURES
+        elif isinstance(asset_kind, AssetType):
+            asset_kind = MoexAssetType(asset_kind.value)  # TODO REFACTOR THIS, due changes in asset type to assend kind
+        assets_code_df = self.options.get_assets(asset_kind)
         asset_codes = [asset_code.upper() for asset_code in assets_code_df[OCl.ASSET_CODE.nm].unique()]
         return asset_codes
 
@@ -449,13 +450,13 @@ class MoexExchange(AbstractExchange):
         # print('\n[WARNING] for get_options_assets_books_snapshot used STATIC FILE')
         # return pd.read_parquet('./book_summary_df.parquet')
         if asset_codes is None:
-            asset_codes = self._get_asset_list_wo_options(AssetType.OPTION)
+            asset_codes = self._get_asset_list_wo_options(AssetType.OPTIONS)
         elif isinstance(asset_codes, str):
             asset_codes = [asset_codes]
         asset_series_df = self._get_options_series(asset_codes)[[OCl.SERIES_CODE.nm, OCl.BASE_CODE.nm,
                                                                  OCl.UNDERLYING_CODE.nm, OCl.UNDERLYING_TYPE.nm,
                                                                  OCl.ORIGINAL_TIMESTAMP.nm]]
-        futures_asset_codes = list(asset_series_df[asset_series_df[OCl.UNDERLYING_TYPE.nm] == AssetType.FUTURE.code][
+        futures_asset_codes = list(asset_series_df[asset_series_df[OCl.UNDERLYING_TYPE.nm] == AssetType.FUTURES.code][
                                        OCl.BASE_CODE.nm].unique())
         futures_asset_underlying_df = self._get_underlyings(futures_asset_codes)[
             [FCl.ASSET_CODE.nm, FCl.ASSET_TYPE.nm, FCl.EXPIRATION_DATE.nm]] \
