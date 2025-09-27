@@ -13,7 +13,7 @@ import pandas as pd
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.base import STATE_STOPPED as JOBS_STATE_STOPPED
-from option_lib.entities import Timeframe, AssetKind
+from options_lib.dictionary import Timeframe, AssetKind
 from exchange import AbstractExchange
 from messanger import AbstractMessanger, StandardMessanger
 
@@ -351,8 +351,8 @@ class EtlOptions(ABC):
         if asset name is None - than parse names from dataframe
         """
         fabric = {
-            'option': AssetKind.OPTION,
-            'future': AssetKind.FUTURE,
+            'option': AssetKind.OPTIONS,
+            'future': AssetKind.FUTURES,
             'spot': AssetKind.SPOT
         }
         request_timestamp = book_data.request_timestamp

@@ -3,10 +3,10 @@ import datetime
 import pandas as pd
 
 from plotly import graph_objs as go
-from option_lib.entities import OptionColumns as OCl, OptionType
+from options_lib.dictionary import OptionsColumns as OCl, OptionsType
 from options_assembler.option_data_class import OptionData
 from options_assembler.analytic import OptionAnalytic
-from option_lib.chart.price._time_value_chart import get_chart_data_for_time_values_series
+from options_lib.chart.price._time_value_chart import get_chart_data_for_time_values_series
 
 
 class ChartPriceClass:
@@ -25,16 +25,16 @@ class ChartPriceClass:
 
     def _get_time_values_dfs(self, df: None | pd.DataFrame | list[pd.DataFrame],
                              expiration_date: pd.Timestamp | None,
-                             option_type: OptionType | None,
+                             option_type: OptionsType | None,
                              strike: float | None = None, distance: float | None = None
                              ) -> list[pd.DataFrame]:
         if df is None:
             if strike is not None:
                 df = self._analytic.price.time_value_series_by_strike_to_atm_distance(strike, expiration_date,
-                                                                                      option_type or OptionType.CALL)
+                                                                                      option_type or OptionsType.CALL)
             else:
                 df = self._analytic.price.time_value_series_by_atm_distance(distance, expiration_date,
-                                                                            option_type or OptionType.CALL)
+                                                                            option_type or OptionsType.CALL)
         if isinstance(df, pd.DataFrame):
             dfs = [df]
         else:
@@ -64,7 +64,7 @@ class ChartPriceClass:
     def time_values_for_strike(self, df: None | pd.DataFrame = None,
                                strike: float | None = None,
                                expiration_date: datetime.date | None = None,
-                               option_type: OptionType | None = OptionType.CALL,
+                               option_type: OptionsType | None = OptionsType.CALL,
                                name: str | None = None) -> list[go.Scatter]:
         """Implement full process with analyze than requests"""
         dfs = self._get_time_values_dfs(df, strike=strike, expiration_date=expiration_date, option_type=option_type)
@@ -73,7 +73,7 @@ class ChartPriceClass:
     def time_values_for_distance(self, df: None | pd.DataFrame = None,
                                  distance: float | None = None,
                                  expiration_date: datetime.date | None = None,
-                                 option_type: OptionType | None = OptionType.CALL,
+                                 option_type: OptionsType | None = OptionsType.CALL,
                                  name: str | None = None) -> list[go.Scatter]:
         """Implement full process with analyze than requests"""
         dfs = self._get_time_values_dfs(df, distance=distance, expiration_date=expiration_date, option_type=option_type)

@@ -5,17 +5,17 @@ import pytest
 import pandas as pd
 from functools import lru_cache
 
-from option_lib.entities import LegType, OptionLeg, AssetKind, Timeframe, OptionColumns as OCl
-from option_lib.enrichment import join_option_with_future
-from option_lib.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
-from option_lib.chain.price_status import get_chain_atm_strike
+from options_lib.dictionary import LegType, AssetKind, Timeframe, OptionsColumns as OCl
+from options_lib.entities import OptionsLeg
+from options_lib.enrichment import join_option_with_future
+from options_lib.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
+from options_lib.chain.price_status import get_chain_atm_strike
 
 from options_assembler.option_data_class import OptionData
 from provider import PandasLocalFileProvider, RequestParameters
 
 from exchange.deribit import DeribitExchange
 from exchange.moex import MoexExchange
-
 
 
 _DATA_PATH = os.path.normpath(os.path.abspath(os.environ.get('DATA_PATH', '../../data')))
@@ -51,17 +51,17 @@ def fixture_option_symbol() -> str:
     return 'BTC'
 
 
+@pytest.fixture(name='exchange_provider')
+def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvider:
+    """Local provider"""
+    return PandasLocalFileProvider(exchange_code=exchange_code, data_path=data_path)
+
+
 @pytest.fixture(name='option_data')
 def fixture_option_data(exchange_provider, option_symbol, provider_params):
     """Option data instance"""
     opt_data = OptionData(exchange_provider, option_symbol, provider_params)
     return opt_data
-
-
-@pytest.fixture(name='exchange_provider')
-def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvider:
-    """Local provider"""
-    return PandasLocalFileProvider(exchange_code=exchange_code, data_path=data_path)
 
 
 def _get_update_file_list(base_path: str, asset_kind: AssetKind):
@@ -90,21 +90,21 @@ def _get_update_file_list(base_path: str, asset_kind: AssetKind):
 def option_update_files_fixture(update_path, exchange_code, option_symbol):
     if _CACHE.get('_update_files') is None:
         _CACHE['_update_files'] = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol),
-                                                        AssetKind.OPTION)
+                                                        AssetKind.OPTIONS)
     return _CACHE['_update_files']
 
 
 @pytest.fixture(name='future_update_files')
 @lru_cache
 def future_update_files_fixture(update_path, exchange_code, option_symbol):
-    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURE)
+    updates_files = _get_update_file_list(os.path.join(update_path, exchange_code, option_symbol), AssetKind.FUTURES)
     return updates_files
 
 
 @pytest.fixture(name='provider_params')
 def fixture_provider_params(exchange_provider, option_symbol):
     cur_dt = datetime.date.today()
-    fn_path = exchange_provider._fn_path_prepare(option_symbol, AssetKind.OPTION, Timeframe.EOD, cur_dt.year)
+    fn_path = exchange_provider._fn_path_prepare(option_symbol, AssetKind.OPTIONS, Timeframe.EOD, cur_dt.year)
     if not os.path.exists(fn_path):
         list_of_files = sorted(os.listdir(os.path.dirname(fn_path)))
         if len(list_of_files) == 0:
@@ -173,14 +173,14 @@ def atm_strike_fixture(df_chain):
 @pytest.fixture(name='structure_long_call')
 def structure_long_call_fixture(atm_strike):
     """Legs for Naked Long Call"""
-    structure_legs = [OptionLeg(strike=atm_strike, lots=10, type=LegType.OPTION_CALL)]
+    structure_legs = [OptionsLeg(strike=atm_strike, lots=10, type=LegType.OPTIONS_CALL)]
     return structure_legs
 
 
 @pytest.fixture(name='structure_long_put')
 def structure_long_put_fixture(atm_strike):
     """Legs for Naked Long Put"""
-    structure_legs = [OptionLeg(strike=atm_strike, lots=10, type=LegType.OPTION_PUT)]
+    structure_legs = [OptionsLeg(strike=atm_strike, lots=10, type=LegType.OPTIONS_PUT)]
     return structure_legs
 
 
@@ -188,8 +188,8 @@ def structure_long_put_fixture(atm_strike):
 def structure_long_straddle_fixture(atm_strike):
     """Legs for Long Straddle"""
     structure_legs = [
-        OptionLeg(strike=atm_strike, lots=10, type=LegType.OPTION_CALL),
-        OptionLeg(strike=atm_strike, lots=10, type=LegType.OPTION_PUT),
+        OptionsLeg(strike=atm_strike, lots=10, type=LegType.OPTIONS_CALL),
+        OptionsLeg(strike=atm_strike, lots=10, type=LegType.OPTIONS_PUT),
     ]
     return structure_legs
 

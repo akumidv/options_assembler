@@ -4,8 +4,8 @@ from pydantic import ValidationError
 import pandas as pd
 import pytest
 
-from option_lib.entities import (
-    OptionColumns as OCl,
+from options_lib.dictionary import (
+    OptionsColumns as OCl,
 )
 from exchange import RequestClass
 from exchange.moex import MoexOptions, MoexExchange, MoexAssetType
@@ -38,7 +38,7 @@ def test_get_assets(moex_options_client, moex_asset_code):
 
 
 def test_get_asset_info(moex_options_client, moex_asset_code):
-    asset_data = moex_options_client.get_asset_info(asset_code=moex_asset_code, asset_type=MoexAssetType.FUTURE)
+    asset_data = moex_options_client.get_asset_info(asset_code=moex_asset_code, asset_type=MoexAssetType.FUTURES)
     assert isinstance(asset_data, pd.Series)
     assert OCl.ASSET_CODE.nm in asset_data
     assert OCl.ASSET_TYPE.nm in asset_data
@@ -60,7 +60,7 @@ def test_get_asset_futures(moex_options_client, moex_asset_code):
     assert OCl.ASSET_TYPE.nm in asset_futures_df.columns
     assert OCl.BASE_CODE.nm in asset_futures_df.columns
     assert OCl.EXPIRATION_DATE.nm in asset_futures_df.columns
-    assert not asset_futures_df[asset_futures_df[OCl.ASSET_TYPE.nm] == MoexAssetType.FUTURE.code].empty
+    assert not asset_futures_df[asset_futures_df[OCl.ASSET_TYPE.nm] == MoexAssetType.FUTURES.code].empty
     assert not asset_futures_df[asset_futures_df[OCl.BASE_CODE.nm] == moex_asset_code].empty
 
 
@@ -73,7 +73,7 @@ def test_get_asset_options(moex_options_client, moex_asset_code):
     assert OCl.UNDERLYING_TYPE.nm in opt_df.columns
     assert OCl.BASE_CODE.nm in opt_df.columns
     assert OCl.EXPIRATION_DATE.nm in opt_df.columns
-    assert not opt_df[opt_df[OCl.UNDERLYING_TYPE.nm] == MoexAssetType.FUTURE.code].empty
+    assert not opt_df[opt_df[OCl.UNDERLYING_TYPE.nm] == MoexAssetType.FUTURES.code].empty
     assert not opt_df[opt_df[OCl.BASE_CODE.nm] == moex_asset_code].empty
 
 
@@ -93,7 +93,7 @@ def test_get_asset_option_series(moex_options_client, moex_asset_code):
     assert OCl.EXPIRATION_DATE.nm in opt_df.columns
     assert OCl.OPEN_INTEREST.nm in opt_df.columns
     assert OCl.VOLUME.nm in opt_df.columns
-    assert not opt_df[opt_df[OCl.UNDERLYING_TYPE.nm] == MoexAssetType.FUTURE.code].empty
+    assert not opt_df[opt_df[OCl.UNDERLYING_TYPE.nm] == MoexAssetType.FUTURES.code].empty
     assert not opt_df[opt_df[OCl.BASE_CODE.nm] == moex_asset_code].empty
 
 
@@ -107,7 +107,7 @@ def test_get_asset_option_series_list(moex_options_client, moex_asset_code, moex
     assert OCl.UNDERLYING_TYPE.nm in opt_df.columns
     assert OCl.BASE_CODE.nm in opt_df.columns
     assert OCl.EXPIRATION_DATE.nm in opt_df.columns
-    assert not opt_df[opt_df[OCl.UNDERLYING_TYPE.nm] == MoexAssetType.FUTURE.code].empty
+    assert not opt_df[opt_df[OCl.UNDERLYING_TYPE.nm] == MoexAssetType.FUTURES.code].empty
     assert not opt_df[opt_df[OCl.BASE_CODE.nm] == moex_asset_code].empty
 
 

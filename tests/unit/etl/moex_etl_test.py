@@ -2,7 +2,7 @@ import datetime
 
 import pandas as pd
 import pytest
-from option_lib.entities import Timeframe, OptionColumns as OCl, FutureColumns as FCl, SpotColumns as SCl
+from options_lib.dictionary import Timeframe, OptionsColumns as OCl, FuturesColumns as FCl, SpotColumns as SCl
 from options_etl.etl_class import AssetBookData
 from options_etl.moex_etl import EtlMoex
 

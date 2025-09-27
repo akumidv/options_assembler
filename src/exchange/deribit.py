@@ -6,30 +6,31 @@ import re
 import pandas as pd
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
-from option_lib.entities.enum_code import EnumCode
-from option_lib.entities import (
-    Timeframe, AssetKind, OptionType,
-    OptionColumns as OCl,
-    FutureColumns as FCl,
+from options_lib.dictionary.enum_code import EnumCode
+from options_lib.dictionary import (
+    Timeframe, AssetKind, OptionsType,
+    OptionsColumns as OCl,
+    FuturesColumns as FCl,
     SpotColumns as SCl,
-    ALL_COLUMN_NAMES
 )
-from option_lib.normalization.datetime_conversion import df_columns_to_timestamp
-from option_lib.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
+from options_lib.normalization.datetime_conversion import df_columns_to_timestamp
+from options_lib.normalization import parse_expiration_date, normalize_timestamp, fill_option_price
 from exchange.exchange_entities import ExchangeCode
 from exchange._abstract_exchange import AbstractExchange, RequestClass
 from provider import DataEngine, RequestParameters
+
+
 class DeribitAssetKind(EnumCode):
     """Deribit instrument kinds"""
-    FUTURE = 'future', AssetKind.FUTURE.code
-    OPTION = AssetKind.OPTION.value, AssetKind.OPTION.code
-    SPOT = AssetKind.SPOT.value, AssetKind.SPOT.code # TODO Crytpo !
+    FUTURE = 'future', AssetKind.FUTURES.code
+    OPTION = AssetKind.OPTIONS.value, AssetKind.OPTIONS.code
+    SPOT = AssetKind.SPOT.value, AssetKind.SPOT.code  # TODO Crytpo !
     FUTURE_COMBO = 'future_combo', 'fc'
     OPTION_COMBO = 'option_combo', 'oc'
 
 
 DOT_STRIKE_REGEXP = re.compile(r'(\d)d(\d)', flags=re.IGNORECASE)
-COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_PRICE.nm]
+COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_MARK_PRICE.nm]
 
 
 class DeribitMarket:
@@ -89,18 +90,35 @@ class DeribitMarket:
     def get_book_summary_by_currency(self, currency: str, kind: DeribitAssetKind | None = None) -> pd.DataFrame:
         """Retrieves the summary information for all instruments for the currency (optionally filtered by kind).
         https://docs.deribit.com/#public-get_book_summary_by_currency
- ask base_currency           bid  current_funding  estimated_delivery_price  exchange_iv  exchange_price       exchange_symbol exchange_underlying_symbol           expiration_date  \
-0              NaN           BTC           NaN              NaN              94787.240000        47.77    31001.577276  BTC-26DEC25-124000-P                BTC-26DEC25 2025-12-26 00:00:00+00:00
-1              NaN           BTC           NaN              NaN              94787.240000         0.00    75928.213383   BTC-27MAR26-20000-C                BTC-27MAR26 2026-03-27 00:00:00+00:00
-2     14644.628580           BTC   6398.138700              NaN              94787.240000        42.59     6533.642747  BTC-16MAY25-100000-P            SYN.BTC-16MAY25 2025-05-16 00:00:00+00:00
-3        28.436172           BTC      9.478724              NaN              94787.240000        77.03       13.645571    BTC-2MAY25-82000-P                 BTC-2MAY25 2025-05-02 00:00:00+00:00
-4              NaN           BTC           NaN              NaN              94787.240000        55.14      268.262107  BTC-30MAY25-126000-C                BTC-30MAY25 2025-05-30 00:00:00+00:00
-...            ...           ...           ...              ...                       ...          ...             ...                   ...                        ...                       ...
-1485  80305.000000           BTC     15.000000              NaN              94877.967000          NaN    94877.967000              BTC_USDE                        NaN                       NaT
-1486      0.023400           ETH      0.010000              NaN                  0.019055          NaN        0.019055               ETH_BTC                        NaN                       NaT
-1487  55069.000000           BTC  45000.000000              NaN              94771.108400          NaN    94771.108400              BTC_USDC                        NaN                       NaT
-1488           NaN          PAXG      0.027300              NaN                  0.034900          NaN        0.034900              PAXG_BTC                        NaN                       NaT
-1489  56363.500000           BTC   9694.000000              NaN              83388.088300          NaN    83388.088300              BTC_EURR                        NaN                       NaT
+ ask base_currency           bid  current_funding  estimated_delivery_price  exchange_iv  exchange_price       exchange_
+
+0              NaN           BTC           NaN              NaN              94787.240000        47.77    31001.577276
+1              NaN           BTC           NaN              NaN              94787.240000         0.00    75928.213383
+2     14644.628580           BTC   6398.138700              NaN              94787.240000        42.59     6533.642747
+3        28.436172           BTC      9.478724              NaN              94787.240000        77.03       13.645571
+4              NaN           BTC           NaN              NaN              94787.240000        55.14      268.262107
+
+...            ...           ...           ...              ...                       ...          ...             ...
+
+1485  80305.000000           BTC     15.000000              NaN              94877.967000          NaN    94877.967000
+1486      0.023400           ETH      0.010000              NaN                  0.019055          NaN        0.019055
+1487  55069.000000           BTC  45000.000000              NaN              94771.108400          NaN    94771.108400
+1488           NaN          PAXG      0.027300              NaN                  0.034900          NaN        0.034900
+1489  56363.500000           BTC   9694.000000              NaN              83388.088300          NaN    83388.088300
+
+
+ symbol exchange_underlying_symbol           expiration_date  \
+0 BTC-26DEC25-124000-P                BTC-26DEC25 2025-12-26 00:00:00+00:00
+1 BTC-27MAR26-20000-C                BTC-27MAR26 2026-03-27 00:00:00+00:00
+2 BTC-16MAY25-100000-P            SYN.BTC-16MAY25 2025-05-16 00:00:00+00:00
+3 BTC-2MAY25-82000-P                 BTC-2MAY25 2025-05-02 00:00:00+00:00
+4 BTC-30MAY25-126000-C                BTC-30MAY25 2025-05-30 00:00:00+00:00
+                 ...                        ...                       ...
+            BTC_USDE                        NaN                       NaT
+            ETH_BTC                        NaN                       NaT
+            BTC_USDC                        NaN                       NaT
+             PAXG_BTC                        NaN                       NaT
+            BTC_EURR                        NaN                       NaT
 
       funding_8h       high_24  interest_rate kind          last        low_24   mid_price  open_interest option_type               original_timestamp         price  price_change quote_currency  \
 0            NaN           NaN            0.0    o  47611.630652           NaN         NaN            2.5           p 2025-04-30 02:52:24.385000+00:00  47611.630652           NaN            BTC
@@ -193,8 +211,8 @@ class DeribitMarket:
                         option_type = exchange_asset_symbol_arr[3]
                         if option_type not in ['C', 'P']:
                             raise SyntaxError(f'Unknown option type {option_type}')
-                        option_type = OptionType.CALL.code if exchange_asset_symbol_arr[3] == 'C' else \
-                            OptionType.PUT.code
+                        option_type = OptionsType.CALL.code if exchange_asset_symbol_arr[3] == 'C' else \
+                            OptionsType.PUT.code
                         strike = float(exchange_asset_symbol_arr[2])
 
                         under_arr = row[OCl.UNDERLYING_CODE.nm].split('-')
@@ -241,7 +259,7 @@ class DeribitMarket:
                           'underlying_index': OCl.UNDERLYING_CODE.nm,
                           'underlying_price': OCl.UNDERLYING_PRICE.nm,
                           'mark_price': OCl.EXCHANGE_PRICE.nm,
-                          'mark_iv': OCl.EXCHANGE_IV.nm,
+                          'mark_iv': OCl.EXCHANGE_MARK_IV.nm,
                           'ask_price': OCl.ASK.nm,
                           'bid_price': OCl.BID.nm,
                           'last': OCl.LAST.nm,
@@ -261,7 +279,7 @@ class DeribitExchange(AbstractExchange):
     """Deribit exchange api"""
     PRODUCT_API_URL: str = 'https://www.deribit.com/api/v2'
     TEST_API_URL: str = 'https://test.deribit.com/api/v2'
-    CURRENCIES = ['BTC', 'ETH', 'USDC', 'USDT', 'EURR']
+    CURRENCIES: list[str] = ['BTC', 'ETH', 'USDC', 'USDT', 'EURR']
     TASKS_LIMIT: int = 4
 
     def __init__(self, engine: DataEngine = DataEngine.PANDAS, api_url: str | None = None):
@@ -272,7 +290,6 @@ class DeribitExchange(AbstractExchange):
 
     def get_assets_list(self, asset_kind: AssetKind) -> list[str]:
         """
-
         :param asset_kind:
         :return:
 

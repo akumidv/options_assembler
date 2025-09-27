@@ -1,7 +1,6 @@
 """Deribit exchange provider"""
-import pytest
 import pandas as pd
-from option_lib.entities import AssetType, OptionColumns as OCl
+from options_lib.dictionary import AssetKind, OptionsColumns as OCl
 from provider import AbstractProvider
 from exchange import AbstractExchange
 from exchange.moex import MoexExchange
@@ -14,16 +13,16 @@ def test_moex_exchange_init():
 
 
 def test_get_assets_list_future(moex_exchange, moex_asset_code):
-    asset_type = AssetType.FUTURE
-    assets = moex_exchange.get_assets_list(asset_type)
+    asset_kind = AssetKind.FUTURES
+    assets = moex_exchange.get_assets_list(asset_kind)
     assert isinstance(assets, list)
     assert len(assets) > 0
     assert moex_asset_code in assets
 
 
 def test_get_assets_list_options(moex_exchange, moex_asset_code):
-    asset_type = AssetType.OPTION
-    assets = moex_exchange.get_assets_list(asset_type)
+    asset_kind = AssetKind.OPTIONS
+    assets = moex_exchange.get_assets_list(asset_kind)
     assert isinstance(assets, list)
     assert len(assets) > 0
     assert moex_asset_code in assets

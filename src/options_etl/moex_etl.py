@@ -2,12 +2,12 @@
 import datetime
 import pandas as pd
 from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
-from option_lib.entities import (
+from options_lib.dictionary import (
     AssetKind,
     AssetType,
     Timeframe,
-    OptionColumns as OCl,
-    FutureColumns as FCl,
+    OptionsColumns as OCl,
+    FuturesColumns as FCl,
     SpotColumns as SCl,
 )
 from exchange import MoexExchange
@@ -47,11 +47,11 @@ class EtlMoex(EtlOptions):
             return AssetBookData(asset_name=asset_name, request_timestamp=request_timestamp, option=None,
                                  future=None, spot=None, )
         book_summary_df[OCl.REQUEST_TIMESTAMP.nm] = request_timestamp
-        options_df = book_summary_df[book_summary_df[OCl.ASSET_TYPE.nm] == AssetKind.OPTION.code].reset_index(
+        options_df = book_summary_df[book_summary_df[OCl.ASSET_TYPE.nm] == AssetKind.OPTIONS.code].reset_index(
             drop=True)
         future_columns = [OCl.TIMESTAMP.nm, OCl.BASE_CODE.nm, OCl.UNDERLYING_CODE.nm, OCl.UNDERLYING_TYPE.nm,
                           OCl.UNDERLYING_EXPIRATION_DATE.nm, OCl.UNDERLYING_PRICE.nm]
-        futures_mask = book_summary_df[OCl.UNDERLYING_TYPE.nm] == AssetType.FUTURE.code
+        futures_mask = book_summary_df[OCl.UNDERLYING_TYPE.nm] == AssetType.FUTURES.code
         future_df = book_summary_df[futures_mask][future_columns] \
             .drop_duplicates(subset=[OCl.UNDERLYING_CODE.nm]) \
             .rename(columns={OCl.UNDERLYING_CODE.nm: FCl.ASSET_CODE.nm, OCl.UNDERLYING_TYPE.nm: FCl.ASSET_TYPE.nm,
@@ -80,8 +80,8 @@ class EtlMoex(EtlOptions):
     def _save_timeframe_book_update(self, book_data: AssetBookData):
         """ Save book data"""
 
-        fabric = {'option': AssetKind.OPTION,
-                  'future': AssetKind.FUTURE,
+        fabric = {'option': AssetKind.OPTIONS,
+                  'future': AssetKind.FUTURES,
                   'spot': AssetKind.SPOT,
                   }
         request_datetime = book_data.request_timestamp

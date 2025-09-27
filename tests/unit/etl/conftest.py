@@ -1,16 +1,13 @@
-import datetime
+"""ETL-specific test fixtures and utilities."""
+# pylint: disable=protected-access
 
 import pandas as pd
 import pytest
+from cachetools import TTLCache, cached
 
-from option_lib.entities import Timeframe, AssetKind
 from exchange import DeribitExchange
-from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
-
-
-
-FUT_YEAR_SYMBOLS_CACHE = None
-
+from options_lib.dictionary import AssetKind, Timeframe
+from options_etl.etl_class import AssetBookData, EtlOptions
 
 
 class TestEtl(EtlOptions):
@@ -35,8 +32,10 @@ def etl_options_fixture(deribit_client, data_path):
 
 
 @pytest.fixture(name='fut_year_symbols')
+@cached(cache=TTLCache(maxsize=1, ttl=60 * 60))
 def year_symbols_fixture(etl_history):
-    global FUT_YEAR_SYMBOLS_CACHE
-    if FUT_YEAR_SYMBOLS_CACHE is None:
-        FUT_YEAR_SYMBOLS_CACHE = etl_history._get_asset_history_years(AssetKind.FUTURE)
-    return FUT_YEAR_SYMBOLS_CACHE
+    """
+    Fixture for getting years from asset history.
+    """
+
+    return etl_history._get_asset_history_years(AssetKind.FUTURES)

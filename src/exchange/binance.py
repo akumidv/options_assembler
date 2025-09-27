@@ -4,7 +4,7 @@ Binance api provider
 import datetime
 import pandas as pd
 
-from option_lib.entities import AssetKind, Timeframe
+from options_lib.dictionary import AssetKind, Timeframe
 from provider import DataEngine, RequestParameters
 from exchange.exchange_entities import ExchangeCode
 from exchange._abstract_exchange import AbstractExchange, BookData

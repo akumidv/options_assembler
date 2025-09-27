@@ -3,11 +3,11 @@ from typing import Self, Callable
 
 import pandas as pd
 
-from option_lib.entities import OptionColumns, OptionColumns as OCl, OPTION_COLUMNS_DEPENDENCIES
-from option_lib.enrichment.price import (
+from options_lib.dictionary import OptionsColumns, OptionsColumns as OCl, OPTION_COLUMNS_DEPENDENCIES
+from options_lib.enrichment.price import (
     add_intrinsic_and_time_value, add_atm_itm_otm_by_chain
 )
-from option_lib.enrichment._option_with_future import (
+from options_lib.enrichment._option_with_future import (
     join_option_with_future
 )
 
@@ -20,7 +20,7 @@ class OptionEnrichment:
       - with 'get' - return new columns or option dataframe
       - with 'add' - add columns to option dataframe and return enrichment instance itself to use in chain
     """
-    _COL_TO_ENRICH_FUNC_MAP: dict[OptionColumns, Callable] = {
+    _COL_TO_ENRICH_FUNC_MAP: dict[OptionsColumns, Callable] = {
         OCl.UNDERLYING_PRICE: join_option_with_future,
         OCl.INTRINSIC_VALUE: add_intrinsic_and_time_value,
         OCl.TIMED_VALUE: add_intrinsic_and_time_value,
@@ -30,7 +30,7 @@ class OptionEnrichment:
     def __init__(self, data: OptionData):
         self.data = data
 
-    def enrich_options(self, columns: str | OptionColumns | list[OptionColumns | str], force: bool = False) -> pd.DataFrame:
+    def enrich_options(self, columns: str | OptionsColumns | list[OptionsColumns | str], force: bool = False) -> pd.DataFrame:
         """Enrich options by column name and return dataframe"""
         if not isinstance(columns, list):
             columns = [self._col_name_normalization(columns)]
@@ -51,7 +51,7 @@ class OptionEnrichment:
             self._enrichment_fabric(column_name, force=False)
         return self.data.df_hist
 
-    def _prepare_order_of_columns_enrichment(self, columns: list[OptionColumns]) -> list[OptionColumns]:
+    def _prepare_order_of_columns_enrichment(self, columns: list[OptionsColumns]) -> list[OptionsColumns]:
         """Should be improved to prepare order by search graph optimal path"""
         enrich_columns = []
         for col in columns:
@@ -65,12 +65,12 @@ class OptionEnrichment:
                 enrich_columns_wo_dub.append(col)
         return enrich_columns_wo_dub
 
-    def _get_dependencies(self, col: OptionColumns, iteration: int = 0, source_column: None | OptionColumns = None) -> list[OptionColumns]:
+    def _get_dependencies(self, col: OptionsColumns, iteration: int = 0, source_column: None | OptionsColumns = None) -> list[OptionsColumns]:
         """Prepare chain of dependencies"""
         if source_column is None:
             source_column = col
         if iteration > 10:
-            raise RecursionError(f'Can prepare chain due too deep recursion ({iteration}) for {OptionColumns}')
+            raise RecursionError(f'Can prepare chain due too deep recursion ({iteration}) for {OptionsColumns}')
         dependencies = OPTION_COLUMNS_DEPENDENCIES.get(col)
         res_dependencies = [col]
         if dependencies is None:
@@ -83,12 +83,12 @@ class OptionEnrichment:
         return res_dependencies
 
     @staticmethod
-    def _col_name_normalization(column_name: OptionColumns | str) -> OptionColumns:
-        if not isinstance(column_name, OptionColumns):
-            column_name = OptionColumns(column_name)
+    def _col_name_normalization(column_name: OptionsColumns | str) -> OptionsColumns:
+        if not isinstance(column_name, OptionsColumns):
+            column_name = OptionsColumns(column_name)
         return column_name
 
-    def add_column(self, column_name: OptionColumns | str, force: bool = False) -> Self:
+    def add_column(self, column_name: OptionsColumns | str, force: bool = False) -> Self:
         """Add column data and return self for allow use chain model to enrich data,
         but do not generate graph path to add dependencies columns early. Should be
         controlled manually"""
@@ -96,13 +96,13 @@ class OptionEnrichment:
         self._enrichment_fabric(column_name, force)
         return self
 
-    def get_with_column(self, column_name: OptionColumns | str, force: bool = False) -> Self:
+    def get_with_column(self, column_name: OptionsColumns | str, force: bool = False) -> Self:
         """Add column data and return dataframe"""
         column_name = self._col_name_normalization(column_name)
         self._enrichment_fabric(column_name, force)
         return self.data.df_hist
 
-    def _enrichment_fabric(self, column_name: OptionColumns, force: bool = False):
+    def _enrichment_fabric(self, column_name: OptionsColumns, force: bool = False):
         """Fabric to enrich"""
         if column_name.nm in self.data.df_hist.columns:
             if force:

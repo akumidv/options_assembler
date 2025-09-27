@@ -1,6 +1,6 @@
 """Provider entities tests"""
 import datetime
-from option_lib.entities import Timeframe
+from options_lib.dictionary import Timeframe
 
 from provider import RequestParameters
 
