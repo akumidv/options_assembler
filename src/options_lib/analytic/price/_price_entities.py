@@ -1,5 +1,5 @@
 """Entities for price analytics"""
-from options_lib.entities import EnumDataFrameColumn
+from options_lib.dictionary import EnumDataFrameColumn
 
 
 class PriceColumns(EnumDataFrameColumn):

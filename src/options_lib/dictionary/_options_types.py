@@ -1,6 +1,6 @@
 """Option types"""
 import enum
-from options_lib.entities.enum_code import EnumCode
+from options_lib.dictionary.enum_code import EnumCode
 
 
 @enum.unique
@@ -15,7 +15,7 @@ class OptionsType(EnumCode):
 @enum.unique
 class OptionsStyle(EnumCode):
     """
-    Usage code "c" instead of value "call" for filter dataframe reduce time for ~5%-30% and memory usage
+    Option Style values, like american, europen. Usage code "a" instead of value "american"
     """
     AMERICAN = "american", "a"
     EUROPEAN = "european", "e"

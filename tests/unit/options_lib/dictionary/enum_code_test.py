@@ -1,6 +1,6 @@
 """Test enum exchange"""
 import datetime
-from options_lib.entities.enum_code import EnumCode, EnumDataFrameColumn
+from options_lib.dictionary.enum_code import EnumCode, EnumDataFrameColumn
 
 
 def test_enum_code_columns():

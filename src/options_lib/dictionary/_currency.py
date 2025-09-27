@@ -1,5 +1,5 @@
 """CURRENCIES"""
-from options_lib.entities.enum_code import EnumCode
+from options_lib.dictionary.enum_code import EnumCode
 
 
 class Currency(EnumCode):

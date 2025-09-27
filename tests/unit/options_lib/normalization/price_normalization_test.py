@@ -1,5 +1,5 @@
 import pandas as pd
-from options_lib.entities import (
+from options_lib.dictionary import (
     OptionsColumns as OCl, OptionsType
 )
 from options_lib.normalization.price import fill_option_price

@@ -3,7 +3,7 @@ import datetime
 
 import pandas as pd
 
-from options_lib.entities import OptionsColumns as OCl, OptionsType
+from options_lib.dictionary import OptionsColumns as OCl, OptionsType
 from options_lib.chain import get_chain_atm_strike, select_chain, get_max_settlement_valid_expired_date
 from options_lib.enrichment import add_intrinsic_and_time_value
 

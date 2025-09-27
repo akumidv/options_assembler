@@ -4,7 +4,7 @@ from pydantic import ValidationError
 import pandas as pd
 import pytest
 
-from options_lib.entities import (
+from options_lib.dictionary import (
     OptionsColumns as OCl,
 )
 from exchange import RequestClass

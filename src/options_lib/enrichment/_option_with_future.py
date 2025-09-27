@@ -2,7 +2,7 @@
 Add necessary future value to options
 """
 import pandas as pd
-from options_lib.entities import OptionsColumns as OCl, FuturesColumns as FCl
+from options_lib.dictionary import OptionsColumns as OCl, FuturesColumns as FCl
 
 
 def join_option_with_future(df_hist: pd.DataFrame, df_fut: pd.DataFrame) -> pd.DataFrame:

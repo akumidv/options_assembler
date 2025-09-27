@@ -6,11 +6,12 @@ TRADE_TYPE can be: option, future, asset (asset - mean tangible assets: currency
 
 dataframe columns:
 """
+
 import builtins
 import datetime
 import pandas as pd
 from pydantic import validate_call
-from options_lib.entities import Timeframe, AssetKind
+from options_lib.dictionary import Timeframe, AssetKind
 from provider._file_provider import AbstractFileProvider
 from provider._provider_entities import RequestParameters
 
@@ -81,7 +82,7 @@ class PandasLocalFileProvider(AbstractFileProvider):
                     )
 
     @validate_call
-    def load_option_history(
+    def load_options_history(
         self,
         asset_code: str,
         params: RequestParameters | None = None,
@@ -100,8 +101,18 @@ class PandasLocalFileProvider(AbstractFileProvider):
         )
         return df_hist
 
+    def load_options_book(
+        self,
+        asset_code: str,
+        settlement_datetime: datetime.datetime | None = None,
+        timeframe: Timeframe = Timeframe.EOD,
+        columns: list | None = None,
+    ) -> pd.DataFrame:
+        """Provide options for datetime, timeframe"""
+        raise NotImplementedError
+
     @validate_call
-    def load_future_history(
+    def load_futures_history(
         self,
         asset_code: str,
         params: RequestParameters | None = None,
@@ -119,3 +130,26 @@ class PandasLocalFileProvider(AbstractFileProvider):
             columns=columns,
         )
         return df_fut
+
+    @validate_call
+    def load_futures_book(
+        self,
+        asset_code: str,
+        settlement_datetime: datetime.datetime | None = None,
+        timeframe: Timeframe = Timeframe.EOD,
+        columns: list | None = None,
+    ) -> pd.DataFrame:
+        """Provide futures for datetime, timeframe"""
+        raise NotImplementedError
+
+    @validate_call
+    def load_options_chain(
+        self,
+        asset_code: str,
+        settlement_datetime: datetime.datetime | None = None,
+        expiration_date: datetime.datetime | None = None,
+        timeframe: Timeframe = Timeframe.EOD,
+        columns: list | None = None,
+    ) -> pd.DataFrame | None:
+        """Provide options chain by request to api if supported. Otherwise, return None"""
+        raise NotImplementedError

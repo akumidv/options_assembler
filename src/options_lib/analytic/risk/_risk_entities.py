@@ -1,5 +1,5 @@
 """Entities for risk analytics"""
-from options_lib.entities import EnumDataFrameColumn
+from options_lib.dictionary import EnumDataFrameColumn
 
 
 class RiskColumns(EnumDataFrameColumn):

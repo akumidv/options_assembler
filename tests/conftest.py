@@ -5,7 +5,8 @@ import pytest
 import pandas as pd
 from functools import lru_cache
 
-from options_lib.entities import LegType, OptionsLeg, AssetKind, Timeframe, OptionsColumns as OCl
+from options_lib.dictionary import LegType, AssetKind, Timeframe, OptionsColumns as OCl
+from options_lib.entities import OptionsLeg
 from options_lib.enrichment import join_option_with_future
 from options_lib.chain.chain_selector import select_chain, get_max_settlement_valid_expired_date
 from options_lib.chain.price_status import get_chain_atm_strike
@@ -50,17 +51,17 @@ def fixture_option_symbol() -> str:
     return 'BTC'
 
 
+@pytest.fixture(name='exchange_provider')
+def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvider:
+    """Local provider"""
+    return PandasLocalFileProvider(exchange_code=exchange_code, data_path=data_path)
+
+
 @pytest.fixture(name='option_data')
 def fixture_option_data(exchange_provider, option_symbol, provider_params):
     """Option data instance"""
     opt_data = OptionData(exchange_provider, option_symbol, provider_params)
     return opt_data
-
-
-@pytest.fixture(name='exchange_provider')
-def fixture_exchange_provider(exchange_code, data_path) -> PandasLocalFileProvider:
-    """Local provider"""
-    return PandasLocalFileProvider(exchange_code=exchange_code, data_path=data_path)
 
 
 def _get_update_file_list(base_path: str, asset_kind: AssetKind):

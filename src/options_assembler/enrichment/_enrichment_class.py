@@ -3,7 +3,7 @@ from typing import Self, Callable
 
 import pandas as pd
 
-from options_lib.entities import OptionsColumns, OptionsColumns as OCl, OPTION_COLUMNS_DEPENDENCIES
+from options_lib.dictionary import OptionsColumns, OptionsColumns as OCl, OPTION_COLUMNS_DEPENDENCIES
 from options_lib.enrichment.price import (
     add_intrinsic_and_time_value, add_atm_itm_otm_by_chain
 )

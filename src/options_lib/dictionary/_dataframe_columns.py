@@ -2,14 +2,17 @@
 
 import enum
 import pandas as pd
-from options_lib.entities.enum_code import EnumDataFrameColumn
-from options_lib.entities._option_types import OptionsPriceStatus
+from options_lib.dictionary.enum_code import EnumDataFrameColumn
+from options_lib.dictionary._options_types import OptionsPriceStatus
 
 
 @enum.unique
 class OptionsColumns(EnumDataFrameColumn):
     """
     Pandas option column name, type
+
+    mark prefix used to values according
+    [Understanding the Difference Between Mark Price and Tradable Price on Our OTC Options Platform](https://www.kucoin.com/support/40170487530649)
     """
 
     # NAME, value, code, type, resample function name
@@ -19,6 +22,7 @@ class OptionsColumns(EnumDataFrameColumn):
     EXPIRATION_DATE = "expiration_date", pd.Timestamp, "last"
     OPTION_TYPE = "option_type", str, "last"  # OptionType
     PRICE = "price", float, "last"
+
     ASK = "ask", float, "last"
     BID = "bid", float, "last"
     OPEN_INTEREST = "open_interest", float, "last"  # Contracts
@@ -28,9 +32,9 @@ class OptionsColumns(EnumDataFrameColumn):
     UNDERLYING_EXPIRATION_DATE = "underlying_expiration_date", pd.Timestamp, "last"
 
     # Exchange estimate
-    EXCHANGE_PRICE = "exchange_price", float, "last"  # Estimated by exchange price
-    EXCHANGE_IV = (
-        "exchange_iv",
+    EXCHANGE_MARK_PRICE = "exhchange_mark_price", float, "last"  # Estimated by exchange fair or theoretical price
+    EXCHANGE_MARK_IV = (  # IV cacluleted by exchange based on exchange mark price
+        "exchange_mark_iv",
         float,
         "last",
     )  # IV caclculated by exchange based on exchange_price
@@ -58,9 +62,11 @@ class OptionsColumns(EnumDataFrameColumn):
     PRICE_STATUS = "price_status", OptionsPriceStatus, "last"
 
     # Pricer
+    MARK_PRICE = "mark_price", float, "last"  # Fair or theoretical price caclulated based on model
+    MARK_IV = "mark_iv", float, "last"  # Fair or theoretical price caclulated based on model
     # """Price dataframes columns"""
     # # Risk columns
-    # LEG_ID = 'leg_id', None, str # chain_pnl_risk_profile
+    # LEG_ID = 'leg_id', None, str
     # RISK_PNL = 'risk_pnl', None, float
 
     # Greeks
@@ -76,20 +82,20 @@ class OptionsColumns(EnumDataFrameColumn):
         "series_code",
         str,
         "last",
-    )  # TODO prev 'exchange_symbol'  # Equal to BASE_CODE fot spot
+    )  # prev 'exchange_symbol' - Equal to BASE_CODE for spot
     ASSET_CODE = (
         "asset_code",
         str,
         "last",
-    )  # TODO prev 'exchange_symbol'  # Equal to BASE_CODE fot spot
+    )  # prev 'exchange_symbol'  # Equal to BASE_CODE for spot
     ASSET_TYPE = "asset_type", str, "last"  # AssetKind TODO prev 'kind'
     UNDERLYING_CODE = (
         "underlying_asset_code",
         str,
         "last",
-    )  # TODO prev 'exchange_underlying_symbol' # None for spot
+    )  # prev 'exchange_underlying_symbol' # None for spot
     UNDERLYING_TYPE = "underlying_asset_type", str, "last"  # AssetType
-    BASE_CODE = "base_asset_code", str, "last"  # TODO prev 'symbol'
+    BASE_CODE = "base_asset_code", str, "last"  # prev 'symbol'
     TITLE = "title", str, "last"
     OPTION_STYLE = "option_style", str, "last"  # OptionStyle
     CURRENCY = "currency", str, "last"  # Currency

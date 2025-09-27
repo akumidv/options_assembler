@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
-import numpy as np
-from options_lib.entities import OptionsColumns as OCl, OptionsType, LegType, OptionsLeg
+from options_lib.dictionary import OptionsColumns as OCl, OptionsType, LegType
+from options_lib.entities import OptionsLeg
 from options_lib.analytic.risk import payoff
 from options_lib.analytic.risk import RiskColumns as RCl
 

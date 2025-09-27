@@ -8,8 +8,8 @@ import concurrent
 from typing import Any
 from pydantic import validate_call
 from concurrent.futures import ThreadPoolExecutor
-from options_lib.entities.enum_code import EnumCode
-from options_lib.entities import (
+from options_lib.dictionary.enum_code import EnumCode
+from options_lib.dictionary import (
     Timeframe, AssetKind, OptionsType, AssetType, OptionsStyle,
     OptionsColumns as OCl,
     FuturesColumns as FCl,
@@ -43,7 +43,7 @@ class MoexAssetType(EnumCode):
 # option_type – (call, put)
 # series_type = W – week, M – month, Q – quarter
 DOT_STRIKE_REGEXP = re.compile(r'(\d)d(\d)', flags=re.IGNORECASE)
-COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_PRICE.nm]
+COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_MARK_PRICE.nm]
 
 
 class MoexOptions:
@@ -311,7 +311,7 @@ underlying_type               c
 
         opt_df = pd.DataFrame(option) \
             .rename(columns={'secid': OCl.ASSET_CODE.nm, 'offer': OCl.ASK.nm,
-                             'theorprice': OCl.EXCHANGE_PRICE.nm, 'volatility': OCl.EXCHANGE_IV.nm}) \
+                             'theorprice': OCl.EXCHANGE_PRICE.nm, 'volatility': OCl.EXCHANGE_MARK_IV.nm}) \
             .replace({OCl.UNDERLYING_TYPE.nm: {at.value: at.code for at in MoexAssetType},
                       OCl.OPTION_TYPE.nm: {at.value: at.code for at in OptionsType}}) \
             .sort_values(by=[OCl.STRIKE.nm, OCl.OPTION_TYPE.nm]).reset_index(drop=True)
@@ -331,7 +331,7 @@ underlying_type               c
         opt_df[OCl.TIMESTAMP.nm] = opt_df[OCl.REQUEST_TIMESTAMP.nm].copy()
         opt_df = normalize_timestamp(opt_df, columns=[OCl.TIMESTAMP.nm], freq='1s')
         opt_df[OCl.CURRENCY.nm] = Currency.RUB.code
-        opt_df[OCl.IV.nm] = opt_df[OCl.EXCHANGE_IV.nm]
+        opt_df[OCl.SETTLEMENT_IV.nm] = opt_df[OCl.EXCHANGE_MARK_IV.nm]
         # https://www.moex.com/s205
 
         opt_df = fill_option_price(opt_df)

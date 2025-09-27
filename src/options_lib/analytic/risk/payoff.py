@@ -1,7 +1,8 @@
 """Option Risk Profile functions"""
 import pandas as pd
 
-from options_lib.entities import OptionsColumns as OCl, OptionsType, LegType, OptionsLeg
+from options_lib.dictionary import OptionsColumns as OCl, OptionsType, LegType
+from options_lib.entities import OptionsLeg
 from options_lib.analytic.risk._risk_entities import RiskColumns as RCl
 from options_lib.enrichment import add_intrinsic_and_time_value
 

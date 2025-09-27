@@ -1,7 +1,7 @@
 """"Public price analytic api class that should hide realization of functions"""
 import pandas as pd
 
-from options_lib.entities import OptionsType, OptionsColumns as OCl
+from options_lib.dictionary import OptionsType, OptionsColumns as OCl
 from options_lib.analytic.price._time_values import (
     time_value_series_by_strike_to_atm_distance, time_value_series_by_atm_distance
 )

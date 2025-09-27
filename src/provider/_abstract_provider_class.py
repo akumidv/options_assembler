@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 import datetime
 import pandas as pd
 
-from options_lib.entities import OptionsColumns, FuturesColumns, Timeframe, AssetKind
+from options_lib.dictionary import OptionsColumns, FuturesColumns, Timeframe, AssetKind
 from provider._provider_entities import RequestParameters
 
 

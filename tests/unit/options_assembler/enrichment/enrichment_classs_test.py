@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsColumns as OCl
 from options_assembler.enrichment import OptionEnrichment
 
 

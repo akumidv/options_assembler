@@ -1,4 +1,4 @@
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsColumns as OCl
 from options_lib.chain.price_status import get_chain_atm_strike
 
 

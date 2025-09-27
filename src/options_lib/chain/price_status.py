@@ -2,7 +2,7 @@
 Prepare data for option chain - options with the same date and expiration date
 """
 
-from options_lib.entities import OptionsType, OptionsPriceStatus, OptionsColumns as OCl
+from options_lib.dictionary import OptionsType, OptionsPriceStatus, OptionsColumns as OCl
 
 
 def get_chain_atm_strike(df_chain):

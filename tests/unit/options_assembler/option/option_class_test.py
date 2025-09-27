@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsColumns as OCl
 from options_assembler import Option
 from provider import PandasLocalFileProvider
 
@@ -25,7 +25,7 @@ def test_option_class_df_opt(option_instance):
 
 
 def test_option_class_with_extra_columns(exchange_provider, option_symbol, provider_params):
-    columns = PandasLocalFileProvider.options_columns + [OCl.EXCHANGE_PRICE.nm, OCl.EXCHANGE_IV.nm]
+    columns = PandasLocalFileProvider.options_columns + [OCl.EXCHANGE_PRICE.nm, OCl.EXCHANGE_MARK_IV.nm]
     opt = Option(exchange_provider, option_symbol, provider_params, option_columns=columns)
     assert isinstance(opt, Option)
     assert isinstance(opt.df_hist, pd.DataFrame)

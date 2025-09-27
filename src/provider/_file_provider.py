@@ -1,8 +1,8 @@
 """
 Local provider
-Data should be organized like EXCHANGE_CODE/EXCHANGE_SYMBOL/TRADE_TYPE/TIMEFRAME_CODE/YEAR.parquet
-Example: LME/WTI/option/EOD/2024.year
-TRADE_TYPE can be: option, future, asset (asset - mean tangible assets: currency, stock, crypto)
+Data should be organized like EXCHANGE_CODE/ASSET_CODE/ASSET_KIND/TIMEFRAME_CODE/YEAR.parquet
+Example: LME/WTI/options/EOD/2024.year
+ASSET_KIND can be: options, futures, spot (spot - mean assets: currency, stock, crypto)
 
 dataframe columns:
 """
@@ -10,7 +10,7 @@ dataframe columns:
 import os
 import re
 from abc import ABC
-from options_lib.entities import Timeframe, AssetKind
+from options_lib.dictionary import Timeframe, AssetKind
 from provider._abstract_provider_class import AbstractProvider
 
 
@@ -30,14 +30,14 @@ class AbstractFileProvider(AbstractProvider, ABC):
 
     def get_assets_list(self, asset_kind: AssetKind) -> list[str]:
         """Prepare list of underlying assets symbols"""
-        symbols: list[str] = []
+        asset_codes: list[str] = []
         for symbol in os.listdir(self.exchange_data_path):
             asset_kinds: list[str] = os.listdir(
                 os.path.join(self.exchange_data_path, symbol)
             )
             if asset_kind.value in asset_kinds:
-                symbols.append(symbol)
-        return symbols
+                asset_codes.append(symbol)
+        return asset_codes
 
     def _get_history_folder(
         self, asset_code: str, asset_kind: AssetKind | str, timeframe: Timeframe | str

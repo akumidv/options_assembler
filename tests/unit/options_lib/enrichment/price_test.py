@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 import pytest
 
-from options_lib.entities import OptionsColumns as OCl, OptionsPriceStatus
+from options_lib.dictionary import OptionsColumns as OCl, OptionsPriceStatus
 from options_lib.enrichment import price
 
 

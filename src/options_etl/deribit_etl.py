@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 from dataclasses import dataclass
 from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
-from options_lib.entities import (
+from options_lib.dictionary import (
     Timeframe,
     OptionsColumns as OCl,
     OPTION_NON_SPOT_COLUMN_NAMES, OPTION_NON_FUTURES_COLUMN_NAMES

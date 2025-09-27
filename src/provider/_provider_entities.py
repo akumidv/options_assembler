@@ -4,7 +4,7 @@ import enum
 import datetime
 
 from pydantic import BaseModel
-from options_lib.entities import Timeframe
+from options_lib.dictionary import Timeframe
 
 
 class DataEngine(enum.Enum):

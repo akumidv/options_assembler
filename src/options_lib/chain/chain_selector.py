@@ -2,7 +2,7 @@
 import datetime
 import pandas as pd
 
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsColumns as OCl
 
 
 def select_chain(df_hist: pd.DataFrame, settlement_date: pd.Timestamp | None = None,

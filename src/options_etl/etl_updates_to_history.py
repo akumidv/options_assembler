@@ -12,7 +12,7 @@ from collections import OrderedDict
 # import itertools
 # from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
-from options_lib.entities import Timeframe, AssetKind, OptionsColumns as OCl, FuturesColumns as FCl, SpotColumns as SCl
+from options_lib.dictionary import Timeframe, AssetKind, OptionsColumns as OCl, FuturesColumns as FCl, SpotColumns as SCl
 from options_lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
 from provider import PandasLocalFileProvider, RequestParameters
 from exchange.exchange_entities import ExchangeCode

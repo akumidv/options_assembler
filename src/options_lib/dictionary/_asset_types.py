@@ -1,6 +1,6 @@
 """Instrument types"""
 import enum
-from options_lib.entities.enum_code import EnumCode
+from options_lib.dictionary.enum_code import EnumCode
 
 
 @enum.unique
@@ -16,8 +16,6 @@ class AssetType(EnumCode):
     INDEX = 'index', 'i'
     CURRENCY = 'currency', 'c'
     CRYPTO = 'crypto', 'y'
-    # FUTURES = 'futures', 'f'
-    # OPTIONS = 'options', 'o'
 
 
 @enum.unique

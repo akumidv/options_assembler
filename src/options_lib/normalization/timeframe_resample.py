@@ -1,6 +1,6 @@
 """Timeframe conversion"""
 import pandas as pd
-from options_lib.entities import OptionsColumns as OCl, Timeframe
+from options_lib.dictionary import OptionsColumns as OCl, Timeframe
 
 DEFAULT_RESAMPLE_MODEL = {col.nm: col.resample_func for col in OCl if col.resample_func is not None}
 RESAMPLE_SORT_COLUMNS = [OCl.TIMESTAMP.nm, OCl.ORIGINAL_TIMESTAMP, OCl.REQUEST_TIMESTAMP]

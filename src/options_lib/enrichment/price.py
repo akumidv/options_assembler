@@ -3,7 +3,7 @@ Internal realization for option money data enrichment
 """
 
 import pandas as pd
-from options_lib.entities import OptionsColumns as OCl, OptionsType, OptionsPriceStatus
+from options_lib.dictionary import OptionsColumns as OCl, OptionsType, OptionsPriceStatus
 from options_lib.chain import (
     get_chain_atm_itm_otm
 )

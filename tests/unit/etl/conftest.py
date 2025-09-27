@@ -6,7 +6,7 @@ import pytest
 from cachetools import TTLCache, cached
 
 from exchange import DeribitExchange
-from options_lib.entities import AssetKind, Timeframe
+from options_lib.dictionary import AssetKind, Timeframe
 from options_etl.etl_class import AssetBookData, EtlOptions
 
 

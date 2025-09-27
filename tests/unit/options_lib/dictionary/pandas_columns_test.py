@@ -1,7 +1,6 @@
 """Pandas columns test"""
-import datetime
 import pandas as pd
-from options_lib.entities._dataframe_columns import OptionsColumns, FuturesColumns
+from options_lib.dictionary._dataframe_columns import OptionsColumns, FuturesColumns
 
 
 def test_opt_columns():

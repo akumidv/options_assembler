@@ -1,6 +1,6 @@
 """Timeframe values"""
 import enum
-from options_lib.entities import EnumMultiplier
+from options_lib.dictionary import EnumMultiplier
 
 
 @enum.unique

@@ -17,7 +17,7 @@ from provider._provider_entities import RequestParameters
 from pandas.core.frame import DataFrame
 
 
-from options_lib.entities import Timeframe, OptionsColumns as OCl
+from options_lib.dictionary import Timeframe, OptionsColumns as OCl
 from provider import AbstractProvider, RequestParameters
 
 

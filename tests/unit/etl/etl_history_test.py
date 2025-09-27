@@ -2,8 +2,8 @@ import datetime
 from functools import lru_cache
 import pandas as pd
 import pytest
-from options_lib.entities import Timeframe, AssetKind
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import Timeframe, AssetKind
+from options_lib.dictionary import OptionsColumns as OCl
 from options_etl.etl_updates_to_history import EtlHistory
 from exchange.exchange_entities import ExchangeCode
 

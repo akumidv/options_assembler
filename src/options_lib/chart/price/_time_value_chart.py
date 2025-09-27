@@ -1,7 +1,7 @@
 """Plotly implementation for time value charts"""
 import pandas as pd
 from plotly import graph_objs as go  # Check for version: from chart_studio import plotly
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsColumns as OCl
 
 
 def get_chart_data_for_time_values_series(df_time_series: pd.DataFrame | list[pd.DataFrame],

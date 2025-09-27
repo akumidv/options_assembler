@@ -3,7 +3,7 @@ import datetime
 
 import pandas as pd
 
-from options_lib.entities import Timeframe
+from options_lib.dictionary import Timeframe
 from provider import AbstractProvider, RequestParameters
 from options_assembler.option_data_class import OptionData
 from options_assembler.enrichment import OptionEnrichment

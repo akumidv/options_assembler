@@ -13,7 +13,7 @@ import pandas as pd
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.base import STATE_STOPPED as JOBS_STATE_STOPPED
-from options_lib.entities import Timeframe, AssetKind
+from options_lib.dictionary import Timeframe, AssetKind
 from exchange import AbstractExchange
 from messanger import AbstractMessanger, StandardMessanger
 

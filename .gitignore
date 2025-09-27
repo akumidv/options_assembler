@@ -12,3 +12,4 @@ test.env
 *.tar
 TODO.txt
 /demo/**/_*.*
+CLAUDE.md

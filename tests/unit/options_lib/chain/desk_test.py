@@ -2,7 +2,7 @@
 import pandas as pd
 
 from options_lib.chain.desk import convert_chain_to_desk
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsColumns as OCl
 
 def test_convert_chain_to_desk(df_chain):
     df_desk = convert_chain_to_desk(df_chain)

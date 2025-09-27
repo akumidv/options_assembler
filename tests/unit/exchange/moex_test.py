@@ -1,6 +1,6 @@
 """Deribit exchange provider"""
 import pandas as pd
-from options_lib.entities import AssetKind, OptionsColumns as OCl
+from options_lib.dictionary import AssetKind, OptionsColumns as OCl
 from provider import AbstractProvider
 from exchange import AbstractExchange
 from exchange.moex import MoexExchange

@@ -6,8 +6,8 @@ import re
 import pandas as pd
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
-from options_lib.entities.enum_code import EnumCode
-from options_lib.entities import (
+from options_lib.dictionary.enum_code import EnumCode
+from options_lib.dictionary import (
     Timeframe, AssetKind, OptionsType,
     OptionsColumns as OCl,
     FuturesColumns as FCl,
@@ -30,7 +30,7 @@ class DeribitAssetKind(EnumCode):
 
 
 DOT_STRIKE_REGEXP = re.compile(r'(\d)d(\d)', flags=re.IGNORECASE)
-COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_PRICE.nm]
+COLUMNS_TO_CURRENCY = [OCl.ASK.nm, OCl.BID.nm, OCl.LAST.nm, OCl.HIGH_24.nm, OCl.LOW_24.nm, OCl.EXCHANGE_MARK_PRICE.nm]
 
 
 class DeribitMarket:
@@ -259,7 +259,7 @@ class DeribitMarket:
                           'underlying_index': OCl.UNDERLYING_CODE.nm,
                           'underlying_price': OCl.UNDERLYING_PRICE.nm,
                           'mark_price': OCl.EXCHANGE_PRICE.nm,
-                          'mark_iv': OCl.EXCHANGE_IV.nm,
+                          'mark_iv': OCl.EXCHANGE_MARK_IV.nm,
                           'ask_price': OCl.ASK.nm,
                           'bid_price': OCl.BID.nm,
                           'last': OCl.LAST.nm,

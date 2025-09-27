@@ -2,7 +2,7 @@
 import datetime
 import pandas as pd
 from options_etl.etl_class import EtlOptions, AssetBookData, SaveTask
-from options_lib.entities import (
+from options_lib.dictionary import (
     AssetKind,
     AssetType,
     Timeframe,

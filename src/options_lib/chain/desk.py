@@ -2,8 +2,8 @@
 Prepare desk for option chain
 """
 
-from options_lib.entities import OptionsType
-from options_lib.entities import OptionsColumns as OCl
+from options_lib.dictionary import OptionsType
+from options_lib.dictionary import OptionsColumns as OCl
 
 
 def convert_chain_to_desk(df_chain, option_columns: list | None = None, future_columns: list | None = None):
