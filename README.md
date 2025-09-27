@@ -3,6 +3,10 @@
 
 Option library have goal to assist implement in code base concepts of using options.
 
+**NB Early stage of developing**
+
+PS also in parallel the same developing in Rust as [Rust options assembler](https://github.com/akumidv/rust-options-assembler) (with big delay)
+
 ## Env
 
 Install all dependecies for dev and test by
