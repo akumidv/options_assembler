@@ -11,6 +11,10 @@ const items = [
     title: 'Data examples',
     links: [{href: '/data', children: 'Data'}],
   },
+  {
+    title: 'Phd',
+    links: [{href: '/phd', children: 'Phd'}],
+  },
 
 ];
 

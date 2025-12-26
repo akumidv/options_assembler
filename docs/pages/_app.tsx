@@ -14,8 +14,8 @@ import '../public/globals.css'
 import type { AppProps } from 'next/app'
 import type { MarkdocNextJsPageProps } from '@markdoc/next.js'
 
-const TITLE = 'Markdoc';
-const DESCRIPTION = 'A powerful, flexible, Markdown-based authoring framework';
+const TITLE = 'Content';
+const DESCRIPTION = 'Option assembler documentation and examples.';
 
 function collectHeadings(node, sections = []) {
   if (node) {
@@ -72,7 +72,7 @@ export default function MyApp({ Component, pageProps }: AppProps<MyAppProps>) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <TopNav>
-        <Link href="/docs">Docs</Link>
+        <Link href="/">Docs</Link>
       </TopNav>
       <div className="page">
         <SideNav />
@@ -84,7 +84,7 @@ export default function MyApp({ Component, pageProps }: AppProps<MyAppProps>) {
       <style jsx>
         {`
           .page {
-            position: fixed; 
+            position: fixed;
             top: var(--top-nav-height);
             display: flex;
             width: 100vw;
