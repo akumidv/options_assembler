@@ -1,0 +1,3 @@
+[submodule "docs/pages/phd"]
+	path = docs/pages/phd
+	url = https://github.com/akumidv/phd.git
