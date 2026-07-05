@@ -1,10 +1,12 @@
 """Option Risk Profile functions"""
 
 import pandas as pd
+from pandera.typing import DataFrame
 
+from alphavar.core.dictionary import ResultTerm
 from alphavar.options.dictionary import LegType, OptionsTerm, OptionsType
 from alphavar.options.entities import OptionsLeg
-from alphavar.options.lib.analytic.risk._risk_entities import RiskColumns as RCl
+from alphavar.options.schemas import PayoffCurveSchema, PayoffLegsSchema
 
 
 def _get_premium(df_chain_type_opt: pd.DataFrame, strike: float, leg_type: LegType | None = None) -> float:
@@ -32,19 +34,19 @@ def _calc_profile(df_opt_type: pd.DataFrame, leg: OptionsLeg, premium: float) ->
     """Calc P&L profile"""
     if leg.type == LegType.OPTIONS_CALL:
         if leg.lots > 0:
-            df_opt_type.loc[:, RCl.RISK_PNL.nm] = df_opt_type[OptionsTerm.STRIKE] - leg.strike - premium
-            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] <= leg.strike, RCl.RISK_PNL.nm] = -premium
+            df_opt_type.loc[:, ResultTerm.RISK_PNL] = df_opt_type[OptionsTerm.STRIKE] - leg.strike - premium
+            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] <= leg.strike, ResultTerm.RISK_PNL] = -premium
         else:
-            df_opt_type.loc[:, RCl.RISK_PNL.nm] = premium - (df_opt_type.loc[:, OptionsTerm.STRIKE] - leg.strike)
-            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] <= leg.strike, RCl.RISK_PNL.nm] = premium
+            df_opt_type.loc[:, ResultTerm.RISK_PNL] = premium - (df_opt_type.loc[:, OptionsTerm.STRIKE] - leg.strike)
+            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] <= leg.strike, ResultTerm.RISK_PNL] = premium
     else:
         if leg.lots > 0:
-            df_opt_type.loc[:, RCl.RISK_PNL.nm] = leg.strike - df_opt_type[OptionsTerm.STRIKE] - premium
-            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] >= leg.strike, RCl.RISK_PNL.nm] = -premium
+            df_opt_type.loc[:, ResultTerm.RISK_PNL] = leg.strike - df_opt_type[OptionsTerm.STRIKE] - premium
+            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] >= leg.strike, ResultTerm.RISK_PNL] = -premium
         else:
-            df_opt_type.loc[:, RCl.RISK_PNL.nm] = premium - (leg.strike - df_opt_type.loc[:, OptionsTerm.STRIKE])
-            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] >= leg.strike, RCl.RISK_PNL.nm] = premium
-    df_opt_type.loc[:, RCl.RISK_PNL.nm] *= abs(leg.lots)
+            df_opt_type.loc[:, ResultTerm.RISK_PNL] = premium - (leg.strike - df_opt_type.loc[:, OptionsTerm.STRIKE])
+            df_opt_type.loc[df_opt_type[OptionsTerm.STRIKE] >= leg.strike, ResultTerm.RISK_PNL] = premium
+    df_opt_type.loc[:, ResultTerm.RISK_PNL] *= abs(leg.lots)
     return df_opt_type
 
 
@@ -68,7 +70,7 @@ def _calc_premium_profile(df_opt_type: pd.DataFrame, leg: OptionsLeg, premium: f
     pnl_premium = (intrinsic_shift + df_opt_type[OptionsTerm.PRICE] - premium).clip(lower=-premium)
     if leg.lots < 0:  # short: mirror the long profile (max gain = premium received)
         pnl_premium = -pnl_premium
-    df_opt_type.loc[:, RCl.RISK_PNL_PREMIUM.nm] = pnl_premium * abs(leg.lots)
+    df_opt_type.loc[:, ResultTerm.RISK_PNL_PREMIUM] = pnl_premium * abs(leg.lots)
     return df_opt_type
 
 
@@ -129,8 +131,8 @@ def _chain_leg_expiration_risk_profile(df_chain: pd.DataFrame, leg: OptionsLeg) 
     type_code = OptionsType.PUT.value if leg.type == LegType.OPTIONS_PUT else OptionsType.CALL.value
     df = df_chain[df_chain[OptionsTerm.OPTION_RIGHT] == type_code].copy()
     if leg.type == LegType.FUTURES:
-        df.loc[:, RCl.RISK_PNL.nm] = (df[OptionsTerm.STRIKE] - df[OptionsTerm.UNDERLYING_PRICE]) * leg.lots
-        df.loc[:, RCl.RISK_PNL_PREMIUM.nm] = df[RCl.RISK_PNL.nm]
+        df.loc[:, ResultTerm.RISK_PNL] = (df[OptionsTerm.STRIKE] - df[OptionsTerm.UNDERLYING_PRICE]) * leg.lots
+        df.loc[:, ResultTerm.RISK_PNL_PREMIUM] = df[ResultTerm.RISK_PNL]
     else:
         premium_df = df[df[OptionsTerm.STRIKE] == leg.strike]
         if premium_df.empty:
@@ -138,40 +140,58 @@ def _chain_leg_expiration_risk_profile(df_chain: pd.DataFrame, leg: OptionsLeg) 
         premium = premium_df.iloc[0][OptionsTerm.PRICE]
         df = _calc_premium_profile(df, leg, premium)
     df.drop(
-        columns=[col for col in df.columns if col not in [OptionsTerm.STRIKE, RCl.RISK_PNL.nm, RCl.RISK_PNL_PREMIUM.nm]],
+        columns=[
+            col
+            for col in df.columns
+            if col not in [OptionsTerm.STRIKE, ResultTerm.RISK_PNL, ResultTerm.RISK_PNL_PREMIUM]
+        ],
         inplace=True,
     )
     return df
 
 
-def chain_payoff(df_chain: pd.DataFrame, legs: list[OptionsLeg]) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Calculate options payoff also called as risk profile
-    Example of profiles https://www.optionstaxguy.com/risk-profiles
-    Explanation https://www.investopedia.com/trading/options-risk-graphs/
+def payoff_legs(df_chain: pd.DataFrame, legs: list[OptionsLeg]) -> DataFrame[PayoffLegsSchema]:
+    """The per-leg payoff breakdown of a strategy over a chain — one row per ``(leg_id, strike)``.
 
-    Option risk PNL Profile on expiration date and for current
-    Index is Strike values
+    Each leg's expiration P&L (``risk_pnl``) and mark-to-market P&L (``risk_pnl_premium``) at every
+    strike, tagged with ``leg_id``. Base producer for ``payoff_curve`` (which sums this over legs).
+    Risk-graph background: https://www.investopedia.com/trading/options-risk-graphs/.
     """
-
     legs_dfs = []
     for idx, leg in enumerate(legs):
         df_leg = _chain_leg_expiration_risk_profile(df_chain, leg)
-        df_leg.loc[:, RCl.LEG_ID.nm] = f"#{idx}_{leg.type.value}_{leg.strike}_{leg.lots}"
+        df_leg.loc[:, ResultTerm.LEG_ID] = f"#{idx}_{leg.type.value}_{leg.strike}_{leg.lots}"
         legs_dfs.append(df_leg)
     if len(legs_dfs) == 0:
         raise ValueError(f"Can not prepared risk profile for {len(legs)} legs number")
     df_legs_risk_profile = pd.concat(legs_dfs, axis="rows", ignore_index=True) if len(legs_dfs) > 1 else legs_dfs[0]
-    df_legs_risk_profile.sort_values(by=[OptionsTerm.STRIKE, RCl.LEG_ID.nm], inplace=True)
-    df_risk_profile = (
-        df_legs_risk_profile.groupby(OptionsTerm.STRIKE, group_keys=False)[[RCl.RISK_PNL.nm, RCl.RISK_PNL_PREMIUM.nm]]
-        .agg({RCl.RISK_PNL.nm: "sum", RCl.RISK_PNL_PREMIUM.nm: "sum"})
+    df_legs_risk_profile.sort_values(by=[OptionsTerm.STRIKE, ResultTerm.LEG_ID], inplace=True)
+    return df_legs_risk_profile
+
+
+def payoff_curve(df_legs_risk_profile: pd.DataFrame) -> DataFrame[PayoffCurveSchema]:
+    """The combined strategy payoff curve — the per-strike P&L of the whole position.
+
+    Consumes a :func:`payoff_legs` frame and sums each strike's ``risk_pnl`` / ``risk_pnl_premium``
+    across legs (``payoff_curve ← payoff_legs``).
+    """
+    return (
+        df_legs_risk_profile.groupby(OptionsTerm.STRIKE, group_keys=False)[
+            [ResultTerm.RISK_PNL, ResultTerm.RISK_PNL_PREMIUM]
+        ]
+        .agg({ResultTerm.RISK_PNL: "sum", ResultTerm.RISK_PNL_PREMIUM: "sum"})
         .reset_index(drop=False)
     )
-    # 4VERIFY (owner): aggregation now sums RISK_PNL_PREMIUM alongside
-    # RISK_PNL (2026-06-14). Original RISK_PNL-only aggregation preserved below:
-    # df_risk_profile = df_legs_risk_profile.groupby(OptionsTerm.STRIKE, group_keys=False)[
-    #     [RCl.RISK_PNL.nm]] \
-    #     .agg({RCl.RISK_PNL.nm: 'sum'}) \
-    #     .reset_index(drop=False)
+    # 4VERIFY (owner): aggregation sums RISK_PNL_PREMIUM alongside RISK_PNL (2026-06-14). Original
+    # RISK_PNL-only aggregation preserved: `.groupby(STRIKE)[[RISK_PNL]].agg({RISK_PNL: 'sum'})`.
+
+
+def chain_payoff(df_chain: pd.DataFrame, legs: list[OptionsLeg]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Options payoff (risk profile) as ``(combined curve, per-leg breakdown)``.
+
+    Convenience over the two producers: ``payoff_curve(payoff_legs(...))`` plus the legs frame.
+    Example profiles https://www.optionstaxguy.com/risk-profiles.
+    """
+    df_legs_risk_profile = payoff_legs(df_chain, legs)
+    df_risk_profile = payoff_curve(df_legs_risk_profile)
     return df_risk_profile, df_legs_risk_profile

@@ -4,6 +4,17 @@ import os
 
 import pandas as pd
 
+from alphavar.options.schemas._result_schemas import (
+    ChainSchema,
+    DeskSchema,
+    ForecastDistributionSchema,
+    PayoffCurveSchema,
+    PayoffLegsSchema,
+    PriceSeriesSchema,
+    SmileForecastSchema,
+    SurfaceForecastSchema,
+    TimeValueSeriesSchema,
+)
 from alphavar.options.schemas._schemas import (
     FuturesHistory,
     GreeksMixin,
@@ -24,6 +35,15 @@ __all__ = [
     "QuoteMixin",
     "OHLCMixin",
     "GreeksMixin",
+    "PriceSeriesSchema",
+    "ForecastDistributionSchema",
+    "SmileForecastSchema",
+    "SurfaceForecastSchema",
+    "ChainSchema",
+    "DeskSchema",
+    "TimeValueSeriesSchema",
+    "PayoffCurveSchema",
+    "PayoffLegsSchema",
     "validate",
     "validation_enabled",
 ]
@@ -37,8 +57,8 @@ def validation_enabled() -> bool:
     return not _DISABLED
 
 
-def validate(model, df: pd.DataFrame) -> pd.DataFrame:
-    """Validate ``df`` against a pandera ``model`` at a layer boundary.
+def validate(df: pd.DataFrame, model) -> pd.DataFrame:
+    """Validate ``df`` against a pandera ``model`` at a layer boundary (D7: data-first).
 
     No-op when disabled (production ETL). Uses ``lazy=True`` to collect all errors.
     """

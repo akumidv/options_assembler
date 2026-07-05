@@ -11,8 +11,11 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from pandera.typing import DataFrame
 
+from alphavar.core.dictionary import Term
 from alphavar.options.dictionary import OptionsTerm
+from alphavar.options.schemas import PriceSeriesSchema
 
 _DAYS_PER_YEAR = 365.0
 
@@ -100,3 +103,31 @@ def median_dt_years(timestamps: pd.DatetimeIndex) -> float:
         raise ValueError("need at least 2 timestamps to infer the data step")
     median_ns = float(np.median(np.diff(ts.asi8)))
     return median_ns / (1e9 * 86400.0 * _DAYS_PER_YEAR)
+
+
+def price_series(
+    df: pd.DataFrame, source: str = "future", expiration: pd.Timestamp | None = None
+) -> DataFrame[PriceSeriesSchema]:
+    """**Autonomous ``price_series`` producer** (V1-lc): a market frame → tidy ``timestamp | price``.
+
+    Takes the frame **handed in** (no loading, no source fallback — the assembler chooses which frame
+    to pass): ``future`` / ``front`` read a **futures** frame (``df_fut``), ``underlying`` reads an
+    **options-history** frame (``df_hist``). ``source`` selects the producer's own construction over
+    that frame; it does not reach back to whoever loaded it. Wraps the numpy series kernels above
+    into the chain's interchange frame (``Term.TIMESTAMP`` / ``Term.PRICE``).
+    """
+    if source == "future":
+        prices, timestamps = futures_price_series(df, expiration)
+    elif source == "front":
+        prices, timestamps = front_price_series(df)
+    elif source == "underlying":
+        prices, timestamps = underlying_price_series(df)
+    else:
+        raise ValueError(f"unknown source {source!r}; use 'future', 'front' or 'underlying'")
+    return pd.DataFrame({Term.TIMESTAMP: timestamps, Term.PRICE: prices})
+
+
+def series_arrays(price_series_df: pd.DataFrame) -> tuple[np.ndarray, pd.DatetimeIndex]:
+    """Extract the ``(prices, timestamps)`` kernel arrays from a ``price_series`` frame (chronological)."""
+    df = price_series_df.sort_values(Term.TIMESTAMP)
+    return df[Term.PRICE].to_numpy(dtype=float), pd.DatetimeIndex(df[Term.TIMESTAMP])

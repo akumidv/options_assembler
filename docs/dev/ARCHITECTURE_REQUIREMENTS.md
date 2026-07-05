@@ -6,7 +6,7 @@
 > especially when introducing new entities/domain concepts or making serious changes to
 > the existing domain model.** For compact day-to-day development rules (quality gates,
 > owner verification, workflow) see the companion
-> [DEVELOPMENT_REQUIREMENTS.md](DEVELOPMENT_REQUIREMENTS.md) (`D#`). Descriptive overview:
+> [DEVELOPMENT_REQUIREMENTS.md](../../_aitna/DEVELOPMENT_REQUIREMENTS.md) (`D#`). Descriptive overview:
 > [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md). The remediation backlog is maintained
 > outside this repository, alongside `ALPHAVAR_NAMING.md`.
 
@@ -82,6 +82,36 @@ domain facade (stateful)  →  <domain>/lib (pure functions)  →  io.provider, 
 Dependency direction is one-way: facade → logic → (data via injected provider).
 `<domain>/lib` must never import from the domain facade modules or from `io`.
 
+### R1.1 `lib` contract shapes: explicit inputs, no hidden upstream work
+
+Every public function in `<domain>/lib` exposes one of these shapes; the shape is part of
+the function's contract and should be visible from the signature and return annotation:
+
+- **Transform:** `df + params → df` (or a row-aligned `Series`). The DataFrame being
+  transformed is the first parameter; required extra data is passed explicitly as a
+  later parameter. The function does not load, resolve, or compute its upstream inputs.
+- **Reduction / producer:** `df + params → typed result` or `df + params → tidy frame`.
+  The output has a pinned schema or result class that exposes an interchange schema.
+- **Factory:** `make_*` selectors build interchangeable algorithms from a selector/spec
+  and are exempt from the data-first rule.
+- **Numerical kernel:** arrays/scalars in → arrays/scalars out; no DataFrame, I/O, or
+  facade state.
+
+The resolver / "provide-or-compute" behavior is not a domain-class or `lib` concern. It
+lives one level up: a user script, an AI agent, or `alphavar.flow` may assemble a chain
+from the self-described producer contracts. Domain classes and `lib` functions consume
+only the inputs they are explicitly given.
+
+### R1.2 Storage adapters are outside `lib`
+
+`<domain>/lib` may contain pure reference logic (split/reapply reference data, SCD-2
+folds, as-of joins), but it must not contain file, parquet, JSON, network, environment,
+or path-creation operations. Persistence adapters live in `io/provider`, `etl`, or a
+dedicated storage-adapter module outside `lib`, and call the pure `lib` functions.
+
+If a transitional adapter exists in `lib`, it must be tracked by a remediation task and
+must not become the pattern for new work.
+
 ## R2. Provider pattern
 
 - Every data source implements `AbstractProvider`
@@ -140,6 +170,12 @@ new provider, no caller changes" rule.
   (dependency injection of shared state). New capability areas (pricer, forecast,
   validation) follow the same pattern: a component class taking `OptionsData` in its
   constructor, exposed as an attribute of `Option`.
+- Facade methods are bindings over shared state: they may select the relevant stored
+  frame, call pure `lib` functions, validate boundary contracts, and assign the result
+  back to `OptionsData`. They must not hide material upstream computation that is not
+  named in the method contract. If a calculation needs another frame, result, or model
+  output, the caller/assembler passes it explicitly or invokes a clearly named
+  enrichment/producer step first.
 - **Model-factory pattern.** A capability area that offers *interchangeable algorithms*
   exposes them through a pure-`lib` factory: an abstract base + a name→class registry + a
   `make_*` selector (instance pass-through; unknown name → `ValueError`, catalogued-but-unbuilt
@@ -352,6 +388,11 @@ domain fields. Validation runs at layer boundaries (provider/exchange normalize 
 enrichment in dev) with `strict=False`, `coerce=True`, `lazy=True`; disabled in
 production ETL via config. See the backlog (T23) for the build-out.
 
+Result/interchange frames follow the same rule. Any output intended to feed another
+calculation gets a named schema (or a result class with an `interchange_schema`) before it
+is treated as a chain contract. The schema is the compatibility surface between
+capability areas; `flow` and other assemblers read it, they do not redefine it.
+
 ### R4.5 Classification axes — one word per axis
 
 An instrument is classified along several **independent axes**. Each axis is a distinct
@@ -409,31 +450,59 @@ objects, never broadcast into the frame. Rationale (measured on a real Deribit o
 file): constant string columns `kind`/`symbol`/`option_type` alone were ~8.8 MB of ~25 MB
 (~35%) — pure repetition.
 
+**Identity model:** `asset_code` is the library's internal, human-readable asset identity
+inside a dataset/exchange namespace. It is not a venue symbol and is not globally unique by
+itself. Do not append the exchange to `asset_code` to force global uniqueness; the storage
+path and resolved context carry `exchange_code`. Use `listing_id` for a globally unique
+venue listing (`NYSE:T`, `MOEX:T`) and optional `economic_asset_id` for the cross-listing
+economic object (`BTC`, `APPLE_INC`). Raw venue/provider encodings live in reference
+metadata: `exchange_code`, `provider_code`, `exchange_asset_code`, `provider_asset_code`,
+`listing_id`, `economic_asset_id`, `contract_id`, and `exch_symbol`.
+
+A user-maintained canonical asset catalog may live at `{DATA_PATH}/_catalog/assets.yaml`.
+It defines `economic_asset_id` values and display metadata only; it is not a dataset
+registry and does not decide which dataset to load. Dataset-local `asset.yaml` files link
+to it via `economic_asset_id`.
+
+Composite listing notation (`{exchange_code}:{asset_code}`, e.g. `NYSE:T`) is a
+user-facing shorthand accepted by resolver/API boundaries only. Providers, facades, and
+`lib` functions operate on resolved normalized fields and paths. The resolver owns
+economic-asset lookup: after resolving a concrete listing it may use `economic_asset_id`
+to return all known datasets/listings for the same economic object.
+
 **What goes where:**
 - **Per-row (stays in the quotes frame):** anything that varies row to row —
-  `option_right` (call *and* put exist per strike), `strike`, `expiration_date`,
-  `price`, `iv`, `ask`, `bid`, `volume`, `timestamp`, greeks, the `exch_*` raw values.
-- **Contract-level reference** (one record per `(asset_code, expiration_date, strike,
-  option_right)` — verified 1:1 with `exch_symbol`): `exch_symbol`, `option_style`,
-  `contract_size`, tick size, lot size.
-- **Asset-level reference** (one record per `asset_code`): `instrument_kind`,
-  `asset_class`, `currency`, base/underlying codes, multiplier.
+  `price`, `iv`, `ask`, `bid`, `volume`, `open_interest`, `timestamp`, greeks,
+  and other observations. These are never stored in reference.
+- **Option contract reference** (one record/version per concrete option contract):
+  `contract_id`, `listing_id`, `asset_code`, `exchange_code`, `provider_code`,
+  `exch_symbol`, `expiration_date`, `strike`, `option_right`, `option_style`,
+  `underlying_listing_id`, `valid_from`, `valid_to`.
+- **Future contract reference** (one record/version per concrete future contract):
+  `contract_id`, `listing_id`, `asset_code`, `exchange_code`, `provider_code`,
+  `exch_symbol`, `expiration_date`, `underlying_listing_id`, `valid_from`, `valid_to`.
+- **Contract/listing specs:** `contract_size`, `multiplier`, `tick_size`,
+  `settlement_type`, `currency`, and their validity range. These may be keyed by
+  `contract_id` or `listing_id`, depending on the venue.
+- **Asset metadata:** canonical-ish asset attributes such as title, asset class, base
+  currency, and quote currency. Venue/provider spellings are listing metadata, not
+  asset metadata.
 - **Class/currency-level reference** (shared across many instruments): interest `rates`
-  per currency; `splits`/`dividends` per equity `asset_code`. These are their own
-  reference entities, not attached to one instrument.
+  per currency; `splits`/`dividends` per equity listing/asset. These are their own
+  reference entities, not attached to one quote frame.
 
 **Two design rules:**
 1. **Temporal validity (slowly-changing dimension).** Reference data changes over time
    (`contract_size` revisions, listing/delisting, dividend schedule). Reference records
    are **snapshots with a validity range** (`valid_from`/`valid_to`), not a single
    current row. A load for a date selects the snapshot valid then.
-2. **Stored as an entity, not columns.** Reference data is persisted **separately** from
-   quotes — `metadata`/reference parquet under the instrument's data folder (e.g.
-   `{EXCHANGE}/{asset_code}/_meta.parquet`, class/currency references at the exchange or
-   asset root), written/updated by ETL. On load it is read into a Pydantic entity
-   (`InstrumentMeta`, `AssetMeta`, `RatesTable`, …) carried by `OptionsData`/the facade —
-   **never** merged back as constant columns. Analytics that need an attribute read it
-   from the entity (or the library joins on demand for a specific computation).
+2. **Stored as domain-specific reference, not repeated columns.** Reference data is
+   persisted **separately** from quotes under the asset's `reference/` folder:
+   `option_contracts.parquet`, `future_contracts.parquet`, `contract_specs.parquet`,
+   plus human-authored YAML metadata (`dataset.yaml`, `asset.yaml`, `listings/*.yaml`).
+   There is no catch-all `_meta.parquet` storage contract. On load, reference is read
+   into typed entities/tables carried by `OptionsData`/the facade and joined only when a
+   computation or compatibility surface explicitly needs a wide frame.
 
 This keeps quote files small and makes "what is true about this instrument over time" a
 first-class, queryable thing rather than redundant column noise.
@@ -452,18 +521,23 @@ first-class, queryable thing rather than redundant column noise.
 
 - ETL (`alphavar/options/etl/`) consumes exchanges through the same
   `AbstractExchange` interface; it never talks to HTTP endpoints directly.
-- ETL writes update snapshots under
-  `{update_data_path}/{EXCHANGE}/{ASSET}/{asset_kind}/{timeframe}/...parquet`; history
-  layout is `{EXCHANGE}/{ASSET}/{asset_kind}/{timeframe}/{year}.parquet`. Providers and
-  ETL must agree on this layout — change it only in both places at once.
+- ETL writes update snapshots and history under the dataset storage layout:
+  `{DATA_PATH}/{dataset_code}/{exchange_code}/{asset_code}/{instrument_kind}/{timeframe}/{year}.parquet`.
+  Each dataset root has a human-authored `dataset.yaml`; each asset folder may have
+  `asset.yaml`, `listings/*.yaml`, and domain reference tables under `reference/`.
+  Providers and ETL must agree on this layout — change it only in both places at once.
+- Dataset selection is not a provider responsibility. A resolver scans dataset folders
+  and YAML metadata, may maintain a generated cache under `{DATA_PATH}/.alphavar/`, and
+  returns a concrete dataset path/context. File providers read only that resolved
+  dataset path.
 - Notifications go through `AbstractMessanger`; ETL code must not depend on a concrete
   messenger.
 
 ## R7. Security requirements
 
 - **No secrets in the repository** — tokens/keys only via environment variables
-  (`TG_BOT_TOKEN`, `TG_CHAT`, …). `test.env` stays gitignored; a committed
-  `test.env.example` documents the variables without values.
+  (`TG_BOT_TOKEN`, `TG_CHAT`, …). `.env` stays gitignored; a committed
+  `.env.example` documents the variables without values.
 - Secrets must never appear in logs, exception messages, or report texts (incl. URLs
   containing tokens).
 - Any value interpolated into a filesystem path (`asset_code`, `asset_name`,
@@ -489,12 +563,130 @@ first-class, queryable thing rather than redundant column noise.
 - New code in `options/lib` should prefer constructs with direct polars equivalents
   (column-wise expressions, joins, group-by aggregations) and avoid hard-to-port idioms
   (row-wise `df.apply`, implicit index reliance, `inplace=True` mutation chains).
+- New or touched `lib` code returns new frames/series instead of mutating caller-owned
+  frames in place. Existing pandas-specific hotspots (`groupby.apply`, temporary helper
+  columns, `inplace=True`, implicit index alignment) are remediation targets, not patterns
+  to copy.
 - Engine selection goes through the existing `DataEngine` enum
   (`io/provider/_provider_entities.py`); providers receive the engine explicitly.
+
+## R9. Product API tiers: one quant core, several entrypoint layers
+
+`alphavar` is a quant product core, not only a notebook helper. The architecture must support
+individual quant users and server-side products from the same domain implementation. There are four
+entrypoint layers, with one-way dependency direction from outer adapters into the core:
+
+```
+adapters (API / worker / CLI / notebooks / agents)
+  → services / use cases
+  → domain facade (`Option` + components) and producer contracts
+  → pure domain logic (`<domain>/lib`) + schemas/entities/dictionary
+  → providers / exchanges / storage adapters
+```
+
+- **Core/domain API:** pure functions, typed entities, schemas, factories, result classes, and
+  producer contracts. This is the most reusable surface and the target for tests, services, flow,
+  and future engine/runtime changes.
+- **Research API:** `Option` and its component facades (`data`, `chain`, `pricer`, `forecast`,
+  `validation`, `analytic`, `chart`) over shared `OptionsData`. This is optimized for quant users,
+  notebooks, scripts, and exploratory workflows.
+- **Service API:** framework-neutral use-case functions/classes that assemble provider input,
+  validation, domain computations, and serializable results. This is the preferred surface for
+  server products.
+- **Adapters:** FastAPI/HTTP handlers, workers, schedulers, CLIs, dashboards, notebooks, and AI
+  agents. They may call services or explicit producer/facade steps, but they must not own domain
+  formulas, DataFrame semantics, provider normalization, or schema compatibility.
+
+**`flow` is an assembly mechanism, not a tier.** `alphavar.flow` plans and runs producer steps from
+their self-describing contracts; it spans the core/research surfaces and is one of three
+interchangeable assemblers (flow · a developer in code · an AI agent). Its consumers are researchers
+and AI agents; deterministic backend services call the library directly and do not use it. It never
+depends on services. Placement, the consumer→assembler map, and the `flow`↔`services` boundary:
+[ADR 0005](decisions/0005-flow-services-etl-boundaries.md), [`api-tiers.md`](api-tiers.md).
+
+`Option` remains the main ergonomic quant facade, but it is not the only product API. Server-side
+code must not be forced to drive the product through a mutable research object when a stateless or
+explicitly orchestrated service contract is the better fit.
+
+Adding a capability therefore means deciding which surfaces it needs:
+
+1. a pure `lib` function/model/result contract for the domain behavior;
+2. an optional `Option` component binding for quant users;
+3. an optional service/use-case wrapper for server or batch products;
+4. optional adapters outside the domain core.
+
+The concrete symbol → tier inventory (which modules/classes sit in which tier today, their import
+path, and stability) lives in [`api-tiers.md`](api-tiers.md): R9 is the invariant, that map is its
+realization.
+
+## R10. Server-ready contracts: services are framework-neutral and explicit
+
+Server-side products built on `alphavar` need stable contracts for requests, results, failures,
+serialization, and dependency injection. Those contracts belong in the library/application boundary,
+not in web handlers.
+
+> **Target, not current work.** The server side (a `services` layer, adapters, a deployed product) is
+> a **deferred future task — do not implement it now.** R10 is a **compatibility constraint on present
+> work**: keep the quant core shaped so the server layer can be added later without rework (state
+> confined to the research facade; pure logic stays pure; results gain pinned/serializable contracts;
+> no env/secret reads or framework imports leak into the core). Build the quant/research path now;
+> only *keep the door open* for the server path. See [ADR 0005](decisions/0005-flow-services-etl-boundaries.md).
+
+- A service/use-case layer, when added, lives under a framework-neutral package such as
+  `alphavar.services`. It must not import FastAPI, Celery, a database client, or deployment-specific
+  configuration. Thin adapters may live outside the package or in explicitly adapter-named modules.
+- Services receive providers, storage handles, cache handles, clocks, and runtime settings by
+  dependency injection. They do not instantiate concrete exchanges implicitly, read secrets from the
+  environment, or decide deployment policy.
+- Service inputs are typed request models or explicit parameters. Request scoping still uses
+  `RequestParameters` and domain-specific typed fields; raw venue symbols and wire-format values stay
+  behind the provider/exchange boundary (R2).
+- Service outputs are typed result objects and/or schema-pinned DataFrames with documented
+  JSON/table representations. Serialized table columns use `Term`/`OptionsTerm`/`ResultTerm` names;
+  they do not expose pandas-specific indexes or engine-specific details as part of the public
+  contract.
+- Validation and failure modes are explicit. A service may return a `ValidationReport`, raise a
+  domain exception, or expose a typed error result, but adapters must not infer domain errors by
+  inspecting arbitrary strings or partial DataFrames.
+- Long-running work (ETL, forecast batches, surface calibration, portfolio/risk jobs) is modeled as a
+  service call with explicit inputs and outputs; queues/schedulers are adapters around that service,
+  not the owner of the computation. ETL keeps its R6 internals — it is a write-side job-shaped service
+  with the scheduler as its adapter ([ADR 0005](decisions/0005-flow-services-etl-boundaries.md)).
+
+### R10.1 Server endpoint contract: user intent in, deterministic use-case out
+
+Server products, including a FastAPI application, expose **product actions** as endpoints. A request
+describes the user's intent and parameters; it does not describe alphavar's internal execution graph.
+
+- A server request may carry `asset_code`, strategy legs/specs, timeframe, `as_of`, horizon, model
+  selectors, pricing/forecast/risk parameters, and output options. It must not require raw venue
+  symbols, provider classes, storage paths, DataFrame column names, `flow` plans, or producer chains.
+- A backend service is **deterministic by workflow**: each endpoint maps to a fixed, named use-case
+  whose domain steps are coded explicitly. Request values select parameters and policy choices, not
+  the cross-cutting computation graph. If data, `as_of`, or configured policy changes, the result may
+  change; that context must be explicit in the response.
+- Any implicit resolution is part of the contract. For example, `expiration="nearest"` or
+  `moneyness="atm"` must resolve through documented policy (minimum days, strike selection rule,
+  price source) and the response must include the resolved legs/inputs, not only the final numbers.
+- FastAPI/HTTP handlers are adapters. They parse and validate transport input, enforce auth/rate
+  limits, map domain errors to HTTP status codes, and call a service. They do not own option formulas,
+  DataFrame semantics, provider normalization, strategy resolution rules, or serialization schemas.
+- The composition root resolves deployment policy from configuration (`asset_code` to provider,
+  default exchange/source, storage/cache, clock, feature flags, strategy-resolution policy) and
+  injects those dependencies into the service. The service never reads secrets or environment
+  variables and never constructs a concrete exchange/provider as hidden policy.
+- Server responses include a typed result plus enough context for reproducibility and audit:
+  `asset_code`, provider/exchange/source identity, `as_of`/data timestamp or snapshot id, request
+  parameters, resolved strategy/legs when applicable, model/policy identifiers, warnings, and typed
+  validation/error information.
+
+This keeps the quant core reusable across notebooks, scripts, servers, and agents while preserving
+R1/R2/R3: pure logic stays pure, provider/exchange normalization stays at the I/O boundary, and
+facades/services orchestrate without hiding upstream domain computation.
 
 ---
 
 > Quality gates and the mandatory owner-verification rule (formerly R9/R10) now live in
-> the development document — see [DEVELOPMENT_REQUIREMENTS.md](DEVELOPMENT_REQUIREMENTS.md)
+> the development document — see [DEVELOPMENT_REQUIREMENTS.md](../../_aitna/DEVELOPMENT_REQUIREMENTS.md)
 > **D1** (quality gates) and **D2** (owner verification of math / DataFrame / architecture).
-> Architectural changes to R0…R8 are themselves subject to D2 (explain + owner approval).
+> Architectural changes to R0…R10 are themselves subject to D2 (explain + owner approval).

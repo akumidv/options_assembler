@@ -18,7 +18,7 @@ import pandas as pd
 from alphavar.core.dictionary import InstrumentKind
 from alphavar.io.exchange import AbstractExchange, get_exchange_class
 from alphavar.io.exchange.exchange_entities import ExchangeCode
-from alphavar.io.provider import PandasLocalFileProvider, RequestParameters
+from alphavar.io.provider import PandasLocalFileProvider, RequestParameters, read_reference, write_reference
 from alphavar.options.dictionary import ContractKind, OptionsTerm, Timeframe
 from alphavar.options.lib.normalization import validate_path_segment
 from alphavar.options.lib.normalization.timeframe_resample import DEFAULT_RESAMPLE_MODEL, convert_to_timeframe
@@ -26,9 +26,7 @@ from alphavar.options.lib.reference import (
     CONTRACT_KEY_COLUMNS,
     CONTRACT_REF_COLUMNS,
     append_on_change,
-    read_reference,
     split_reference,
-    write_reference,
 )
 
 logger = logging.getLogger(__name__)
@@ -196,7 +194,7 @@ class EtlHistory:
             year_df = self._convert_timeframe(year_df)
             os.makedirs(os.path.dirname(fn), exist_ok=True)
             if self._update_reference:
-                self._fold_reference(asset_code, year_df)  # sidecar first, so slim is reversible
+                self._fold_reference(year_df, asset_code)  # sidecar first, so slim is reversible
             self._to_stored_series(year_df).to_parquet(fn)
             logger.info(
                 "  - updated %s/%s for %s with record: %d and period %s-%s: %s",
@@ -223,7 +221,7 @@ class EtlHistory:
             logger.error("slim_series failed: %s", err)
             return df
 
-    def _fold_reference(self, asset_code: str, df: pd.DataFrame) -> None:
+    def _fold_reference(self, df: pd.DataFrame, asset_code: str) -> None:
         """Fold the options reference from a freshly-written history batch into the asset's
         SCD-2 sidecar (`_meta.parquet` + `_asset.json`) via `append_on_change` (R4.6, T25 inc.4B).
 
@@ -243,7 +241,7 @@ class EtlHistory:
             key_cols = [c for c in CONTRACT_KEY_COLUMNS if c in split.contracts.columns]
             attr_cols = [c for c in CONTRACT_REF_COLUMNS if c in split.contracts.columns]
             history = append_on_change(history, split.contracts, when, key_cols, attr_cols)
-            write_reference(asset_dir, split.asset, history)
+            write_reference(split.asset, history, asset_dir)
         except Exception as err:  # reference is best-effort; never block the history write
             logger.error("reference fold failed for %s: %s", asset_code, err)
 

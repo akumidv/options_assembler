@@ -1,14 +1,14 @@
 # `skills/` — alphavar USAGE layer
 
 How an AI assistant **uses alphavar** to solve a user's task. This is the **USAGE** layer
-(see [_forge/keystone/README.md](../_forge/keystone/README.md) §2): it points *outward* —
+(see [_aitna/akmon/README.md](../_aitna/akmon/README.md) §2): it points *outward* —
 built to travel into a downstream project that consumes alphavar, not to develop alphavar
-itself (that is `_forge/`).
+itself (that is `_aitna/`).
 
 alphavar's archetype is **`package`**, so a USAGE skill is a **domain-concept →
 implementing-function map** (the usage end of the knowledge → impl → usage chain — see
-[keystone README §3b](../_forge/keystone/README.md) and
-[ARCHETYPES.md](../_forge/keystone/ARCHETYPES.md)). Not a bare API reference.
+[akmon README §3b](../_aitna/akmon/README.md) and
+[ARCHETYPES.md](../_aitna/akmon/ARCHETYPES.md)). Not a bare API reference.
 
 ## The unit of USAGE: concept → function → how to apply
 
@@ -23,7 +23,7 @@ Each skill connects three things, all **verified against `src/`**:
 3. **How to apply it** — inputs, units/conventions, failure modes, a worked example.
 
 A concept with **no** implementing function yet gets **no skill** — it is documented in
-`../knowledge/` (if rich) with an impl task in [`../_forge/TASKS.md`](../_forge/TASKS.md),
+`../knowledge/` (if rich) with an impl task in [`../_aitna/TASKS.md`](../_aitna/TASKS.md),
 or simply catalogued; add the skill only once the code exists.
 
 ## Map (domain concept → alphavar entry point)
@@ -42,7 +42,7 @@ or simply catalogued; add the skill only once the code exists.
 
 ### Planned concepts — documented in `knowledge/`, **no skill yet**
 
-These are **planned but not yet coded**, so per the keystone rule they get **no USAGE
+These are **planned but not yet coded**, so per the akmon rule they get **no USAGE
 skill** until the function exists. They live as `../knowledge/` leaves (marked "planned")
 with impl tasks:
 
@@ -59,6 +59,6 @@ map above.)
 ## Authoring a USAGE skill
 
 A skill is `<name>/SKILL.md` (frontmatter + instruction), the cross-agent format
-([keystone §7](../_forge/keystone/README.md)). For a `package`, **no USAGE `tools/`** —
+([akmon §7](../_aitna/akmon/README.md)). For a `package`, **no USAGE `tools/`** —
 the skill calls the public API directly. Keep it: the concept (sourced), the exact
 function (verified), inputs/units/failure modes, and one runnable example.

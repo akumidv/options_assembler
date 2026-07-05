@@ -6,9 +6,7 @@ still current). ``as_of`` selects the snapshot valid at a date; ``append_on_chan
 new observation into the history, opening a new version only when an attribute actually
 changed (and closing the prior one).
 
-# 4VERIFY (owner, D2): the SCD Type 2 semantics — as-of selection bounds (``valid_from`` <=
-# t < ``valid_to``), and the open/close/no-op rules of append_on_change (new key, changed
-# attribute, unchanged, and a key absent from the snapshot left open — never auto-deleted).
+The SCD Type 2 interval semantics and append-on-change rules are owner-verified.
 """
 import pandas as pd
 

@@ -2,8 +2,9 @@
 
 import pandas as pd
 
+from alphavar.io.provider import read_reference
 from alphavar.options.dictionary import OptionsTerm
-from alphavar.options.lib.reference import extract_reference, read_reference
+from alphavar.options.lib.reference import extract_reference
 
 T0 = pd.Timestamp("2025-01-01", tz="UTC")
 T1 = pd.Timestamp("2025-01-02", tz="UTC")

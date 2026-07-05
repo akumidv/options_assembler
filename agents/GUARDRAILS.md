@@ -44,4 +44,4 @@ limits are listed in that agent's own `README.md`.
 Desk agents record key actions/insights to their own `memory/`; they do **not** self-edit
 code, tools, or these guardrails. Stabilising a new constraint means graduating a memory
 note into a numbered G# here — done by the **build agent** under R#/D# via the TODO cycle
-([`../_forge/TASKS.md`](../_forge/TASKS.md)).
+([`../_aitna/TASKS.md`](../_aitna/TASKS.md)).

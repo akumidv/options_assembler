@@ -1,6 +1,8 @@
 ---
 name: pricing-and-iv
 description: Price options and solve implied volatility with alphavar's Black-76 (forward) model — fair price from a vol, implied vol from a market price, and vega. Use when a user asks to price an option, compute or back out implied volatility, add a model price/IV column to a chain, or get vega. (Other Greeks — delta/gamma/theta/rho — are not implemented yet.)
+when_to_use: Use when a user asks to price an option, compute or back out implied volatility, add a model price/IV column to a chain, or get vega.
+owner: alphavar
 ---
 
 # Price options & solve implied vol (Black-76) in alphavar

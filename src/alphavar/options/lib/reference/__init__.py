@@ -10,12 +10,6 @@ from alphavar.options.lib.reference._split import (
     apply_reference,
     split_reference,
 )
-from alphavar.options.lib.reference._store import (
-    asset_meta_path,
-    contract_history_path,
-    read_reference,
-    write_reference,
-)
 
 __all__ = [
     "split_reference",
@@ -27,9 +21,5 @@ __all__ = [
     "as_of",
     "append_on_change",
     "join_reference_asof",
-    "read_reference",
-    "write_reference",
-    "asset_meta_path",
-    "contract_history_path",
     "extract_reference",
 ]

@@ -1,13 +1,12 @@
 # 0003 — Composable result-chain: calculations feed calculations
 
-- **Status:** Proposed (owner-scoped 2026-06-19; architecture recorded, implementation phased)
-- **Date:** 2026-06-19
+- **Status:** Proposed (owner-scoped; architecture recorded, implementation phased)
 - **Owner:** akuminov@gmail.com
 - **References:** R3 (facade components), R5 (pure lib), R4 (term registry), D2; backlog T27
   (forecast — factor-conditional price models), T29/T30 (fitting), T33 (portfolio), T35 (risk).
   Generalizes ADR 0002 (the forecast factory is one *producer* in this chain).
 
-> **Design evolution (2026-06-20, in progress — see [`design/result-chain/`](../design/result-chain/README.md)).**
+> **Design evolution (2026-06-20, in progress — see [`design/result-chain/`](../../../_aitna/design/result-chain/README.md)).**
 > Active co-design widened this ADR's Phase 1 from "pin the existing `to_frame()` schemas" into a full
 > pipeline contract. Firmed up so far (not yet folded into the Decision below — the concept folder is
 > the live source until locked):
@@ -27,6 +26,26 @@
 > - The pipeline is a **branching DAG over two axes** (calc chain × multi-leg structures with a
 >   collective correlated fan-in), with a **demand-driven planner** (Layer B) that derives the data
 >   envelope + params backward from the *subject of analysis* (the alpha-search framing).
+> - **Priority reframe (2026-06-21, owner):** the product is the **lib/class contracts**, not `flow`.
+>   `flow` is **one of three** consumers (flow auto-assembly · a developer by hand · an AI agent) of
+>   the same self-describing descriptions. Build order = **options lib/class contracts → other domains
+>   → `flow` last**; `flow`'s implementation is **not a priority**.
+> - **Strict component autonomy (2026-06-21, owner — supersedes Decision §2 placement):** a component
+>   (lib fn or domain class, incl. etl/exchange) knows **only its own contract** and **never invokes its
+>   upstream producer**. So **`resolve` / "provide-or-compute" does NOT live in the domain classes** —
+>   components take inputs **explicitly**; the resolver is an **assembler** concern (user / AI agent /
+>   `flow`), one level up. The factor-conditional / risk / portfolio models still build directly on the
+>   class contracts (**superseding the Rollout note that they "remain `NotImplementedError` until phase
+>   2 lands"**) but receive their upstream frames **passed in by the caller**, not derived internally.
+> - **Data acquisition is in the unified graph:** etl/exchange/provider register **producer(s)** in the
+>   same vocabulary (a *load* = `{symbol, period → canonical frame-kind}`), so an assembler can plan the
+>   whole path including what to load; fetch internals stay R1/R2.
+> - **Contract is DERIVED from the function (2026-06-21, owner) — supersedes the A2 `register(kind=…,
+>   inputs=…, params=…, frame=…, scalars=…)` sketch:** a producer re-declares nothing; `core.disc.Disc`
+>   reads `inputs/params/output_schema/scalars/interchange` off the signature + return type (schema lives
+>   in the type: `DataFrame[Schema]` / `interchange_schema` ClassVar). Registration supplies only what the
+>   function can't state — a `kind` override and the one `consumes=` *alternatives* edge. Closes the
+>   smile/surface `output_schema=None` gap. See [`design/result-chain/disc-derivation.md`](../../../_aitna/design/result-chain/disc-derivation.md).
 
 ## Context
 

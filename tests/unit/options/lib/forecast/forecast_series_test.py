@@ -5,7 +5,7 @@ import pandas as pd
 
 from alphavar.options.dictionary import OptionsTerm
 from alphavar.options.forecast_class import OptionsForecast
-from alphavar.options.lib.forecast import ForecastResult
+from alphavar.options.lib.forecast import ForecastResult, price_series
 from alphavar.options.lib.forecast._series import (
     front_price_series,
     futures_price_series,
@@ -100,22 +100,27 @@ def test_median_dt_years_for_daily_data():
     assert np.isclose(median_dt_years(ts), 1.0 / 365.0)
 
 
-def test_facade_price_returns_distribution():
+def test_facade_forecast_distribution_returns_distribution():
+    # V1-lc: the facade is the autonomous forecast_distribution producer — it takes a price_series
+    # frame in (built by the assembler), it no longer loads or builds the series.
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_fut = _futures_frame()
     forecast = OptionsForecast(data)
-    result = forecast.price(30.0, model="gbm", engine="montecarlo", n=5000, seed=0)
+    px = price_series(data.df_fut, source="future")
+    result = forecast.forecast_distribution(px, 30.0, model="gbm", engine="montecarlo", n=5000, seed=0)
     assert isinstance(result, ForecastResult)
     assert result.spot > 0.0
+    assert result.as_of == px[OptionsTerm.TIMESTAMP].max()
     frame = result.to_frame()
     assert list(frame.columns) == ["quantile", "price", "change"]
 
 
-def test_facade_price_front_source_and_it5_models():
+def test_facade_forecast_distribution_front_source_and_it5_models():
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_fut = _roll_futures_frame()
     forecast = OptionsForecast(data)
-    ar1 = forecast.price(15.0, model="ar1", engine="analytic", source="front")
+    px = price_series(data.df_fut, source="front")
+    ar1 = forecast.forecast_distribution(px, 15.0, model="ar1", engine="analytic")
     assert isinstance(ar1, ForecastResult) and ar1.spot > 0.0
-    emp = forecast.price(15.0, model="empirical", engine="bootstrap", source="front", n=2000, seed=0)
+    emp = forecast.forecast_distribution(px, 15.0, model="empirical", engine="bootstrap", n=2000, seed=0)
     assert np.all(emp.scenarios() > 0.0)

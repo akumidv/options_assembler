@@ -48,11 +48,11 @@ def validate_book_data(book: AssetBookData) -> AssetBookData:
     production ETL); raises ``SchemaErrors`` on violation otherwise. Returns ``book`` unchanged
     (validation is a check; the stored frames are not the coerced copies)."""
     if book.options is not None:
-        validate(OptionsHistory, book.options)
+        validate(book.options, OptionsHistory)
     if book.futures is not None:
-        validate(FuturesHistory, book.futures)
+        validate(book.futures, FuturesHistory)
     if book.spot is not None:
-        validate(SpotHistory, book.spot)
+        validate(book.spot, SpotHistory)
     return book
 
 

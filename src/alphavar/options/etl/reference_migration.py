@@ -21,8 +21,9 @@ import sys
 import pandas as pd
 
 from alphavar.core.dictionary import InstrumentKind
+from alphavar.io.provider import write_reference
 from alphavar.options.dictionary import OptionsTerm
-from alphavar.options.lib.reference import extract_reference, write_reference
+from alphavar.options.lib.reference import extract_reference
 from alphavar.options.migration import rename_legacy_option_columns
 
 # Option kind folder names to scan: the canonical singular (ADR 0001) + the legacy plural,
@@ -60,7 +61,7 @@ def migrate_asset(asset_dir: str, *, apply: bool) -> bool:
     asset, history = extract_reference(df, when)
     print(f"[{'APPLY' if apply else 'DRY'}] {asset_dir}: asset_code={asset.asset_code} contracts={len(history)}")
     if apply:
-        write_reference(asset_dir, asset, history)
+        write_reference(asset, history, asset_dir)
     return True
 
 

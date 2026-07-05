@@ -5,7 +5,7 @@ import pandas as pd
 
 from alphavar.options.dictionary import OptionsTerm
 from alphavar.options.forecast_class import OptionsForecast
-from alphavar.options.lib.forecast import ForecastTarget
+from alphavar.options.lib.forecast import ForecastTarget, price_series
 from alphavar.options.lib.forecast.engine.analytic import AnalyticEngine
 from alphavar.options.lib.forecast.engine.montecarlo import MonteCarloEngine
 from alphavar.options.lib.forecast.vol.ewma import EwmaVol, ewma_variance
@@ -83,7 +83,8 @@ def test_facade_vol_returns_distribution():
     )
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_fut = df_fut
-    result = OptionsForecast(data).vol(30.0, model="ewma")
+    px = price_series(data.df_fut, source="future")
+    result = OptionsForecast(data).vol(px, 30.0, model="ewma")
     assert result.target is ForecastTarget.VOL
     assert result.point() > 0.0
     assert list(result.to_frame().columns) == ["quantile", "vol", "change"]

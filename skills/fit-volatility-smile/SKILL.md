@@ -1,6 +1,8 @@
 ---
 name: fit-volatility-smile
 description: Fit an implied-volatility smile (SVI / SABR / quadratic) to option-chain IVs across log-moneyness using alphavar, and query the fitted IV plus a no-arbitrage (butterfly) check. Use when a user asks to fit/parametrize a vol smile or surface slice, interpolate/extrapolate IV across strikes, or check a smile for butterfly arbitrage.
+when_to_use: Use when a user asks to fit/parametrize a vol smile or surface slice, interpolate/extrapolate IV across strikes, or check a smile for butterfly arbitrage.
+owner: alphavar
 ---
 
 # Fit a volatility smile with alphavar

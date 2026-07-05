@@ -140,7 +140,7 @@ def test_facade_surface_end_to_end():
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_hist = _multi_expiry_history(seed=2)
     forecast = OptionsForecast(data).surface(
-        horizon=10.0, tenor_nodes=np.array([14.0, 30.0, 60.0]) / _DAYS, n=1000, seed=0
+        data.df_hist, horizon=10.0, tenor_nodes=np.array([14.0, 30.0, 60.0]) / _DAYS, n=1000, seed=0
     )
     assert isinstance(forecast, SurfaceForecast)
     assert forecast.is_butterfly_free()
@@ -150,7 +150,7 @@ def test_facade_surface_end_to_end():
 def test_facade_surface_default_nodes_and_analytic():
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_hist = _multi_expiry_history(seed=4)
-    forecast = OptionsForecast(data).surface(horizon=7.0, engine="analytic", model="pca_factor")
+    forecast = OptionsForecast(data).surface(data.df_hist, horizon=7.0, engine="analytic", model="pca_factor")
     assert forecast.engine == "analytic"
     assert np.allclose(forecast.tenor_nodes, DEFAULT_TENOR_NODES)
     assert forecast.scenario_surfaces() == []
@@ -160,7 +160,7 @@ def test_facade_smile_constant_maturity_convention():
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_hist = _multi_expiry_history(seed=6)
     forecast = OptionsForecast(data).smile(
-        horizon=10.0, maturity="constant_maturity", engine="analytic"
+        data.df_hist, horizon=10.0, maturity="constant_maturity", engine="analytic"
     )
     assert forecast.t_target > 0.0
     assert forecast.expected_smile().iv(0.0) > 0.0

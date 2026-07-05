@@ -1,6 +1,8 @@
 ---
 name: strategy-payoff
 description: Compute an option strategy's payoff / P&L profile with alphavar — single-leg (long/short call/put) and multi-leg strategies (e.g. straddle) built from OptionsLeg and aggregated by OptionsAnalyticRisk.chain_payoff. Use when a user asks for a payoff diagram, P&L at expiration across underlying prices, or to model a strategy like a straddle.
+when_to_use: Use when a user asks for a payoff diagram, P&L at expiration across underlying prices, or to model a strategy like a straddle.
+owner: alphavar
 ---
 
 # Compute strategy payoff / P&L in alphavar

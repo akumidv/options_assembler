@@ -3,9 +3,9 @@
 import pandas as pd
 
 from alphavar.io.exchange.exchange_entities import ExchangeCode
+from alphavar.io.provider import read_reference
 from alphavar.options.dictionary import OptionsTerm, Timeframe
 from alphavar.options.etl.etl_updates_to_history import EtlHistory
-from alphavar.options.lib.reference import read_reference
 
 T0 = pd.Timestamp("2025-01-01", tz="UTC")
 T1 = pd.Timestamp("2025-02-01", tz="UTC")
@@ -40,7 +40,7 @@ def _etl(tmp_path):
 
 def test_fold_reference_writes_sidecar(tmp_path):
     etl = _etl(tmp_path)
-    etl._fold_reference("BTC", _wide(T0))
+    etl._fold_reference(_wide(T0), "BTC")
 
     asset, history = read_reference(str(tmp_path / "DERIBIT" / "BTC"))
     assert asset.asset_code == "BTC"
@@ -50,8 +50,8 @@ def test_fold_reference_writes_sidecar(tmp_path):
 
 def test_fold_reference_appends_on_attribute_change(tmp_path):
     etl = _etl(tmp_path)
-    etl._fold_reference("BTC", _wide(T0, style="european"))
-    etl._fold_reference("BTC", _wide(T1, style="american"))  # option_style flipped
+    etl._fold_reference(_wide(T0, style="european"), "BTC")
+    etl._fold_reference(_wide(T1, style="american"), "BTC")  # option_style flipped
 
     _asset, history = read_reference(str(tmp_path / "DERIBIT" / "BTC"))
     # each of the 2 contracts now has a closed european version + an open american one
@@ -64,8 +64,8 @@ def test_fold_reference_appends_on_attribute_change(tmp_path):
 
 def test_fold_reference_unchanged_is_noop(tmp_path):
     etl = _etl(tmp_path)
-    etl._fold_reference("BTC", _wide(T0))
-    etl._fold_reference("BTC", _wide(T1))  # same attributes
+    etl._fold_reference(_wide(T0), "BTC")
+    etl._fold_reference(_wide(T1), "BTC")  # same attributes
 
     _asset, history = read_reference(str(tmp_path / "DERIBIT" / "BTC"))
     assert len(history) == 2  # no new versions
@@ -74,7 +74,7 @@ def test_fold_reference_unchanged_is_noop(tmp_path):
 def test_fold_reference_skips_non_options(tmp_path):
     etl = _etl(tmp_path)
     futures = pd.DataFrame({OptionsTerm.ASSET_CODE: ["BTC"], OptionsTerm.PRICE: [1.0]})  # no strike
-    etl._fold_reference("BTC", futures)
+    etl._fold_reference(futures, "BTC")
 
     asset, history = read_reference(str(tmp_path / "DERIBIT" / "BTC"))
     assert asset is None and history.empty  # nothing written

@@ -166,7 +166,9 @@ def test_build_theta_history_recovers_known_slice():
 def test_facade_smile_end_to_end():
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_hist = _options_history(seed=3)
-    forecast = OptionsForecast(data).smile(horizon=14.0, model="param_rw", engine="montecarlo", n=2000, seed=0)
+    forecast = OptionsForecast(data).smile(
+        data.df_hist, horizon=14.0, model="param_rw", engine="montecarlo", n=2000, seed=0
+    )
     assert forecast.t_target > 0.0
     assert forecast.is_butterfly_free()
     assert forecast.expected_smile().iv(0.0) > 0.0
@@ -178,7 +180,7 @@ def test_facade_smile_rejects_expired_horizon():
     data = OptionsData(provider=None, asset_code="BTC")
     data.df_hist = _options_history()
     with pytest.raises(ValueError, match="expired"):
-        OptionsForecast(data).smile(horizon=400.0)  # past the 2026-09-01 expiration
+        OptionsForecast(data).smile(data.df_hist, horizon=400.0)  # past the 2026-09-01 expiration
 
 
 def test_facade_smile_all_models_and_analytic_engine():
@@ -186,6 +188,6 @@ def test_facade_smile_all_models_and_analytic_engine():
     data.df_hist = _options_history(seed=7)
     forecaster = OptionsForecast(data)
     for model in ("param_rw", "param_var", "param_pca"):
-        result = forecaster.smile(horizon=10.0, model=model, engine="analytic")
+        result = forecaster.smile(data.df_hist, horizon=10.0, model=model, engine="analytic")
         assert result.engine == "analytic"
         assert result.expected_smile().iv(0.0) > 0.0

@@ -1,6 +1,8 @@
 ---
 name: option-chain
 description: Build and query an option chain (strikes × expiries) with alphavar — select a chain slice, classify moneyness (ATM/ITM/OTM), find ATM strikes, and add intrinsic/time value. Use when a user asks to work with an options chain, pick strikes around the money, or split premium into intrinsic vs time value.
+when_to_use: Use when a user asks to work with an options chain, pick strikes around the money, or split premium into intrinsic vs time value.
+owner: alphavar
 ---
 
 # Work with an option chain in alphavar

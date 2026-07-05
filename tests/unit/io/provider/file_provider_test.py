@@ -106,14 +106,14 @@ def test_load_reference_absent_returns_none(file_provider, asset_code):
 
 
 def test_load_reference_round_trip(tmp_path):
+    from alphavar.io.provider import write_reference
     from alphavar.options.entities import AssetMeta
-    from alphavar.options.lib.reference import write_reference
 
     exchange_dir = tmp_path / "DERIBIT"
     (exchange_dir).mkdir()
     provider = TestFileProvider("DERIBIT", str(tmp_path))
     meta = AssetMeta(asset_code="BTC", instrument_kind="option", currency="USD")
-    write_reference(str(exchange_dir / "BTC"), meta, pd.DataFrame())
+    write_reference(meta, pd.DataFrame(), str(exchange_dir / "BTC"))
 
     asset, _history = provider.load_reference("BTC")
     assert asset == meta

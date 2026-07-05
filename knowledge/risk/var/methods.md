@@ -17,5 +17,5 @@ For option portfolios, full revaluation (historical/MC) captures convexity bette
 delta-normal.
 
 > **Status: planned — not yet implemented (risk/portfolio domain,
-> [T31–T33](../../../_forge/TASKS.md)).** No USAGE skill until the code lands; owner-verify
+> [T31–T33](../../../_aitna/TASKS.md)).** No USAGE skill until the code lands; owner-verify
 > (D2) the implementation when added.

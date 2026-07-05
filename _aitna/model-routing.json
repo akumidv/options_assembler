@@ -1,0 +1,8 @@
+{
+  "briefs": {
+    "k-mechanic": "alphavar specifics:\n\n- Absolute imports only (D1); run project commands via `uv run <cmd>` (e.g. `uv run pytest`, `uv run ruff check src tests tools`).",
+    "k-validator": "alphavar specifics:\n\n- Gates: `uv run pytest` (targeted first), `uv run ruff check src tests tools`, akmon's `python3 _aitna/akmon/bin/verify.py --strict` / `bin/sync.py --check`, and the akmon test suite when named.\n- Math / DataFrame-shape / architecture territory is D2 (owner verifies) — stop and report, never \"fix\" it.",
+    "k-implementer": "alphavar specifics:\n\n- Load-bearing abstractions: the provider pattern (`AbstractProvider`), the column dictionary (`options/dictionary/`), pandera schemas (`options/schemas/`), and `lib/` purity — DataFrame in → DataFrame out, no I/O in `lib/` (R#: docs/dev/ARCHITECTURE_REQUIREMENTS.md).\n- Commands via `uv run <cmd>`; absolute imports (D1); D2/D5 are always-on (owner verifies math/data-shape; owner owns commits).",
+    "k-reasoner": "alphavar specifics:\n\n- Numerics are pure-numpy — the project uses no scipy; hand-rolled optimizers/solvers live in the pricer domain.\n- Math / DataFrame-shape / architecture conclusions are D2 drafts — flag every formula and shape change for owner verification."
+  }
+}

@@ -15,6 +15,7 @@ No-arbitrage is checked two ways: **butterfly** per node smile (Gatheral g(k)) a
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
@@ -23,6 +24,7 @@ from alphavar.options.lib.forecast.smile._base import SMILE_PARAM_NAMES
 from alphavar.options.lib.forecast.smile._decode import decode_smile
 from alphavar.options.lib.forecast.surface._interpolate import interp_total_variance
 from alphavar.options.lib.pricer.smile import SmileResult
+from alphavar.options.schemas import SurfaceForecastSchema
 
 _N_PARAMS = len(SMILE_PARAM_NAMES)
 _DEFAULT_K_GRID = np.linspace(-1.0, 1.0, 21)
@@ -68,7 +70,12 @@ class SurfaceResult:
 
 @dataclass
 class SurfaceForecast:
-    """A distributional forecast of a vol surface: expected surface + scenario σ(k,τ) bands."""
+    """A distributional forecast of a vol surface: expected surface + scenario σ(k,τ) bands.
+
+    ``to_frame`` renders the ``SurfaceForecastSchema`` interchange (read off this type by ``core.disc``).
+    """
+
+    interchange_schema: ClassVar = SurfaceForecastSchema
 
     model: str
     engine: str

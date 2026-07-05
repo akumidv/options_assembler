@@ -89,7 +89,7 @@ alphavar/
 │   └── dev/                 # development docs (this file)
 ├── agents/                  # AI build/operate agents (knowledge, skills, tools)
 ├── pyproject.toml           # dependencies, pytest/ruff config
-├── test.env                 # environment variables for tests
+├── .env                     # environment variables for tests (gitignored)
 ├── AGENTS.md                # guidance for AI agents (CLAUDE.md links here)
 └── README.md
 ```
@@ -249,7 +249,11 @@ class RequestParameters(BaseModel):
 
 ### Implementations
 - **`PandasLocalFileProvider`** (`io/provider/_local_provider.py`) — Parquet from disk.
-  Path structure: `{exchange_code}/{asset_code}/{asset_kind}/{timeframe}/{year}.parquet`.
+  Target path structure:
+  `{dataset_code}/{exchange_code}/{asset_code}/{instrument_kind}/{timeframe}/{year}.parquet`.
+  Human-authored metadata lives beside the data (`dataset.yaml`, `asset.yaml`,
+  `listings/*.yaml`); domain reference tables live under `reference/`. Dataset selection is
+  performed by a resolver before provider construction.
 - **`AbstractExchange`** (`io/exchange/_abstract_exchange.py`) — subclass of `AbstractProvider`
   with a `RequestClass` (httpx) and `request_api(endpoint_path, signed=False, **kwargs)`.
   - `DeribitExchange` (`io/exchange/deribit.py`) — crypto futures/options/spot (+ combo).
@@ -297,7 +301,7 @@ Install: `uv sync --all-extras`
 
 - `tests/unit/` mirrors `src/alphavar/`: `core/`, `io/{exchange,provider,messanger}/`,
   `options/` (facade tests flat) + `options/{dictionary,entities,schemas,lib,etl}/`.
-- pytest config (`pyproject.toml`): `pythonpath=["src"]`, `env_files=["test.env"]`,
+- pytest config (`pyproject.toml`): `pythonpath=["src"]`, `env_files=[".env"]`,
   `testpaths=["tests"]`.
 - Main fixtures (`tests/conftest.py`): `data_path`, `exchange_provider`
   (`PandasLocalFileProvider`), `option_data`, `option_symbol` (default `'BTC'`),
@@ -309,8 +313,10 @@ Install: `uv sync --all-extras`
 
 ## 10. Configuration / environment
 
-Variables (`test.env` and runtime):
-- `DATA_PATH` — root of local Parquet data.
+Variables (`.env` and runtime):
+- `DATA_PATH` — root of local datasets. A dataset is a provider/feed collection with
+  `dataset.yaml`, exchange folders, asset folders, quote parquet files, and reference
+  metadata/tables.
 - `ETL_TIMEFRAME` — ETL timeframe (`5m`, `1h`, …).
 - `TG_BOT_TOKEN`, `TG_CHAT` — Telegram notifications (optional).
 
@@ -359,7 +365,7 @@ ruff (`[tool.ruff]`, line length 120; F/E/W/I/UP/B).
   engines `analytic` / `montecarlo`, horizon calendar ACT/365. `smile` / `surface` targets remain
   planned. Pure models/engines live in `options/lib/forecast` (pure-numpy, no scipy).
 - **`alphavar.flow`** (cross-domain result-chain / pipeline) is in **active co-design** — see
-  [`docs/dev/design/result-chain/`](design/result-chain/README.md) (widens [ADR 0003](decisions/0003-composable-result-chain.md)).
+  [`_aitna/design/result-chain/`](../../_aitna/design/result-chain/README.md) (widens [ADR 0003](decisions/0003-composable-result-chain.md)).
   Direction: producers compose by a described **contract** (compatibility lives in schemas, not in any
   orchestrator); `lib` stays pure `df+params→df` (Shape 1 enrichment = `df+cols`/Series via column
   deps; Shape 2 reduction = a new-kind tidy frame); classes are a binding layer; `flow` (Registry in

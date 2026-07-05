@@ -15,9 +15,11 @@ from alphavar.options.chain_class import OptionsChain
 from alphavar.options.chart_class import ChartClass
 from alphavar.options.chart_price_class import ChartPriceClass
 from alphavar.options.enrichment_class import OptionsEnrichment
+from alphavar.options.forecast_class import OptionsForecast
 from alphavar.options.option_class import Option
 from alphavar.options.option_data_class import OptionsData
 from alphavar.options.pricer_class import OptionsPricer
+from alphavar.options.validation_class import OptionsValidation
 
 __all__ = [
     "Option",
@@ -28,6 +30,8 @@ __all__ = [
     "OptionsAnalyticPrice",
     "OptionsAnalyticRisk",
     "OptionsPricer",
+    "OptionsForecast",
+    "OptionsValidation",
     "ChartClass",
     "ChartPriceClass",
 ]

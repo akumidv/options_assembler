@@ -20,11 +20,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
 
+from alphavar.core.dictionary import ResultTerm
 from alphavar.options.lib.forecast._stats import TerminalDistribution
+from alphavar.options.schemas import ForecastDistributionSchema
 
 _DAYS_PER_YEAR = 365.0
 
@@ -63,7 +66,21 @@ class ForecastResult:
     Carries either a closed-form ``distribution`` (analytic engine) or an empirical ``samples``
     array (Monte-Carlo). ``spot`` (``S₀``) is the last observed value, so the **change** view
     ``ΔS = S_{t+h} − S₀`` is available alongside the level.
+
+    The interchange contract lives **on the type** (read by ``core.disc``): ``to_interchange`` renders
+    the ``ForecastDistributionSchema`` frame, and ``interchange_scalars`` names the scalars that ride
+    alongside it (never columns in the frame).
     """
+
+    interchange_schema: ClassVar = ForecastDistributionSchema
+    interchange_scalars: ClassVar[tuple[str, ...]] = (
+        ResultTerm.AS_OF,
+        ResultTerm.SPOT,
+        ResultTerm.HORIZON_YEARS,
+        ResultTerm.TARGET,
+        ResultTerm.MODEL,
+        ResultTerm.ENGINE,
+    )
 
     target: ForecastTarget
     model: str
@@ -72,6 +89,7 @@ class ForecastResult:
     spot: float
     distribution: TerminalDistribution | None = field(default=None, repr=False)
     samples: np.ndarray | None = field(default=None, repr=False)
+    as_of: pd.Timestamp | None = None  # the anchor instant (last observed timestamp of the input series)
 
     def point(self) -> float:
         """Expected terminal level (distribution mean or sample mean)."""
@@ -101,10 +119,28 @@ class ForecastResult:
         return self.quantiles(q) - self.spot
 
     def to_frame(self, quantiles: tuple[float, ...] = (0.05, 0.25, 0.5, 0.75, 0.95)) -> pd.DataFrame:
-        """Tabular view: one row per quantile with the terminal level (named by target) and change."""
+        """Ergonomic tabular view: one row per quantile, the level **named by target** + change.
+
+        For the target-neutral result-chain interchange (``quantile | value | change``) use
+        ``to_interchange`` instead — that is the form passed between capability areas.
+        """
         qs = np.asarray(quantiles, dtype=float)
         level = np.atleast_1d(self.quantiles(qs))
         return pd.DataFrame({"quantile": qs, self.target.value: level, "change": level - self.spot})
+
+    def to_interchange(self, quantiles: tuple[float, ...] = (0.05, 0.25, 0.5, 0.75, 0.95)) -> pd.DataFrame:
+        """Result-chain interchange frame: ``quantile | value | change`` (neutral ``ResultTerm``).
+
+        Same numbers as ``to_frame`` but the level column is the **target-neutral** ``value`` (so any
+        forecast target shares one schema, ``ForecastDistributionSchema``). The scalars
+        (``as_of`` / ``spot`` / ``horizon_years`` / ``target`` / ``model`` / ``engine``) ride on this
+        object, not in the frame.
+        """
+        qs = np.asarray(quantiles, dtype=float)
+        level = np.atleast_1d(self.quantiles(qs))
+        return pd.DataFrame(
+            {ResultTerm.QUANTILE: qs, ResultTerm.VALUE: level, ResultTerm.CHANGE: level - self.spot}
+        )
 
 
 class FittedProcess(ABC):

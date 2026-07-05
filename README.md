@@ -24,7 +24,9 @@ risk (payoff profiles) and time value, and visualize the results.
 
 The library follows a provider pattern: different data sources plug in through the
 `AbstractProvider` interface. The main entry point is the `Option` class in
-[src/alphavar/option_class.py](src/alphavar/option_class.py).
+[src/alphavar/options/option_class.py](src/alphavar/options/option_class.py). For the full
+public surface — which symbols sit in which tier (core / research facade / service / adapters)
+and their stability — see [docs/dev/api-tiers.md](docs/dev/api-tiers.md).
 
 ## Ecosystem & roadmap
 
@@ -35,12 +37,12 @@ ecosystem includes the [`catcher-bot`](https://github.com/akumidv/catcher-bot) t
 so together they cover both **analysis and trading**. As domains mature, general entities
 (e.g. `options`) are expected to graduate into git submodules.
 
-AI assistance follows the **keystone** standard ([`_forge/keystone/`](_forge/keystone/), a
+AI assistance follows the **akmon** standard ([`_aitna/akmon/`](_aitna/akmon/), a
 cross-project submodule, destined for an **MCP** server). It separates **developing** the
-project (the `_forge/` dev layer — `architect` + `engineer` agents, bound by R#/D#) from
+project (the `_aitna/` dev layer — `architect` + `engineer` agents, bound by R#/D#) from
 **using** it (the root [`skills/`](skills/) USAGE layer — how an assistant applies
 alphavar's public API). The vendor-neutral entry point is [AGENTS.md](AGENTS.md); the model
-is in [`_forge/keystone/README.md`](_forge/keystone/README.md).
+is in [`_aitna/akmon/README.md`](_aitna/akmon/README.md).
 
 ## Quick start
 
@@ -73,7 +75,35 @@ ETL examples for different exchanges (Deribit, MOEX) are in `demo/etl_example/`.
 
 The easiest way to get sample data is to download it from the shared
 [Google Drive folder](https://drive.google.com/drive/folders/1NJNxkkUYzCfADIlPHyaZQ0jrfW9WJn2I?usp=sharing).
-Save the files into a data folder and point `DATA_PATH` (in `test.env`) at it.
+Save the files into a data folder and point `DATA_PATH` (in `.env`) at it.
+
+Target local data is organized by dataset, then exchange, then asset:
+
+```text
+DATA_PATH/
+  deribit_direct/
+    dataset.yaml
+    DERIBIT/
+      BTC/
+        asset.yaml
+        listings/
+          DERIBIT.yaml
+        reference/
+          option_contracts.parquet
+          future_contracts.parquet
+          contract_specs.parquet
+        option/
+          EOD/
+            2025.parquet
+```
+
+`dataset.yaml`, `asset.yaml`, and `listings/*.yaml` are human-readable metadata. Quote
+history stays in `{instrument_kind}/{timeframe}/{year}.parquet`; contract/reference data
+is stored separately under `reference/`.
+
+User-facing symbols may use `{exchange}:{asset}` notation such as `DERIBIT:BTC` or
+`NYSE:T`; the resolver expands that shorthand into dataset, provider, exchange, and asset
+context before constructing a provider.
 
 The `demo/` notebooks also include `gdrive` snippets showing how to download the data.
 
@@ -100,20 +130,21 @@ Architecture, design decisions, and development notes live in
 The repo supports two usage models:
 
 - **As a library** — import `alphavar` and drive the `Option` facade yourself (see *Quick
-  start* and the demo notebooks).
+  start* and the demo notebooks); the tiered public surface is mapped in
+  [docs/dev/api-tiers.md](docs/dev/api-tiers.md).
 - **Through an assistant** — the vendor-neutral entry point is [AGENTS.md](AGENTS.md)
   ([CLAUDE.md](CLAUDE.md) points to it); the full model is in
-  [`_forge/keystone/README.md`](_forge/keystone/README.md).
+  [`_aitna/akmon/README.md`](_aitna/akmon/README.md).
 
-AI assistance follows the **keystone** standard, which separates two concerns:
+AI assistance follows the **akmon** standard, which separates two concerns:
 
-- **Developing the project** → the [`_forge/`](_forge/) dev layer: the
-  [`architect`](_forge/agents/architect/README.md) (design/docs/ADRs) and
-  [`engineer`](_forge/agents/engineer/README.md) (code/tests) agents, bound by the R#/D#
+- **Developing the project** → the [`_aitna/`](_aitna/) dev layer: the
+  [`architect`](_aitna/agents/architect/README.md) (design/docs/ADRs) and
+  [`engineer`](_aitna/agents/engineer/README.md) (code/tests) agents, bound by the R#/D#
   requirements. Shared, cross-project rules live in the
-  [`keystone/`](_forge/keystone/) submodule.
+  [`akmon/`](_aitna/akmon/) submodule.
 - **Using the project** → the root [`skills/`](skills/) USAGE layer: how an assistant
   applies alphavar's public API to a user's task, as a domain-concept → function map.
 
-Knowledge promoted out of a project flows up into keystone (the learn loop), so the shared
+Knowledge promoted out of a project flows up into akmon (the learn loop), so the shared
 standard improves through use.

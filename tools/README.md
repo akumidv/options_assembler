@@ -19,8 +19,8 @@ The same invocation works for the owner and for an agent, in dev and in desk mod
 ## Where a tool belongs
 - **`tools/` (here)** — anything a person would run from a console: data sync, data
   migration, one-off operational maintenance. User-facing **and** agent-facing.
-- **`_forge/tools/`** — internal to the **dev/build** agent (e.g. recording test
-  fixtures); run as `python -m _forge.tools.<tool>`. Not part of the operator surface.
+- **`_aitna/tools/`** — internal to the **dev/build** agent (e.g. recording test
+  fixtures); run as `python -m _aitna.tools.<tool>`. Not part of the operator surface.
 - **`agents/tools/`** — shared across **desk** agents (common to the operate mode);
   **`agents/<agent>/tools/`** — internal to one specific desk agent.
 

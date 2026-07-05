@@ -31,7 +31,7 @@ def test_schema_field_binds_to_registry():
 def test_valid_frame_passes_and_keeps_extra_columns():
     df = _valid_options_df()
     df["some_extra"] = 1  # strict=False
-    out = validate(OptionsHistory, df)
+    out = validate(df, OptionsHistory)
     assert "some_extra" in out.columns
 
 
@@ -39,13 +39,13 @@ def test_negative_strike_rejected():
     df = _valid_options_df()
     df[C.STRIKE] = -1.0
     with pytest.raises(Exception):
-        validate(OptionsHistory, df)
+        validate(df, OptionsHistory)
 
 
 def test_missing_mandatory_column_rejected():
     df = _valid_options_df().drop(columns=[C.OPTION_RIGHT])
     with pytest.raises(Exception):
-        validate(OptionsHistory, df)
+        validate(df, OptionsHistory)
 
 
 def test_bad_option_right_value_rejected():
@@ -53,13 +53,13 @@ def test_bad_option_right_value_rejected():
     df = _valid_options_df()
     df[C.OPTION_RIGHT] = ["buy"]
     with pytest.raises(Exception):
-        validate(OptionsHistory, df)
+        validate(df, OptionsHistory)
 
 
 def test_coerce_fixes_dtype():
     df = _valid_options_df()
     df[C.STRIKE] = df[C.STRIKE].astype(str)  # wrong dtype, coerce=True should fix
-    out = validate(OptionsHistory, df)
+    out = validate(df, OptionsHistory)
     assert out[C.STRIKE].dtype == float
 
 
@@ -71,7 +71,7 @@ def test_validation_can_be_disabled(monkeypatch):
     importlib.reload(schemas)
     try:
         bad = pd.DataFrame({C.STRIKE: [-1.0]})  # would fail if validated
-        assert schemas.validate(schemas.OptionsHistory, bad) is bad
+        assert schemas.validate(bad, schemas.OptionsHistory) is bad
         assert schemas.validation_enabled() is False
     finally:
         monkeypatch.setenv("ALPHAVAR_VALIDATE", "1")

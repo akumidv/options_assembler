@@ -11,8 +11,8 @@ exch_symbol, option_style, …). ``split_reference`` factors them out into:
 ``apply_reference`` is the exact inverse (lossless round-trip). Operates on a **single asset**
 frame (storage is per-asset); a mixed-asset or non-constant asset-level column is an error.
 
-# 4VERIFY (owner, D2): the layer assignment (which columns are asset- vs contract-level vs
-# per-row) and the lossless split/rejoin. Pinned by the round-trip test.
+The layer assignment and lossless split/rejoin are owner-verified through the round-trip
+test.
 """
 from dataclasses import dataclass
 

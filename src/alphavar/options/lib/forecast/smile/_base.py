@@ -19,12 +19,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
 
 from alphavar.options.lib.forecast.smile._decode import decode_smile, sample_mvn
 from alphavar.options.lib.pricer.smile import SmileResult
+from alphavar.options.schemas import SmileForecastSchema
 
 # Raw-SVI parameters, in the fixed order used by every θ vector / covariance in this package.
 SMILE_PARAM_NAMES: tuple[str, ...] = ("a", "b", "rho", "m", "sigma")
@@ -88,8 +90,11 @@ class SmileForecast:
 
     Carries the expected terminal θ (``mean_theta``) and, for the Monte-Carlo engine, ``samples``
     of θ (shape ``(n, p)``). Each θ decodes to a ``SmileResult`` at ``t_target`` via the raw-SVI
-    form; the no-arbitrage butterfly check runs on the expected smile.
+    form; the no-arbitrage butterfly check runs on the expected smile. ``to_frame`` renders the
+    ``SmileForecastSchema`` interchange (read off this type by ``core.disc``).
     """
+
+    interchange_schema: ClassVar = SmileForecastSchema
 
     model: str
     engine: str

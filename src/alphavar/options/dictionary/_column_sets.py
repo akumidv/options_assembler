@@ -6,9 +6,9 @@ Replaces the old ``FuturesColumns``/``SpotColumns`` enums (T23.1): the dataset
 schema layer; resample aggregations live next to the resampler — neither is duplicated
 here.
 
-# 4VERIFY (owner, D2): the futures/spot membership reproduces the prior
-# FuturesColumns/SpotColumns enums 1:1 (by value). The planned-but-unused ``mark_price`` /
-# ``mark_iv`` columns are intentionally dropped (superseded by R4.2 / T23.6).
+The futures/spot membership reproduces the prior ``FuturesColumns``/``SpotColumns``
+enums 1:1 by value. The planned-but-unused ``mark_price`` / ``mark_iv`` columns are
+intentionally dropped (superseded by R4.2 / T23.6).
 """
 
 from alphavar.options.dictionary._terms import OptionsTerm

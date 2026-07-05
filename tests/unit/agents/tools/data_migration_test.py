@@ -2,14 +2,14 @@
 
 import pandas as pd
 
-from agents._dev.tools.data_migration._diagnose import (
+from _aitna.tools.data_migration._diagnose import (
     diagnose_exchange,
     diagnose_metadata,
     diagnose_parquet,
 )
+from alphavar.io.provider import write_reference
 from alphavar.options.dictionary import OptionsTerm
 from alphavar.options.entities import AssetMeta
-from alphavar.options.lib.reference import write_reference
 
 UTC = "UTC"
 
@@ -79,7 +79,7 @@ def test_metadata_ok_when_sidecar_present(tmp_path):
     series = asset_dir / "option" / "EOD"
     series.mkdir(parents=True)
     _good_frame().to_parquet(series / "2025.parquet")
-    write_reference(str(asset_dir), AssetMeta(asset_code="BTC"), pd.DataFrame())
+    write_reference(AssetMeta(asset_code="BTC"), pd.DataFrame(), str(asset_dir))
     # wide series + a sidecar that matches the folder -> no metadata error
     assert not [i for i in diagnose_metadata(str(asset_dir)) if i.severity == "error"]
 

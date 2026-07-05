@@ -1,7 +1,6 @@
 # 0002 — Forecast as a model factory: target × process × engine
 
 - **Status:** Accepted
-- **Date:** 2026-06-19
 - **Owner:** akuminov@gmail.com
 - **References:** R3, R5 (`ARCHITECTURE_REQUIREMENTS.md`); D2 (`DEVELOPMENT_REQUIREMENTS.md`);
   backlog T27 (forecast); generalizes the smile factory `make_smile_model` (T21).

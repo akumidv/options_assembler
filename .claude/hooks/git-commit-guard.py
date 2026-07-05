@@ -1,66 +1,17 @@
 #!/usr/bin/env python3
-"""PreToolUse guard for D5 (owner owns commits) — durable, context-independent.
+"""Thin shim → the akmon commit guard (source of truth).
 
-Runs on every Bash tool call regardless of how long the session is, so the rule
-survives context growth. For git commands it:
-- DENIES any ``Co-Authored-By`` trailer (never allowed; AGENTS.md "Commits"),
-- ASKS the owner for ``push`` / ``tag`` / ``merge`` and for ``commit`` on the default
-  branch (``main``/``master``) — these land history and need explicit per-time approval,
-- lets ``commit`` on a backup/feature branch through to the normal permission flow.
-
-The deny/ask reason re-states D5 at the moment it is relevant. See
-docs/dev/DEVELOPMENT_REQUIREMENTS.md D5.
+This project's hook lives in the akmon submodule
+(``_aitna/akmon/hooks/git-commit-guard.py``). This file only forwards to it, so an
+already-running session that wired the old ``.claude/hooks/`` path keeps working and the
+logic stays single-sourced in akmon. New wiring points straight at the akmon path
+(see ``.claude/settings.json``); this shim can be removed once no session references it.
 """
-import json
-import re
-import subprocess
+import runpy
 import sys
+from pathlib import Path
 
-
-def decide(decision: str, reason: str) -> None:
-    json.dump({"hookSpecificOutput": {
-        "hookEventName": "PreToolUse",
-        "permissionDecision": decision,
-        "permissionDecisionReason": reason,
-    }}, sys.stdout)
-    sys.exit(0)
-
-
-def main() -> None:
-    try:
-        payload = json.load(sys.stdin)
-    except (json.JSONDecodeError, ValueError):
-        return  # never block on a parse error
-    if payload.get("tool_name") != "Bash":
-        return
-    command = (payload.get("tool_input") or {}).get("command", "") or ""
-    if "git" not in command:
-        return
-
-    if re.search(r"co-authored-by", command, re.IGNORECASE):
-        decide("deny", "D5 / Commits: no AI 'Co-Authored-By' trailer — the committer is the "
-                       "human. Remove it and retry.")
-
-    def is_git(sub: str) -> bool:
-        return re.search(r"\bgit\b[^|&;]*\b" + sub + r"\b", command) is not None
-
-    if is_git("push") or is_git("tag") or is_git("merge"):
-        decide("ask", "D5: the owner owns commits. push/tag/merge land history — confirm "
-                      "this is explicitly requested.")
-
-    if is_git("commit"):
-        try:
-            branch = subprocess.run(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True, text=True, timeout=5,
-            ).stdout.strip()
-        except (subprocess.SubprocessError, OSError):
-            branch = ""
-        if branch in ("main", "master") or not branch:
-            decide("ask", f"D5: the owner owns commits. A commit on '{branch or 'detached HEAD'}' "
-                          "is a landing commit — confirm explicitly, or branch to backup/* first.")
-        # commit on a backup/feature branch: fall through to the normal permission flow.
-
-
-if __name__ == "__main__":
-    main()
+target = Path(__file__).resolve().parents[2] / "_aitna" / "akmon" / "hooks" / "git-commit-guard.py"
+if not target.exists():
+    sys.exit(0)  # never block if the submodule isn't checked out
+runpy.run_path(str(target), run_name="__main__")

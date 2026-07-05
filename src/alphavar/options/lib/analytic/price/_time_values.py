@@ -3,10 +3,12 @@
 import datetime
 
 import pandas as pd
+from pandera.typing import DataFrame
 
 from alphavar.options.dictionary import OptionsTerm, OptionsType
 from alphavar.options.lib.chain import get_chain_atm_strike, get_max_settlement_valid_expired_date, select_chain
 from alphavar.options.lib.enrichment import add_intrinsic_and_time_value
+from alphavar.options.schemas import TimeValueSeriesSchema
 
 
 def _calc_atm_distance(df_chain: pd.DataFrame, strike: float) -> float:
@@ -29,7 +31,7 @@ def time_value_series_by_atm_distance(
     distance: float | None = None,
     expiration_date: pd.Timestamp | None = None,
     option_type: OptionsType | None = OptionsType.CALL,
-) -> pd.DataFrame:
+) -> DataFrame[TimeValueSeriesSchema]:
     """
     expiration_date None - will be used nearest for last settlement_date in history dataframe
     distance - 0 will be used ATM Strike
