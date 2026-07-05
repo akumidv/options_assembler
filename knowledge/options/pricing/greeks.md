@@ -3,8 +3,8 @@
 ↑ Index: [options/pricing/](README.md)
 
 > Source: Hull, *Options, Futures, and Other Derivatives* (Greek letters chapter).
-> **Status: planned — partly implemented ([T36](../../../_forge/TASKS.md)).** No USAGE skill
-> until the rest lands (keystone knowledge→impl→usage rule).
+> **Status: planned — partly implemented ([T36](../../../_aitna/TASKS.md)).** No USAGE skill
+> until the rest lands (akmon knowledge→impl→usage rule).
 
 Sensitivities of option value V to inputs:
 - **Delta** `∂V/∂S` — directional exposure (calls 0…1, puts −1…0). _planned (T36)._

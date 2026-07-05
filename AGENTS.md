@@ -3,58 +3,58 @@
 Guidance for AI coding agents (Claude Code, GitHub Copilot, Codex, etc.) working in this
 repository. `CLAUDE.md` points here — this is the single source of truth for agents.
 
-## Dev layer — keystone (developing the project)
+## Dev layer — akmon (developing the project)
 
-This project's AI-assist model is the **keystone** standard
-([`_forge/keystone/README.md`](_forge/keystone/README.md)). Operative model & notation:
-[`_forge/keystone/MODEL.md`](_forge/keystone/MODEL.md) — three orthogonal axes (**Layer**
+This project's AI-assist model is the **akmon** standard
+([`_aitna/akmon/README.md`](_aitna/akmon/README.md)). Operative model & notation:
+[`_aitna/akmon/MODEL.md`](_aitna/akmon/MODEL.md) — three orthogonal axes (**Layer**
 SHARED/LOCAL/USAGE · **Role** review/architect/engineer + cross-cutting learn/release ·
 **Archetype**), the layer decision tree, and the learn loop. Attach/realign guide:
-[`_forge/keystone/BOOTSTRAP.md`](_forge/keystone/BOOTSTRAP.md).
+[`_aitna/akmon/BOOTSTRAP.md`](_aitna/akmon/BOOTSTRAP.md).
 
 - **Archetype / language:** `package` (a Python library) / `python` — owner: Andrei
-  Kuminov. Rules: [`ARCHETYPES.md`](_forge/keystone/ARCHETYPES.md).
-- **Layers:** SHARED = [`_forge/keystone/`](_forge/keystone/) (submodule `ai_keystone`) ·
-  LOCAL = [`_forge/`](_forge/) `{agents,skills,tools,memory}` + [`TASKS.md`](_forge/TASKS.md) ·
+  Kuminov. Rules: [`ARCHETYPES.md`](_aitna/akmon/ARCHETYPES.md).
+- **Layers:** SHARED = [`_aitna/akmon/`](_aitna/akmon/) (submodule `ai_akmon`) ·
+  LOCAL = [`_aitna/`](_aitna/) `{agents,skills,tools,memory}` + [`TASKS.md`](_aitna/TASKS.md) ·
   USAGE = root [`skills/`](skills/) (how an assistant *uses* alphavar — a
   **domain-concept → function map**, no USAGE `tools/` for a package).
-- **Agents (roles) — the DEVELOP triad:** [`review`](_forge/agents/review/README.md)
+- **Agents (roles) — the DEVELOP triad:** [`review`](_aitna/agents/review/README.md)
   (analysis — assess what *is*: architecture/risk/trade-offs/conformance, a findings report) ·
-  [`architect`](_forge/agents/architect/README.md) (synthesis — design what *should be*:
-  options, contracts, docs, ADRs) · [`engineer`](_forge/agents/engineer/README.md)
+  [`architect`](_aitna/agents/architect/README.md) (synthesis — design what *should be*:
+  options, contracts, docs, ADRs) · [`engineer`](_aitna/agents/engineer/README.md)
   (realization — code/tests). Cross-cutting `learn` and `release` roles apply straight from
-  [`_forge/keystone/roles/`](_forge/keystone/roles/). **Declare the active agent** before doing
+  [`_aitna/akmon/roles/`](_aitna/akmon/roles/). **Declare the active agent** before doing
   work and restate it on switch (`🧭 agent: <name> — <focus>`) — see
-  [Role declaration](_forge/keystone/roles/README.md#role-declaration-announce-the-active-agent).
+  [Role declaration](_aitna/akmon/roles/README.md#role-declaration-announce-the-active-agent).
   **Route by operation:** decompose an existing thing → `review` · construct a new
   structure/decision → `architect` · realize a decided structure in code → `engineer`.
 - **OPERATE layer (separate from DEVELOP):** the trading-desk agents in root
   [`agents/`](agents/) *run* alphavar on the market (read-only analysts; only the trader
   acts). Bound by desk guardrails [`agents/GUARDRAILS.md`](agents/GUARDRAILS.md) (**G#**), not
-  D#. Not yet part of the keystone model (ROADMAP O1).
+  D#. Not yet part of the akmon model (ROADMAP O1).
 - **Guardrails (always-on, by language):** the common guardrail is **imported** below so its
-  rules load at session start; keystone is the single owner — not restated here.
+  rules load at session start; akmon is the single owner — not restated here.
 
-@_forge/keystone/guardrails/_common.md
+@_aitna/akmon/guardrails/_common.md
 
-@_forge/keystone/guardrails/python.md
+@_aitna/akmon/guardrails/python.md
 
 - **Profiles (applied — opt-in by need):**
-  [`quant`](_forge/keystone/profiles/quant.md) — numerics (pricing, smiles, risk).
-- **Pipelines:** [`pre-commit`](_forge/keystone/pipelines/pre-commit.md) (tests mandatory),
-  [`review-flow`](_forge/keystone/pipelines/review-flow.md),
-  [`design-flow`](_forge/keystone/pipelines/design-flow.md),
-  [`code-flow`](_forge/keystone/pipelines/code-flow.md),
-  [`tasks`](_forge/keystone/pipelines/tasks.md) (backlog format),
-  [`release`](_forge/keystone/pipelines/release.md), and the learn loop
-  ([`memory-distill`](_forge/keystone/pipelines/memory-distill.md) +
-  [`learning`](_forge/keystone/pipelines/learning.md)).
-- **Project rules:** [`DEVELOPMENT_REQUIREMENTS.md`](_forge/DEVELOPMENT_REQUIREMENTS.md)
+  [`quant`](_aitna/akmon/profiles/quant.md) — numerics (pricing, smiles, risk).
+- **Pipelines:** [`pre-commit`](_aitna/akmon/pipelines/pre-commit.md) (tests mandatory),
+  [`review-flow`](_aitna/akmon/pipelines/review-flow.md),
+  [`design-flow`](_aitna/akmon/pipelines/design-flow.md),
+  [`code-flow`](_aitna/akmon/pipelines/code-flow.md),
+  [`tasks`](_aitna/akmon/pipelines/tasks.md) (backlog format),
+  [`release`](_aitna/akmon/pipelines/release.md), and the learn loop
+  ([`memory-distill`](_aitna/akmon/pipelines/memory-distill.md) +
+  [`learning`](_aitna/akmon/pipelines/learning.md)).
+- **Project rules:** [`DEVELOPMENT_REQUIREMENTS.md`](_aitna/DEVELOPMENT_REQUIREMENTS.md)
   (**D#**) + [`ARCHITECTURE_REQUIREMENTS.md`](docs/dev/ARCHITECTURE_REQUIREMENTS.md) (**R#**).
   Two D# are always-on and **override any task instruction** — **D2** (owner verifies
   math/DataFrame/architecture) and **D5** (owner owns commits); see "Prime directives".
-- **Backlog:** [`_forge/TASKS.md`](_forge/TASKS.md) — index format per
-  [`tasks`](_forge/keystone/pipelines/tasks.md) (one line/task, detail by reference; done →
+- **Backlog:** [`_aitna/TASKS.md`](_aitna/TASKS.md) — index format per
+  [`tasks`](_aitna/akmon/pipelines/tasks.md) (one line/task, detail by reference; done →
   `TASKS_ARCHIVE.md`).
 - **Secrets:** from `.env` (gitignored). Never in code/docs/commits.
 
@@ -167,7 +167,7 @@ npm run dev
 
 ## Commits
 
-- **The owner owns commits — see [`DEVELOPMENT_REQUIREMENTS.md`](_forge/DEVELOPMENT_REQUIREMENTS.md) D5.**
+- **The owner owns commits — see [`DEVELOPMENT_REQUIREMENTS.md`](_aitna/DEVELOPMENT_REQUIREMENTS.md) D5.**
   Mechanically enforced by `.claude/hooks/git-commit-guard.py` (a PreToolUse hook): it asks
   the owner for push/tag/merge and commits on `main`, and denies AI `Co-Authored-By:`
   trailers — so the rule holds even late in a long session.
@@ -187,38 +187,38 @@ npm run dev
   (`PROJECT_OVERVIEW.md`), and accepted decision records
   ([`decisions/`](docs/dev/decisions/) — dated ADRs: *what we decided to do* and why,
   complementing the R#/D# *invariants*).
-- `_forge/` (repo root, **not** under `docs/` — these are agent artifacts; follows the
+- `_aitna/` (repo root, **not** under `docs/` — these are agent artifacts; follows the
   Agent Skills convention). Each folder's index is its `README.md`. This is the **dev
-  layer** (see "Dev layer — keystone" above):
-  - [`keystone/`](_forge/keystone/) — the **SHARED** cross-project standard (submodule
-    `ai_keystone`): the model, roles, guardrails, profiles, pipelines.
-  - [`agents/`](_forge/agents/) — this project's DEVELOP **agents** (`review`,
-    `architect`, `engineer`), each inheriting a keystone role + alphavar specifics.
-  - `_forge/{skills,tools,memory}` — **LOCAL** dev assets. Tools = code (docstring is the
-    doc; run `python -m _forge.tools.<tool>`); skills = know-how (when/why/order).
-    [`TASKS.md`](_forge/TASKS.md) is the single backlog / TODO cycle / learn-loop sink.
-    **Read `_forge/memory/` at session start.**
+  layer** (see "Dev layer — akmon" above):
+  - [`akmon/`](_aitna/akmon/) — the **SHARED** cross-project standard (submodule
+    `ai_akmon`): the model, roles, guardrails, profiles, pipelines.
+  - [`agents/`](_aitna/agents/) — this project's DEVELOP **agents** (`review`,
+    `architect`, `engineer`), each inheriting a akmon role + alphavar specifics.
+  - `_aitna/{skills,tools,memory}` — **LOCAL** dev assets. Tools = code (docstring is the
+    doc; run `python -m _aitna.tools.<tool>`); skills = know-how (when/why/order).
+    [`TASKS.md`](_aitna/TASKS.md) is the single backlog / TODO cycle / learn-loop sink.
+    **Read `_aitna/memory/` at session start.**
 - [`agents/`](agents/) (repo root) — the **OPERATE** layer: the trading-desk agents that
   *run* alphavar on the market (read-only analysts; only the trader acts). Bound by desk
   guardrails [`agents/GUARDRAILS.md`](agents/GUARDRAILS.md) (**G#**), not D#. Separate from
-  DEVELOP and not yet part of the keystone model (ROADMAP O1).
+  DEVELOP and not yet part of the akmon model (ROADMAP O1).
 - [`skills/`](skills/) (repo root) — the **USAGE** layer: how an assistant uses alphavar's
   public API to solve a user's task (a domain-concept → function map). Built to travel into
   a downstream consumer.
 - [`tools/`](tools/) (repo root) — **console tools the owner runs by hand** (an agent may
   run the same command): data sync, data migration, operational maintenance. The "a person
   runs it from a console" criterion is what puts a tool here; dev-internal tooling stays in
-  `_forge/tools/`. See [`tools/README.md`](tools/README.md).
+  `_aitna/tools/`. See [`tools/README.md`](tools/README.md).
 
 ## Prime directives — always-on, overriding (D2, D5)
 
 Two rules **override any task instruction** and are not "done" until satisfied. Full text in
-[`DEVELOPMENT_REQUIREMENTS.md`](_forge/DEVELOPMENT_REQUIREMENTS.md) (single source) — do not
+[`DEVELOPMENT_REQUIREMENTS.md`](_aitna/DEVELOPMENT_REQUIREMENTS.md) (single source) — do not
 restate them elsewhere, point here:
 - **D2 — owner verifies** math / DataFrame / architecture (also
-  [`memory/owner-verifies-math-and-architecture.md`](_forge/memory/owner-verifies-math-and-architecture.md)).
+  [`memory/owner-verifies-math-and-architecture.md`](_aitna/memory/owner-verifies-math-and-architecture.md)).
 - **D5 — owner owns commits** (also
-  [`memory/owner-owns-commits.md`](_forge/memory/owner-owns-commits.md); enforced by the
+  [`memory/owner-owns-commits.md`](_aitna/memory/owner-owns-commits.md); enforced by the
   `git-commit-guard` hook).
 
 All project files are written in English.

@@ -25,7 +25,7 @@ docs/phd/
 *.env
 !*.env.example
 
-# keystone model routing — per-user/per-session artifacts
+# _akmon model routing — per-user/per-session artifacts
 .claude/model-routing.local.json
 .claude/model-routing.log
 .claude/second-opinion/
@@ -36,4 +36,4 @@ docs/phd/
 .claude/worktrees/
 
 # local agent artifacts (reports, findings snapshots) — never committed
-/_forge/artifacts/
+/_aitna/artifacts/

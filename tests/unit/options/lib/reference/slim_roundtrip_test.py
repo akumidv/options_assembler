@@ -1,4 +1,4 @@
-"""T25 slimming keystone: wide -> slim series + reference sidecar -> load -> equals wide.
+"""T25 slimming akmon: wide -> slim series + reference sidecar -> load -> equals wide.
 
 Proves the slim/restore round-trip is lossless through the real `OptionsData` load path
 (contract-level as-of rejoin + asset-level broadcast)."""

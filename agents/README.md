@@ -5,8 +5,8 @@ and analyse data, test strategies, and (only the trader) place orders through
 [`catcher-bot`](https://github.com/akumidv/catcher-bot).
 
 > This is the **OPERATE** mode — runtime market actors, a different concern from developing
-> the project (`_forge/`) or using the library (root `skills/`). OPERATE is **not yet part
-> of the keystone model** — see [`../_forge/keystone/ROADMAP.md`](../_forge/keystone/ROADMAP.md)
+> the project (`_aitna/`) or using the library (root `skills/`). OPERATE is **not yet part
+> of the akmon model** — see [`../_aitna/akmon/ROADMAP.md`](../_aitna/akmon/ROADMAP.md)
 > (O1). These agents and their **G#** guardrails predate that formulation and will be
 > reworked into it.
 
@@ -44,6 +44,6 @@ options-analyst …").
 
 A desk agent **persists its key actions and insights to its own `memory/`** (what it looked
 at, what it concluded, what was missing or wrong). It does **not** change code or add tools
-itself. The [engineer agent](../_forge/agents/engineer/README.md) drains those notes via the
-TODO cycle ([`../_forge/TASKS.md`](../_forge/TASKS.md)) and, under R#/D#, reworks them into
+itself. The [engineer agent](../_aitna/agents/engineer/README.md) drains those notes via the
+TODO cycle ([`../_aitna/TASKS.md`](../_aitna/TASKS.md)) and, under R#/D#, reworks them into
 skills, tools, or library changes. See **G10** in [`GUARDRAILS.md`](GUARDRAILS.md).

@@ -6,7 +6,7 @@
 > especially when introducing new entities/domain concepts or making serious changes to
 > the existing domain model.** For compact day-to-day development rules (quality gates,
 > owner verification, workflow) see the companion
-> [DEVELOPMENT_REQUIREMENTS.md](../../_forge/DEVELOPMENT_REQUIREMENTS.md) (`D#`). Descriptive overview:
+> [DEVELOPMENT_REQUIREMENTS.md](../../_aitna/DEVELOPMENT_REQUIREMENTS.md) (`D#`). Descriptive overview:
 > [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md). The remediation backlog is maintained
 > outside this repository, alongside `ALPHAVAR_NAMING.md`.
 
@@ -687,6 +687,6 @@ facades/services orchestrate without hiding upstream domain computation.
 ---
 
 > Quality gates and the mandatory owner-verification rule (formerly R9/R10) now live in
-> the development document — see [DEVELOPMENT_REQUIREMENTS.md](../../_forge/DEVELOPMENT_REQUIREMENTS.md)
+> the development document — see [DEVELOPMENT_REQUIREMENTS.md](../../_aitna/DEVELOPMENT_REQUIREMENTS.md)
 > **D1** (quality gates) and **D2** (owner verification of math / DataFrame / architecture).
 > Architectural changes to R0…R10 are themselves subject to D2 (explain + owner approval).

@@ -63,5 +63,5 @@ Lock the following remediation principles as architecture:
 5. Finish the data model cleanup: complete legacy enum/code retirement where it affects schemas,
    exchange normalization, analytics, and stored parquet migration.
 
-Each rollout item is tracked in `_forge/TASKS.md` and detailed in
-`_forge/design/architecture-remediation.md`.
+Each rollout item is tracked in `_aitna/TASKS.md` and detailed in
+`_aitna/design/architecture-remediation.md`.

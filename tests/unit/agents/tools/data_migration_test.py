@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from _forge.tools.data_migration._diagnose import (
+from _aitna.tools.data_migration._diagnose import (
     diagnose_exchange,
     diagnose_metadata,
     diagnose_parquet,

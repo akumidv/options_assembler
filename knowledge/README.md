@@ -5,13 +5,13 @@ options theory, risk, portfolio management. A **source for every non-trivial fac
 can be re-queried/verified when a note is insufficient or stale.
 
 This is reference knowledge (the problem domain). It is distinct from
-[`_forge/memory/`](../_forge/memory/) (how we work on *this* project) and from the formal
+[`_aitna/memory/`](../_aitna/memory/) (how we work on *this* project) and from the formal
 rules in [`docs/dev/`](../docs/dev/) (R#/D#).
 
 ## The three layers: knowledge → implementation → usage
 
 `knowledge` is one of **three** connected artifacts (the project's AI-assist model — see
-[`_forge/keystone/README.md`](../_forge/keystone/README.md)):
+[`_aitna/akmon/README.md`](../_aitna/akmon/README.md)):
 
 | Layer | What | Where |
 |---|---|---|
@@ -33,7 +33,7 @@ thin leaf that only echoes a docstring.
 **What we keep:** a concept is documented (here, or just skill + docstring) **only if it is
 implemented or planned**. A concept that is neither is **not stored** — not here, not as a
 task. (A *planned*, knowledge-worthy concept lives here with an impl task in
-[`_forge/TASKS.md`](../_forge/TASKS.md), but **no** skill until the code lands.)
+[`_aitna/TASKS.md`](../_aitna/TASKS.md), but **no** skill until the code lands.)
 
 > Destined to move out into an MCP knowledge server later (it is cross-project domain
 > reference); for now it lives in the project root, doubling as implementation documentation.

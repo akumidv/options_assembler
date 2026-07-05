@@ -2,14 +2,14 @@
 
 Short records of **accepted architectural decisions** and the reasoning behind
 them. They complement the requirement docs (`../ARCHITECTURE_REQUIREMENTS.md` R#,
-`../../../_forge/DEVELOPMENT_REQUIREMENTS.md` D#): the R#/D# rules say *what the invariant is*; an ADR
+`../../../_aitna/DEVELOPMENT_REQUIREMENTS.md` D#): the R#/D# rules say *what the invariant is*; an ADR
 records *a decision to act* (a migration, a retirement, a phased rollout) and why, so the
 choice isn't re-litigated later.
 
 Convention:
 - One file per decision: `NNNN-kebab-title.md` (zero-padded, monotonic).
 - Header: `Status` (Proposed / Accepted / Superseded by NNNN), `Owner`. No dates — git
-  history is the timeline (see `_forge/memory/no-dates-in-planning-docs.md`).
+  history is the timeline (see `_aitna/memory/no-dates-in-planning-docs.md`).
 - Body: Context → Decision → Consequences (incl. data/migration impact) → Rollout →
   References (R#/D#, backlog ids).
 - Keep it short; link to R# rules instead of repeating them.

@@ -7,7 +7,7 @@ apart from ``Term`` so market-data terms stay clean (R4.3: one canonical name pe
 
 Same rules as ``Term``: values are plain strings, used **verbatim** as a column label, a
 variable/parameter name, and in the contract self-description. Engine-neutral (no dtypes — those
-live in the schema layer). See the result-chain design concept (``_forge/design/result-chain``).
+live in the schema layer). See the result-chain design concept (``_aitna/design/result-chain``).
 """
 
 from typing import Final

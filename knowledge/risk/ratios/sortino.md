@@ -4,8 +4,8 @@
 
 > Source: [Investopedia: Sortino](https://www.investopedia.com/terms/s/sortinoratio.asp);
 > Sortino & Price (1994).
-> **Status: planned — not yet implemented ([T36](../../../_forge/TASKS.md)).** No USAGE skill
-> until the code lands (keystone knowledge→impl→usage rule).
+> **Status: planned — not yet implemented ([T36](../../../_aitna/TASKS.md)).** No USAGE skill
+> until the code lands (akmon knowledge→impl→usage rule).
 
 - **Formula:** `Sortino = (Rp − T) / DD`, where `T` is the target/minimum acceptable
   return (often `Rf` or 0) and **DD** is the **downside deviation** — the standard

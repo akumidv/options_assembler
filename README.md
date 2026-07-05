@@ -37,12 +37,12 @@ ecosystem includes the [`catcher-bot`](https://github.com/akumidv/catcher-bot) t
 so together they cover both **analysis and trading**. As domains mature, general entities
 (e.g. `options`) are expected to graduate into git submodules.
 
-AI assistance follows the **keystone** standard ([`_forge/keystone/`](_forge/keystone/), a
+AI assistance follows the **akmon** standard ([`_aitna/akmon/`](_aitna/akmon/), a
 cross-project submodule, destined for an **MCP** server). It separates **developing** the
-project (the `_forge/` dev layer — `architect` + `engineer` agents, bound by R#/D#) from
+project (the `_aitna/` dev layer — `architect` + `engineer` agents, bound by R#/D#) from
 **using** it (the root [`skills/`](skills/) USAGE layer — how an assistant applies
 alphavar's public API). The vendor-neutral entry point is [AGENTS.md](AGENTS.md); the model
-is in [`_forge/keystone/README.md`](_forge/keystone/README.md).
+is in [`_aitna/akmon/README.md`](_aitna/akmon/README.md).
 
 ## Quick start
 
@@ -134,17 +134,17 @@ The repo supports two usage models:
   [docs/dev/api-tiers.md](docs/dev/api-tiers.md).
 - **Through an assistant** — the vendor-neutral entry point is [AGENTS.md](AGENTS.md)
   ([CLAUDE.md](CLAUDE.md) points to it); the full model is in
-  [`_forge/keystone/README.md`](_forge/keystone/README.md).
+  [`_aitna/akmon/README.md`](_aitna/akmon/README.md).
 
-AI assistance follows the **keystone** standard, which separates two concerns:
+AI assistance follows the **akmon** standard, which separates two concerns:
 
-- **Developing the project** → the [`_forge/`](_forge/) dev layer: the
-  [`architect`](_forge/agents/architect/README.md) (design/docs/ADRs) and
-  [`engineer`](_forge/agents/engineer/README.md) (code/tests) agents, bound by the R#/D#
+- **Developing the project** → the [`_aitna/`](_aitna/) dev layer: the
+  [`architect`](_aitna/agents/architect/README.md) (design/docs/ADRs) and
+  [`engineer`](_aitna/agents/engineer/README.md) (code/tests) agents, bound by the R#/D#
   requirements. Shared, cross-project rules live in the
-  [`keystone/`](_forge/keystone/) submodule.
+  [`akmon/`](_aitna/akmon/) submodule.
 - **Using the project** → the root [`skills/`](skills/) USAGE layer: how an assistant
   applies alphavar's public API to a user's task, as a domain-concept → function map.
 
-Knowledge promoted out of a project flows up into keystone (the learn loop), so the shared
+Knowledge promoted out of a project flows up into akmon (the learn loop), so the shared
 standard improves through use.

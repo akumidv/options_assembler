@@ -11,14 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Keystone generated pointers
-        run: python3 _forge/keystone/bin/sync.py --check
+      - name: Akmon generated pointers
+        run: python3 _aitna/akmon/bin/sync.py --check
 
-      - name: Keystone verify
-        run: python3 _forge/keystone/bin/verify.py --strict
+      - name: Akmon verify
+        run: python3 _aitna/akmon/bin/verify.py --strict
 
-      - name: Keystone self fixture verify
-        run: python3 _forge/keystone/bin/self_ci.py
+      - name: Akmon self fixture verify
+        run: python3 _aitna/akmon/meta/self_ci.py
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -34,5 +34,5 @@ jobs:
       - name: Tests (pytest, hermetic fixtures)
         run: uv run pytest
 
-      - name: Keystone hook tests
-        run: uv run pytest _forge/keystone/tests
+      - name: Akmon tests
+        run: uv run pytest _aitna/akmon/meta/tests

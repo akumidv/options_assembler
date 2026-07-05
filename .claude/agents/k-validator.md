@@ -29,5 +29,5 @@ You are the **validator** delegate: the run → parse → fix → re-run loop.
 
 alphavar specifics:
 
-- Gates: `uv run pytest` (targeted first), `uv run ruff check src tests tools`, keystone's `python3 _forge/keystone/bin/verify.py --strict` / `bin/sync.py --check`, and the keystone test suite when named.
+- Gates: `uv run pytest` (targeted first), `uv run ruff check src tests tools`, keystone's `python3 _aitna/akmon/bin/verify.py --strict` / `bin/sync.py --check`, and the akmon test suite when named.
 - Math / DataFrame-shape / architecture territory is D2 (owner verifies) — stop and report, never "fix" it.

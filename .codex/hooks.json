@@ -6,17 +6,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$(git rev-parse --show-toplevel)/_forge/keystone/hooks/codex-hook.py\" role-on-code",
-            "statusMessage": "Checking keystone role switch"
+            "command": "python3 \"$(git rev-parse --show-toplevel)/_aitna/akmon/hooks/codex-hook.py\" role-on-code",
+            "statusMessage": "Checking akmon role switch"
           },
           {
             "type": "command",
-            "command": "python3 \"$(git rev-parse --show-toplevel)/_forge/keystone/hooks/codex-hook.py\" analysis-guard",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/_aitna/akmon/hooks/codex-hook.py\" analysis-guard",
             "statusMessage": "Checking analysis-before-mutation"
           },
           {
             "type": "command",
-            "command": "python3 \"$(git rev-parse --show-toplevel)/_forge/keystone/hooks/codex-hook.py\" d2-ledger-reminder",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/_aitna/akmon/hooks/codex-hook.py\" d2-ledger-reminder",
             "statusMessage": "Checking D2 ledger"
           }
         ]
@@ -28,8 +28,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$(git rev-parse --show-toplevel)/_forge/keystone/hooks/codex-hook.py\" session-start",
-            "statusMessage": "Loading keystone session reminders"
+            "command": "python3 \"$(git rev-parse --show-toplevel)/_aitna/akmon/hooks/codex-hook.py\" session-start",
+            "statusMessage": "Loading akmon session reminders"
           }
         ]
       }

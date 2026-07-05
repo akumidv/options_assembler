@@ -365,7 +365,7 @@ ruff (`[tool.ruff]`, line length 120; F/E/W/I/UP/B).
   engines `analytic` / `montecarlo`, horizon calendar ACT/365. `smile` / `surface` targets remain
   planned. Pure models/engines live in `options/lib/forecast` (pure-numpy, no scipy).
 - **`alphavar.flow`** (cross-domain result-chain / pipeline) is in **active co-design** — see
-  [`_forge/design/result-chain/`](../../_forge/design/result-chain/README.md) (widens [ADR 0003](decisions/0003-composable-result-chain.md)).
+  [`_aitna/design/result-chain/`](../../_aitna/design/result-chain/README.md) (widens [ADR 0003](decisions/0003-composable-result-chain.md)).
   Direction: producers compose by a described **contract** (compatibility lives in schemas, not in any
   orchestrator); `lib` stays pure `df+params→df` (Shape 1 enrichment = `df+cols`/Series via column
   deps; Shape 2 reduction = a new-kind tidy frame); classes are a binding layer; `flow` (Registry in

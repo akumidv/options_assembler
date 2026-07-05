@@ -51,4 +51,4 @@ df = ex.get_options_assets_books_snapshot(["BTC"])     # normalized options book
 - **Volume / drift:** a snapshot can be thousands of instruments (vectorized parsing);
   endpoint params and rate limits change — verify against live docs, not memory.
 - **Recording fixtures for tests** is a *dev* concern, not USAGE — see
-  [`../../_forge/skills/refresh-exchange-fixtures.md`](../../_forge/skills/refresh-exchange-fixtures.md).
+  [`../../_aitna/skills/refresh-exchange-fixtures.md`](../../_aitna/skills/refresh-exchange-fixtures.md).
