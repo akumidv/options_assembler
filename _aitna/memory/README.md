@@ -14,13 +14,13 @@ Durable, LLM-agnostic notes. One file per fact/decision. Promote stable items in
 
 ### akmon AI-assist model (2026-06-20)
 
-- [akmon-ai-assist-model.md](akmon-ai-assist-model.md) — the standard: three layers/axes,
+- [keystone-ai-assist-model.md](keystone-ai-assist-model.md) — the standard: three layers/axes,
   names (`_aitna` / `akmon` / repo `ai_akmon`); the model's root note.
-- [akmon-role-vs-agent.md](akmon-role-vs-agent.md) — role = type (in akmon) vs agent
+- [keystone-role-vs-agent.md](keystone-role-vs-agent.md) — role = type (in akmon) vs agent
   = instance (in project); pipeline steps owned once, no duplication.
-- [akmon-knowledge-layer.md](akmon-knowledge-layer.md) — knowledge→impl→usage chain;
+- [keystone-knowledge-layer.md](keystone-knowledge-layer.md) — knowledge→impl→usage chain;
   knowledge is OPTIONAL (else skill + docstring); root `knowledge/`.
-- [operate-desk-out-of-akmon.md](operate-desk-out-of-akmon.md) — `agents/` = OPERATE
+- [operate-desk-out-of-keystone.md](operate-desk-out-of-keystone.md) — `agents/` = OPERATE
   (lifted from `agents/desk/`); OPERATE deferred from the model (ROADMAP O1).
-- [akmon-edits-go-to-submodule.md](akmon-edits-go-to-submodule.md) — `_aitna/akmon/`
+- [keystone-edits-go-to-submodule.md](keystone-edits-go-to-submodule.md) — `_aitna/akmon/`
   is the `ai_akmon` submodule; edits commit there + bump pin, separate from this repo.

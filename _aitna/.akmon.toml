@@ -1,4 +1,5 @@
-akmon_version = "v0.2.1"        # `git -C _aitna/akmon describe --tags`
+mount = "package"
+akmon_version = "0.3.0.dev0"
 attached_archetype = "package/python"
 last_realign = "v0.2.1"         # version of the last attach/realign
 

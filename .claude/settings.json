@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/git-commit-guard.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/git-commit-guard.py\""
           }
         ]
       },
@@ -18,15 +18,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/role-on-code.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/role-on-code.py\""
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/analysis-guard.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/analysis-guard.py\""
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/d2-ledger-reminder.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/d2-ledger-reminder.py\""
           }
         ]
       },
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/delegation-log.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/delegation-log.py\""
           }
         ]
       },
@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/delegation-nudge.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/delegation-nudge.py\""
           }
         ]
       }
@@ -54,11 +54,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/session-start-agent.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/session-start-agent.py\""
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/model-routing.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/model-routing.py\""
           }
         ]
       }
@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/akmon/hooks/model-routing.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/_aitna/.akmon/hooks/model-routing.py\""
           }
         ]
       }

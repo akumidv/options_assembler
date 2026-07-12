@@ -1,6 +1,3 @@
 [submodule "docs/pages/phd"]
 	path = docs/pages/phd
 	url = https://github.com/akumidv/phd.git
-[submodule "_aitna/akmon"]
-	path = _aitna/akmon
-	url = https://github.com/akumidv/ai_akmon

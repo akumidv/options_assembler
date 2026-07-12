@@ -11,15 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Akmon generated pointers
-        run: python3 _aitna/akmon/bin/sync.py --check
-
-      - name: Akmon verify
-        run: python3 _aitna/akmon/bin/verify.py --strict
-
-      - name: Akmon self fixture verify
-        run: python3 _aitna/akmon/meta/self_ci.py
-
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -28,11 +19,14 @@ jobs:
       - name: Sync dependencies (with etl extra + dev/test groups)
         run: uv sync --extra etl
 
+      - name: Akmon generated pointers
+        run: uv run akmon sync --check
+
+      - name: Akmon verify
+        run: uv run akmon verify --strict
+
       - name: Lint (ruff)
         run: uv run ruff check src tests tools
 
       - name: Tests (pytest, hermetic fixtures)
         run: uv run pytest
-
-      - name: Akmon tests
-        run: uv run pytest _aitna/akmon/meta/tests
